@@ -8,13 +8,13 @@
 ### Objetivo
 Construir uma aplicação web para **coletar, normalizar, armazenar e listar imóveis à venda da CAIXA**, com foco inicial em uma experiência de consulta rápida por **estado, cidade, faixa de valor, tipo do imóvel e desconto**.
 
-O sistema deve consumir periodicamente as listas públicas por estado, persistir os dados em base própria e expor uma API para consulta eficiente, sem depender de scraping em tempo real para cada requisição do usuário.
+O sistema deve consumir periodicamente as listas públicas por estado, carregar os dados em memória e expor uma API para consulta eficiente, sem depender de scraping em tempo real para cada requisição do usuário.
 
 ### Stack obrigatória
 #### Backend
-- **Java 11**
+- **Java 17**
 - **Spring Boot**
-- **PostgreSQL**
+- **Armazenamento in-memory** (dados carregados de CSVs, sem banco de dados)
 
 #### Frontend
 - **Vue 3**
@@ -46,12 +46,12 @@ Além disso, consultar o portal diretamente a cada busca do usuário gera risco 
 
 ### Objetivos do MVP
 1. Importar a lista pública de imóveis por estado.
-2. Armazenar os dados em banco próprio.
+2. Carregar os dados em memória a partir dos CSVs.
 3. Expor uma API REST para consulta paginada.
 4. Disponibilizar uma interface web em Vue para busca e navegação.
 5. Permitir filtros por critérios principais.
 6. Exibir detalhes básicos de cada imóvel.
-7. Registrar histórico de coletas para auditoria e futura comparação.
+7. Registrar log de importações para auditoria.
 
 ### Objetivos da fase 2
 1. Detectar novos imóveis e imóveis removidos.
@@ -97,12 +97,11 @@ Quer acompanhar importações, falhas, volume de registros e consistência dos d
 
 ### 6.1 Importação de dados
 O sistema deve:
-- baixar a lista por UF a partir da fonte pública;
+- ler CSVs por UF a partir do diretório `data/listas/`;
 - processar um ou mais estados por execução;
-- mapear o CSV para modelo interno;
-- realizar upsert por identificador do imóvel;
-- registrar data/hora da coleta;
-- marcar imóveis não encontrados em coletas futuras como potencialmente inativos/removidos.
+- mapear o CSV para modelo interno em memória;
+- permitir upload de novos CSVs via dashboard admin;
+- registrar log da importação.
 
 ### 6.2 Consulta de imóveis
 O sistema deve permitir:
@@ -156,19 +155,19 @@ O sistema deve fornecer endpoints ou telas administrativas para:
 ## 7. Requisitos funcionais
 
 ### RF-01 — Importar lista por UF
-O sistema deve importar uma lista pública de imóveis para uma UF específica.
+O sistema deve carregar em memória uma lista de imóveis a partir do CSV de uma UF.
 
 ### RF-02 — Importação em lote
-O sistema deve permitir importar múltiplas UFs em uma única execução.
+O sistema deve permitir carregar múltiplas UFs em uma única execução.
 
-### RF-03 — Agendamento automático
-O sistema deve permitir execução agendada diária.
+### RF-03 — Upload de CSV
+O sistema deve permitir upload de novos CSVs via dashboard admin.
 
-### RF-04 — Upsert idempotente
-O mesmo imóvel não deve ser duplicado se a coleta for executada novamente.
+### RF-04 — Deduplicação em memória
+O mesmo imóvel não deve aparecer duplicado na lista em memória.
 
-### RF-05 — Versionamento de coleta
-O sistema deve registrar metadados da coleta para auditoria.
+### RF-05 — Log de importação
+O sistema deve registrar resumo da importação (total, rejeitadas, UF).
 
 ### RF-06 — Busca paginada
 O sistema deve listar imóveis com paginação e ordenação.
@@ -188,8 +187,8 @@ O sistema deve expor listas de UFs, cidades e tipos disponíveis.
 ### RF-11 — Logs operacionais
 O sistema deve registrar falhas de download, parse e persistência.
 
-### RF-12 — Status de disponibilidade
-O sistema deve manter um campo lógico para indicar se o imóvel está ativo na última coleta.
+### RF-12 — Dados voláteis
+Os dados ficam em memória enquanto o servidor estiver rodando. Ao reiniciar, os CSVs devem ser recarregados.
 
 ### RF-13 — Frontend de catálogo
 O sistema deve disponibilizar uma interface Vue consumindo a API REST.
@@ -229,8 +228,7 @@ O usuário deve conseguir abrir o detalhe de um imóvel a partir da listagem.
 - Sem automação de fluxos protegidos do portal oficial.
 
 ### RNF-06 — Compatibilidade
-- Backend em Java 11.
-- Compatível com PostgreSQL 13+.
+- Backend em Java 17.
 - Frontend compatível com navegadores modernos.
 
 ---
@@ -246,11 +244,10 @@ Arquitetura desacoplada em dois blocos principais:
 
 ### Backend Spring Boot
 Responsável por:
-- agendamento;
-- download do CSV;
-- parsing;
-- normalização;
-- persistência;
+- leitura de CSVs do diretório `data/listas/`;
+- parsing e normalização;
+- armazenamento in-memory (lista volátil);
+- filtragem, paginação e ordenação em memória;
 - API REST.
 
 ### Frontend Vue
@@ -261,122 +258,67 @@ Responsável por:
 - integração com API REST;
 - estados de loading, erro e vazio.
 
-### PostgreSQL
-Responsável por:
-- catálogo principal;
-- histórico de coletas;
-- logs resumidos de execução.
-
-### Scheduler
-Pode usar:
-- `@Scheduled` no MVP;
-- evoluir para Quartz se necessário.
-
-### Cliente HTTP
-Usar `WebClient` ou `RestTemplate` no MVP.
-
 ### Parsing CSV
-Sugestões:
-- Apache Commons CSV;
-- OpenCSV.
+Usa Apache Commons CSV para parsing de CSVs Latin-1 com separador `;`.
 
 ---
 
 ## 10. Fluxo de importação
 
-1. Scheduler dispara a rotina.
-2. Sistema define a lista de UFs a processar.
-3. Para cada UF:
-   1. monta a URL da lista pública;
-   2. baixa o CSV;
-   3. valida cabeçalho mínimo;
-   4. transforma cada linha em DTO bruto;
-   5. normaliza tipos, números e flags;
-   6. executa upsert por número do imóvel;
-   7. atualiza `last_seen_at`;
-   8. registra métricas da coleta.
-4. Ao final, imóveis não vistos na execução podem ser marcados como `ativo = false` com cautela.
-5. Grava resumo da execução.
+1. Admin seleciona UF no dashboard ou faz upload de CSV.
+2. Sistema lê o CSV do diretório `data/listas/`.
+3. Para cada CSV:
+   1. valida cabeçalho mínimo;
+   2. transforma cada linha em modelo interno;
+   3. normaliza tipos, números e flags;
+   4. adiciona à lista em memória;
+   5. registra linhas rejeitadas no log.
+4. Dados ficam disponíveis para consulta via API.
 
 ### Regras importantes
 - Não falhar a execução inteira por erro em 1 linha.
-- Linhas inválidas devem ser enviadas para log de rejeição.
+- Linhas inválidas devem ser registradas no log de rejeição.
 - Campos monetários devem ser normalizados para `BigDecimal`.
 - Comparações devem considerar eventual variação textual pequena no CSV.
 
 ---
 
-## 11. Modelo de dados
+## 11. Modelo de dados (in-memory)
 
-## 11.1 Entidade principal: `imovel`
+## 11.1 Modelo principal: `Imovel` (Java record)
 
-Campos sugeridos:
-- `id` (UUID ou BIGSERIAL)
-- `numero_imovel` (String, único)
+Campos:
+- `numeroImovel` (String, chave funcional)
 - `uf` (String 2)
 - `cidade` (String)
 - `bairro` (String)
 - `endereco` (String)
-- `cep` (String, opcional)
-- `tipo_imovel` (String)
-- `descricao` (Text)
-- `preco_venda` (BigDecimal)
-- `valor_avaliacao` (BigDecimal)
-- `percentual_desconto` (BigDecimal)
-- `aceita_financiamento` (Boolean)
-- `aceita_fgts` (Boolean)
+- `tipoImovel` (String)
+- `descricao` (String)
+- `precoVenda` (BigDecimal)
+- `valorAvaliacao` (BigDecimal)
+- `percentualDesconto` (BigDecimal)
+- `financiamento` (String)
+- `modalidadeVenda` (String)
+- `urlOficial` (String)
+- `areaTotal` (String)
+- `areaPrivativa` (String)
+- `areaTerreno` (String)
 - `quartos` (Integer)
 - `vagas` (Integer)
-- `area_util` (BigDecimal)
-- `area_total` (BigDecimal)
-- `url_oficial` (String)
-- `ativo` (Boolean)
-- `first_seen_at` (Timestamp)
-- `last_seen_at` (Timestamp)
-- `created_at` (Timestamp)
-- `updated_at` (Timestamp)
 
-## 11.2 Entidade: `coleta_execucao`
-- `id`
-- `iniciada_em`
-- `finalizada_em`
-- `status` (SUCESSO, PARCIAL, FALHA)
-- `ufs_processadas`
-- `total_linhas`
-- `total_importadas`
-- `total_atualizadas`
-- `total_rejeitadas`
-- `mensagem_resumo`
-
-## 11.3 Entidade: `coleta_item_erro`
-- `id`
-- `coleta_execucao_id`
-- `uf`
-- `linha_original`
-- `motivo`
-
-## 11.4 Entidade futura: `imovel_historico`
-Para fase 2, guardar snapshots de preço e disponibilidade.
+## 11.2 Dados de importação
+Registrados em log (não persistidos):
+- UF processada
+- Total de linhas
+- Total importadas
+- Total rejeitadas (com motivo)
 
 ---
 
-## 12. Índices sugeridos
+## 12. API REST do MVP
 
-Criar índices para:
-- `numero_imovel` único;
-- `uf`;
-- `cidade`;
-- `tipo_imovel`;
-- `preco_venda`;
-- `percentual_desconto`;
-- `ativo`;
-- índice composto `uf, cidade, ativo`.
-
----
-
-## 13. API REST do MVP
-
-## 13.1 Listar imóveis
+## 12.1 Listar imóveis
 `GET /api/imoveis`
 
 ### Query params
@@ -400,25 +342,25 @@ Criar índices para:
 ### Exemplo
 `GET /api/imoveis?uf=SP&cidade=Campinas&precoMax=250000&descontoMin=20&page=0&size=20&sort=percentualDesconto,desc`
 
-## 13.2 Detalhe do imóvel
+## 12.2 Detalhe do imóvel
 `GET /api/imoveis/{numeroImovel}`
 
-## 13.3 Filtros auxiliares
+## 12.3 Filtros auxiliares
 - `GET /api/filtros/ufs`
 - `GET /api/filtros/cidades?uf=SP`
 - `GET /api/filtros/tipos-imovel`
 
-## 13.4 Administração
-- `POST /api/admin/importacoes`
-- `GET /api/admin/importacoes/ultima`
-- `GET /api/admin/importacoes/{id}`
-- `GET /api/admin/estatisticas/resumo`
+## 12.4 Administração
+- `GET /api/admin/arquivos`
+- `POST /api/admin/importar`
+- `POST /api/admin/carregar-arquivo`
+- `GET /api/admin/status`
 
 ---
 
-## 14. Frontend do MVP
+## 13. Frontend do MVP
 
-### 14.1 Stack sugerida
+### 13.1 Stack
 - Vue 3
 - TypeScript
 - Vite
@@ -427,13 +369,13 @@ Criar índices para:
 - Axios
 - Tailwind CSS ou Vuetify (escolher 1)
 
-### 14.2 Páginas
+### 13.2 Páginas
 - `/` — Home com busca rápida e resumo do produto
 - `/imoveis` — Listagem com filtros e paginação
 - `/imoveis/:numeroImovel` — Detalhe do imóvel
 - `/admin/importacoes` — tela técnica opcional para operação interna
 
-### 14.3 Componentes principais
+### 13.3 Componentes principais
 - `SearchBar`
 - `FiltersPanel`
 - `PropertyCard`
@@ -444,7 +386,7 @@ Criar índices para:
 - `LoadingState`
 - `ErrorState`
 
-### 14.4 Estado global sugerido
+### 13.4 Estado global sugerido
 Usar **Pinia** para:
 - filtros atuais;
 - paginação;
@@ -452,7 +394,7 @@ Usar **Pinia** para:
 - estado de carregamento;
 - favoritos futuros.
 
-### 14.5 Regras de UX
+### 13.5 Regras de UX
 - filtros devem atualizar a URL;
 - paginação deve preservar filtros atuais;
 - cards devem destacar preço, avaliação e desconto;
@@ -461,7 +403,7 @@ Usar **Pinia** para:
 
 ---
 
-## 15. Regras de negócio
+## 14. Regras de negócio
 
 ### RB-01
 `numero_imovel` é a chave funcional principal de deduplicação.
@@ -472,50 +414,37 @@ Se `valor_avaliacao > 0` e `preco_venda > 0`, calcular desconto:
 `((valor_avaliacao - preco_venda) / valor_avaliacao) * 100`
 
 ### RB-03
-Se um imóvel estava ativo e deixa de aparecer em coletas consecutivas, marcar como inativo conforme política configurável.
-
-### RB-04
 Campos numéricos ausentes no CSV não devem causar falha geral; devem virar `null`.
 
-### RB-05
+### RB-04
 Strings devem ser normalizadas com trim e espaços duplicados removidos.
 
-### RB-06
+### RB-05
 Se a cidade vier vazia ou inválida, o registro pode ser rejeitado conforme regra configurável.
 
 ---
 
-## 16. Estratégia de implementação sugerida para a IA
+## 15. Estratégia de implementação sugerida para a IA
 
-## 16.1 Ordem recomendada de entrega
+## 15.1 Ordem recomendada de entrega
 
 ### Etapa 1 — Base do projeto
 - criar backend Spring Boot com Maven;
-- configurar PostgreSQL;
-- configurar Flyway ou Liquibase;
 - criar estrutura de pacotes;
-- configurar profiles (`dev`, `test`, `prod`);
 - criar frontend Vue com Vite e TypeScript.
 
-### Etapa 2 — Persistência
-- criar entidades JPA;
-- criar migrations iniciais;
-- criar repositories.
-
-### Etapa 3 — Importador
-- criar client HTTP;
+### Etapa 2 — Importador
 - criar parser CSV;
 - criar normalizador;
-- criar serviço de upsert;
-- criar agendamento;
-- criar registro de execução.
+- criar serviço in-memory (InMemoryStore);
+- criar endpoints admin (upload, carregar).
 
-### Etapa 4 — API de catálogo
+### Etapa 3 — API de catálogo
 - criar endpoints REST;
-- implementar paginação;
+- implementar paginação em memória;
 - implementar filtros dinâmicos.
 
-### Etapa 5 — Frontend
+### Etapa 4 — Frontend
 - criar rotas principais;
 - criar store global;
 - criar tela de listagem;
@@ -523,49 +452,41 @@ Se a cidade vier vazia ou inválida, o registro pode ser rejeitado conforme regr
 - criar tela de detalhe;
 - criar estados de loading e erro.
 
-### Etapa 6 — Observabilidade
+### Etapa 5 — Observabilidade
 - logs estruturados;
 - actuator;
 - métricas básicas.
 
-### Etapa 7 — Testes
+### Etapa 6 — Testes
 - testes unitários do parser;
 - testes unitários do cálculo de desconto;
-- testes de integração de repository;
 - testes de API;
 - testes de componentes principais do frontend.
 
 ---
 
-## 17. Estrutura de pacotes e pastas sugerida
+## 16. Estrutura de pacotes e pastas
 
 ```text
 imovue/
+├── tools/
+│   └── download_caixa.py         ← utilitário para baixar CSVs
+├── data/
+│   └── listas/                    ← CSVs baixados (upload via admin)
 ├── backend/
 │   ├── src/main/java/br/com/imovue
 │   │   ├── ImovueApplication.java
-│   │   ├── config
-│   │   ├── shared
-│   │   │   ├── exception
-│   │   │   ├── util
-│   │   │   └── dto
-│   │   ├── importer
-│   │   │   ├── api
-│   │   │   ├── service
-│   │   │   ├── parser
-│   │   │   ├── client
-│   │   │   ├── domain
-│   │   │   └── repository
-│   │   ├── catalog
-│   │   │   ├── api
-│   │   │   ├── service
-│   │   │   ├── domain
-│   │   │   ├── repository
-│   │   │   └── specification
-│   │   └── admin
-│   │       ├── api
-│   │       ├── service
-│   │       └── dto
+│   │   ├── config/
+│   │   ├── shared/
+│   │   │   └── exception/
+│   │   ├── importer/
+│   │   │   └── parser/
+│   │   ├── catalog/
+│   │   │   ├── api/
+│   │   │   ├── service/
+│   │   │   └── domain/
+│   │   └── admin/
+│   │       └── api/
 │   └── pom.xml
 └── frontend/
     ├── src/
@@ -584,53 +505,26 @@ imovue/
 
 ---
 
-## 18. Dependências sugeridas
+## 17. Dependências
 
-### Backend obrigatórias
+### Backend
 - `spring-boot-starter-web`
-- `spring-boot-starter-data-jpa`
-- `spring-boot-starter-validation`
 - `spring-boot-starter-actuator`
-- `postgresql`
-- `flyway-core` ou `liquibase-core`
-
-### Backend úteis
 - `spring-boot-starter-test`
-- `commons-csv` ou `opencsv`
-- `lombok` (opcional)
-- `springdoc-openapi-ui` (se compatível com stack escolhida)
+- `commons-csv` (parsing CSV)
 
-### Frontend obrigatórias
-- `vue`
-- `typescript`
-- `vite`
-- `vue-router`
-- `pinia`
-- `axios`
-
-### Frontend úteis
-- `@vueuse/core`
-- `tailwindcss` ou `vuetify`
-- `vitest`
-- `@testing-library/vue`
+### Frontend
+- `vue`, `typescript`, `vite`
+- `vue-router`, `pinia`, `axios`
+- `tailwindcss`
+- `vitest`, `@testing-library/vue`
 
 ---
 
-## 19. Estratégia de filtro dinâmico
+## 18. Estratégia de filtro dinâmico
 
 ### Backend
-Usar uma das abordagens:
-1. `JpaSpecificationExecutor`
-2. QueryDSL
-3. Criteria API customizada
-
-### Recomendação
-Para o MVP, usar **Spring Data JPA + Specification**.
-
-Motivo:
-- flexível para múltiplos filtros opcionais;
-- simples para a IA implementar incrementalmente;
-- evita explosão de métodos no repository.
+Filtragem feita em memória com streams Java sobre a lista de imóveis carregada. Suporta múltiplos filtros opcionais combinados.
 
 ### Frontend
 Serializar filtros na query string da rota `/imoveis`.
@@ -640,13 +534,13 @@ Exemplo:
 
 ---
 
-## 20. Critérios de aceite do MVP
+## 19. Critérios de aceite do MVP
 
 ### CA-01
-Ao executar a importação de uma UF válida, os imóveis devem ser persistidos com sucesso no banco.
+Ao carregar um CSV de UF válida, os imóveis devem ficar disponíveis na API.
 
 ### CA-02
-Executar a mesma importação duas vezes não pode gerar duplicidade.
+Carregar o mesmo CSV duas vezes não pode gerar duplicidade.
 
 ### CA-03
 A API deve retornar lista paginada de imóveis.
@@ -664,7 +558,7 @@ A API de detalhe deve retornar um imóvel existente pelo número do imóvel.
 Falhas em linhas inválidas devem ser registradas sem interromper toda a importação.
 
 ### CA-08
-O sistema deve expor o status da última importação.
+O sistema deve expor o status atual (total de imóveis, UF carregada).
 
 ### CA-09
 A interface Vue deve listar imóveis usando a API do backend.
@@ -677,12 +571,11 @@ A tela de detalhe deve exibir os principais dados do imóvel e link oficial.
 
 ---
 
-## 21. Critérios de pronto (Definition of Done)
+## 20. Critérios de pronto (Definition of Done)
 
 Uma entrega só será considerada pronta quando:
-- código backend compilar sem erro em Java 11;
+- código backend compilar sem erro em Java 17;
 - frontend buildar sem erro;
-- migrations executarem do zero;
 - testes principais passarem;
 - endpoints documentados;
 - logs mínimos implementados;
@@ -691,100 +584,81 @@ Uma entrega só será considerada pronta quando:
 
 ---
 
-## 22. Backlog inicial
+## 21. Backlog inicial
 
 ## Épico 1 — Fundamentos
-- [ ] Criar projeto backend Spring Boot Java 11
-- [ ] Configurar PostgreSQL
-- [ ] Configurar migrations
-- [ ] Criar entidades base
-- [ ] Criar projeto frontend Vue 3 com TypeScript e Vite
-- [ ] Configurar Vue Router e Pinia
+- [x] Criar projeto backend Spring Boot Java 17
+- [x] Criar estrutura de pacotes
+- [x] Criar projeto frontend Vue 3 + TypeScript + Vite
+- [x] Configurar Vue Router e Pinia
 
 ## Épico 2 — Importação
-- [ ] Criar downloader de CSV por UF
-- [ ] Criar parser CSV
-- [ ] Criar normalização de dados
-- [ ] Criar upsert idempotente
-- [ ] Criar scheduler diário
-- [ ] Criar log de execução
+- [x] Criar parser CSV (encoding latin1, separador ;)
+- [x] Criar serviço in-memory (InMemoryStore)
+- [x] Criar endpoints admin (upload, carregar)
 
 ## Épico 3 — Catálogo backend
-- [ ] Criar endpoint de listagem
-- [ ] Criar endpoint de detalhe
-- [ ] Criar endpoint de filtros
-- [ ] Criar ordenação por desconto
+- [x] Criar endpoint de listagem paginada
+- [x] Criar endpoint de detalhe
+- [x] Criar endpoint de filtros
+- [x] Criar endpoint de dashboard/estatísticas
 
 ## Épico 4 — Catálogo frontend
-- [ ] Criar página Home
-- [ ] Criar página de listagem
-- [ ] Criar filtros com query string
-- [ ] Criar cards de imóvel
-- [ ] Criar página de detalhe
+- [x] Criar página Home
+- [x] Criar página de listagem com filtros
+- [x] Criar cards de imóvel com fotos
+- [x] Criar página de detalhe
+- [x] Criar página de dashboard
+- [x] Criar favoritos (localStorage)
 
 ## Épico 5 — Administração
-- [ ] Criar endpoint de importação manual
-- [ ] Criar endpoint da última execução
-- [ ] Criar endpoint de resumo por UF
-- [ ] Criar tela técnica opcional
+- [x] Criar endpoint de upload de CSV
+- [x] Criar endpoint de carregar arquivo
+- [x] Criar tela admin de importação
 
 ## Épico 6 — Qualidade
 - [ ] Testes unitários backend
-- [ ] Testes de integração backend
+- [ ] Testes de API
 - [ ] Testes do frontend
-- [ ] Documentação OpenAPI
 - [ ] README técnico
 
 ---
 
-## 23. Riscos e mitigação
+## 22. Riscos e mitigação
 
 ### Risco 1 — Mudança no formato do CSV
 **Mitigação:** validar cabeçalho, isolar parser e criar testes com fixture.
 
-### Risco 2 — Instabilidade de download
-**Mitigação:** retry com backoff e timeout configurável.
-
-### Risco 3 — Dados inconsistentes
+### Risco 2 — Dados inconsistentes
 **Mitigação:** camada de normalização e rejeição por linha.
 
-### Risco 4 — Crescimento da consulta
-**Mitigação:** índices, paginação obrigatória e filtros bem definidos.
+### Risco 3 — Crescimento do volume de dados em memória
+**Mitigação:** paginação obrigatória, filtros bem definidos, carregar uma UF por vez.
 
-### Risco 5 — Regras de disponibilidade mudarem
-**Mitigação:** tornar políticas configuráveis por propriedades.
+### Risco 4 — Perda de dados ao reiniciar
+**Mitigação:** CSVs ficam no disco; dados são recarregáveis a qualquer momento.
 
-### Risco 6 — Acoplamento ruim entre frontend e backend
-**Mitigação:** contratos REST claros, DTOs estáveis e documentação OpenAPI.
+### Risco 5 — Acoplamento ruim entre frontend e backend
+**Mitigação:** contratos REST claros e documentação.
 
 ---
 
-## 24. Configurações externas sugeridas
+## 23. Configurações externas
 
-Expor no `application.yml`:
-- lista de UFs habilitadas;
-- cron da importação;
-- timeout de download;
-- quantidade de retries;
-- política para marcar imóvel inativo;
-- tamanho padrão de página;
-- URL base da fonte pública.
-
-Exemplo conceitual:
+No `application.yml`:
 
 ```yaml
+spring:
+  application:
+    name: imovue
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+server:
+  port: 8080
 app:
-  importacao:
-    cron: "0 0 2 * * *"
-    ufs-habilitadas: ["SP", "RJ", "MG"]
-    timeout-segundos: 30
-    retries: 3
-    marcar-inativo-apos-execucoes-ausentes: 2
-  catalogo:
-    page-size-default: 20
-    page-size-max: 100
-  fonte:
-    base-url: "https://venda-imoveis.caixa.gov.br/listaweb"
+  data-dir: data/listas
 ```
 
 No frontend, expor em `.env`:
@@ -795,7 +669,7 @@ VITE_API_BASE_URL=http://localhost:8080/api
 
 ---
 
-## 25. Exemplos de histórias de usuário
+## 24. Exemplos de histórias de usuário
 
 ### HU-01
 Como comprador, quero filtrar imóveis por cidade e faixa de valor para encontrar opções compatíveis com meu orçamento.
@@ -814,25 +688,23 @@ Como usuário, quero abrir o detalhe de um imóvel para entender melhor a oportu
 
 ---
 
-## 26. Prompt de orientação para a IA desenvolvedora
+## 25. Prompt de orientação para a IA desenvolvedora
 
 Use o texto abaixo como instrução operacional para o agente de desenvolvimento:
 
 ```text
-Implemente o Imovue como uma solução com backend em Java 11 + Spring Boot + PostgreSQL e frontend em Vue 3 + TypeScript + Vite.
+Implemente o Imovue como uma solução com backend em Java 17 + Spring Boot (in-memory, sem banco) e frontend em Vue 3 + TypeScript + Vite.
 Priorize código limpo, baixo acoplamento e testes.
-Implemente primeiro a infraestrutura do backend, depois persistência, depois importação CSV idempotente, depois API REST paginada com filtros dinâmicos, e então a interface Vue consumindo a API.
-Use Spring Data JPA com Specification para filtros.
-Use migrations versionadas.
+Os dados são carregados de CSVs para memória via InMemoryStore.
+Filtragem e paginação são feitas em memória com streams Java.
 No frontend, use Vue Router, Pinia e uma camada de services para integração com a API.
-Garanta compatibilidade com Java 11 no backend.
 Não automatize fluxos transacionais no site oficial; o sistema é apenas catálogo e consulta.
 Sempre entregue código compilável, com tratamento de erro básico, logs e testes essenciais.
 ```
 
 ---
 
-## 27. Fora do MVP, mas já deixar preparado
+## 26. Fora do MVP, mas já deixar preparado
 
 Projetar o código para futura inclusão de:
 - favoritos por usuário;
@@ -845,72 +717,64 @@ Projetar o código para futura inclusão de:
 
 ---
 
-## 28. Decisões iniciais recomendadas
+## 27. Decisões iniciais
 
-1. **Persistir primeiro, enriquecer depois.**
+1. **CSV primeiro, enriquecer depois.**
    Começar pela lista CSV por UF antes de tentar capturar detalhes página a página.
 
-2. **Idempotência é obrigatória.**
-   O importador deve ser seguro para reexecução.
+2. **In-memory é suficiente para o MVP.**
+   Sem banco de dados. CSVs são a fonte de verdade, dados carregados em memória.
 
 3. **Consulta desacoplada da coleta.**
-   O usuário consulta o banco próprio, nunca o portal ao vivo.
+   O usuário consulta dados em memória, nunca o portal ao vivo.
 
 4. **MVP full-stack com backend-first.**
    Primeiro garantir importação e API; depois conectar a interface Vue.
 
-5. **Logs e auditoria desde o início.**
-   Sem isso, o crawler/importador fica difícil de manter.
-
-6. **Frontend orientado por URL.**
+5. **Frontend orientado por URL.**
    Filtros e paginação devem refletir a navegação e permitir compartilhamento.
 
 ---
 
-## 29. Entregável esperado da primeira versão
+## 28. Entregável esperado da primeira versão
 
 A primeira versão será considerada útil quando permitir:
-- importar pelo menos 1 UF com sucesso;
+- carregar pelo menos 1 UF com sucesso;
 - listar imóveis via API com paginação;
 - filtrar por UF, cidade e preço;
 - ver detalhe de um imóvel;
-- ver a última execução de importação;
+- ver status atual (total, UF carregada);
 - navegar em uma interface Vue funcional conectada ao backend.
 
 ---
 
-## 30. Sugestão de roadmap técnico
+## 29. Roadmap técnico
 
 ### Sprint 1
 - bootstrap do backend
-- banco e migrations
-- entidade `imovel`
-- parser CSV de fixture local
+- parser CSV
+- InMemoryStore
 - bootstrap do frontend Vue
 
 ### Sprint 2
-- downloader real
-- upsert
-- registro de execução
-- importação manual
+- endpoints REST (listagem, detalhe, filtros)
+- endpoints admin (upload, carregar)
 - serviço HTTP no frontend
 
 ### Sprint 3
-- listagem REST paginada
-- filtros por UF/cidade/preço
-- ordenação
-- página de listagem Vue
+- página de listagem Vue com filtros
+- página de detalhe Vue
+- dashboard de estatísticas
 
 ### Sprint 4
-- detalhe do imóvel
-- filtros auxiliares
+- favoritos
+- guia do comprador
 - testes e documentação
-- tela de detalhe Vue
 
 ---
 
-## 31. Resumo executivo
+## 30. Resumo executivo
 
-O Imovue deve nascer como uma **plataforma de catálogo e busca de imóveis da CAIXA**, baseada em **ingestão de listas públicas por estado**, com **backend em Java 11 + Spring Boot + PostgreSQL** e **frontend em Vue 3**.
+O Imovue é uma **plataforma de catálogo e busca de imóveis da CAIXA**, baseada em **ingestão de CSVs públicos por estado**, com **backend em Java 17 + Spring Boot (in-memory)** e **frontend em Vue 3**.
 
-A prioridade do MVP é **confiabilidade da importação**, **idempotência**, **consulta rápida**, **boa experiência de busca** e **base limpa para futuras funcionalidades**, evitando scraping síncrono e evitando qualquer automação indevida do fluxo oficial da CAIXA.
+A prioridade do MVP é **importação confiável de CSVs**, **consulta rápida com filtros**, **boa experiência de busca** e **interface moderna**, sem necessidade de banco de dados — os CSVs são a fonte de verdade e os dados ficam em memória enquanto o servidor roda.

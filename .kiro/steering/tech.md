@@ -1,19 +1,19 @@
 ---
-description: Tech stack — language, frameworks, database, build, deployment
+description: Tech stack — language, frameworks, build, deployment
 inclusion: always
 ---
 
 # Tech Steering
 
 ## Language and runtime
-- Backend: Java 11
+- Backend: Java 17
 - Frontend: TypeScript 5.x
 
 ## Frameworks
 ### Backend
-- Spring Boot
-- Spring Data JPA com Specification para filtros dinâmicos
-- Spring Scheduler (`@Scheduled`) para agendamento
+- Spring Boot 3.2
+- Armazenamento 100% in-memory (sem banco de dados)
+- Dados carregados de CSVs para lista volátil em memória
 
 ### Frontend
 - Vue 3
@@ -21,23 +21,14 @@ inclusion: always
 - Vue Router
 - Pinia
 - Axios
-- Tailwind CSS ou Vuetify
-
-## Database
-- PostgreSQL 13+
-- Migrations: Flyway ou Liquibase
-- All DDL changes go through migration scripts, never manual ALTER in production
+- Tailwind CSS
 
 ## Libraries
 ### Backend
 - `spring-boot-starter-web`
-- `spring-boot-starter-data-jpa`
-- `spring-boot-starter-validation`
 - `spring-boot-starter-actuator`
-- `postgresql`
-- `flyway-core` ou `liquibase-core`
-- `commons-csv` ou `opencsv` para parsing CSV
-- `springdoc-openapi-ui` para documentação
+- `commons-csv` para parsing CSV
+- `spring-boot-starter-test`
 
 ### Frontend
 - `@vueuse/core`
@@ -46,18 +37,16 @@ inclusion: always
 
 ## Build and packaging
 - Backend: Maven
-- Frontend: npm/pnpm com Vite
+- Frontend: npm com Vite
 - Pin all dependency versions explicitly
 - CI builds must be reproducible
 
 ## Deployment
-- CI/CD pipeline with environments: dev → staging → production
-- Profiles: `dev`, `test`, `prod`
-- Rollback strategy documented for every release
+- Docker Compose (backend + frontend)
+- Backend: porta 8080
+- Frontend: porta 3000 (nginx em prod, Vite em dev)
 - Health check endpoint available via Actuator
 
 ## Monitoring
-- Structured logging with correlation IDs
+- Structured logging
 - Health check endpoint (`/actuator/health`)
-- Métricas básicas por execução de importação
-- Alerting on error rate spikes and latency degradation

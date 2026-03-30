@@ -9,7 +9,7 @@ inclusion: always
 Imovue
 
 ## Description
-Aplicação web para listar e filtrar imóveis de leilão da CAIXA. O sistema importa CSVs baixados manualmente, persiste em banco próprio e expõe interface de consulta. **Não há interação automática com o site da CAIXA** — os CSVs são obtidos externamente e importados via dashboard administrativo.
+Aplicação web para listar e filtrar imóveis de leilão da CAIXA. O sistema importa CSVs baixados manualmente, carrega os dados em memória e expõe interface de consulta. **Não há interação automática com o site da CAIXA** — os CSVs são obtidos externamente e importados via dashboard administrativo.
 
 ## Key users
 - **Usuário final**: busca e filtra imóveis por UF, cidade, preço, desconto, tipo
@@ -72,16 +72,17 @@ Aplicação web para listar e filtrar imóveis de leilão da CAIXA. O sistema im
 
 ### Dashboard Admin
 - Upload de CSVs por UF
-- Importação manual para o banco
-- Status da última importação
+- Carregar CSV para memória
+- Status da importação (total, UF)
 - Log de erros de parsing
 - Estatísticas por UF (total de imóveis)
 
 ## Core constraints
-- Zero tolerance for data loss — all operations must be transactional
+- Dados 100% in-memory — sem banco de dados
 - Importação idempotente — reexecução não gera duplicidade
 - Nenhuma conexão automática com site da CAIXA
 - CSVs são fonte externa, importados manualmente pelo admin
+- Dados voláteis: perdem-se ao reiniciar, recarregáveis dos CSVs
 
 ## Business rules
 - `numero_imovel` é a chave funcional principal de deduplicação
@@ -89,7 +90,7 @@ Aplicação web para listar e filtrar imóveis de leilão da CAIXA. O sistema im
 - Cálculo de desconto: `((valor_avaliacao - preco_venda) / valor_avaliacao) * 100`
 - Campos numéricos ausentes no CSV viram `null`, não causam falha geral
 - Strings normalizadas com trim e espaços duplicados removidos
-- Business logic lives in the service layer, never in controllers or repositories
+- Business logic lives in the service layer, never in controllers
 
 ## Out of scope
 - Download automático de CSVs do site da CAIXA

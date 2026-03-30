@@ -9,9 +9,9 @@ inclusion: always
 ```
 imovue/
 ├── tools/
-│   └── DownloadListasImoveisCaixa.java  ← utilitário standalone para baixar CSVs
+│   └── download_caixa.py            ← utilitário para baixar CSVs
 ├── data/
-│   └── listas/                           ← CSVs baixados (upload via admin)
+│   └── listas/                       ← CSVs baixados (upload via admin)
 │       ├── Lista_imoveis_RJ.csv
 │       ├── Lista_imoveis_SP.csv
 │       └── ...
@@ -20,28 +20,17 @@ imovue/
 │   │   ├── ImovueApplication.java
 │   │   ├── config/
 │   │   ├── shared/
-│   │   │   ├── exception/
-│   │   │   ├── util/
-│   │   │   └── dto/
+│   │   │   └── exception/
 │   │   ├── importer/
-│   │   │   ├── api/            ← endpoints admin: upload, importar
-│   │   │   ├── service/
-│   │   │   ├── parser/
-│   │   │   ├── domain/
-│   │   │   └── repository/
+│   │   │   └── parser/          ← parser CSV (Latin-1, separador ;)
 │   │   ├── catalog/
-│   │   │   ├── api/            ← endpoints usuário: listar, filtrar, detalhe
-│   │   │   ├── service/
-│   │   │   ├── domain/
-│   │   │   ├── repository/
-│   │   │   └── specification/
+│   │   │   ├── api/             ← endpoints usuário: listar, filtrar, detalhe
+│   │   │   ├── service/         ← InMemoryStore (dados voláteis)
+│   │   │   └── domain/          ← Imovel record
 │   │   └── admin/
-│   │       ├── api/            ← endpoints admin: status, estatísticas
-│   │       ├── service/
-│   │       └── dto/
+│   │       └── api/             ← endpoints admin: upload, carregar, status
 │   ├── src/main/resources/
-│   │   ├── application.yml
-│   │   └── db/migration/
+│   │   └── application.yml
 │   └── pom.xml
 └── frontend/
     ├── src/
@@ -53,14 +42,16 @@ imovue/
     │   │   │   ├── ListagemPage.vue
     │   │   │   ├── DetalhePage.vue
     │   │   │   ├── FavoritosPage.vue
-    │   │   │   ├── CompararPage.vue
+    │   │   │   ├── DashboardPage.vue
     │   │   │   └── MapaPage.vue        ← Fase 2
-    │   │   └── admin/          ← dashboard admin
-    │   │       ├── ImportacaoPage.vue
-    │   │       └── EstatisticasPage.vue
+    │   │   ├── admin/          ← dashboard admin
+    │   │   │   └── ImportacaoPage.vue
+    │   │   └── guia/
+    │   │       └── GuiaPage.vue
     │   ├── router/
     │   ├── stores/
     │   ├── services/
+    │   ├── composables/
     │   ├── types/
     │   └── App.vue
     ├── package.json
@@ -68,46 +59,42 @@ imovue/
 ```
 
 ## Module boundaries
-- `importer/` — upload CSV, parsing, normalização, upsert (sem download automático)
-- `catalog/` — API REST de consulta, listagem, filtros, detalhe (dashboard usuário)
-- `admin/` — endpoints administrativos, status de importação, estatísticas (dashboard admin)
-- `shared/` — exceções, utilitários, DTOs comuns
+- `importer/` — parser CSV, normalização de dados
+- `catalog/` — API REST de consulta, listagem, filtros, detalhe, dashboard (InMemoryStore)
+- `admin/` — endpoints administrativos: upload CSV, carregar arquivo, status
+- `shared/` — exceções globais, utilitários comuns
 
 ## Frontend routes
 ### Dashboard Usuário
-- `/` — Home com busca rápida e estatísticas
+- `/` — Home com seletor de UF
 - `/imoveis` — Listagem com filtros avançados
 - `/imoveis/:numero` — Detalhe do imóvel
+- `/dashboard` — Estatísticas e top descontos
 - `/favoritos` — Lista de favoritos (localStorage)
-- `/comparar` — Comparador lado a lado
+- `/guia` — Guia do comprador
 - `/mapa` — Mapa com pins (Fase 2)
 
 ### Dashboard Admin
-- `/admin` — Painel principal
-- `/admin/importacao` — Upload e importação de CSVs
-- `/admin/estatisticas` — Resumo por UF, erros, histórico
-- Controllers/routes depend on services. Never on repositories directly.
-- Services contain business logic. May call other services.
-- Repositories handle data access only.
-- DTOs/schemas are separate from domain models.
+- `/admin` — Upload e importação de CSVs
+
+## Architecture rules
+- Controllers depend on services. Never on other controllers.
+- Services contain business logic. InMemoryStore is the central service.
+- No database, no JPA, no migrations. Dados 100% in-memory.
+- CSVs são a fonte de verdade, carregados sob demanda.
 
 ## Naming conventions
 - Classes/types: `PascalCase`
 - Functions/methods/variables: `camelCase`
 - Constants: `UPPER_SNAKE_CASE`
-- Database tables: `snake_case`
 - REST endpoints: `kebab-case`
-- Migration files: versioned with description (e.g., `V1__create_imovel_table.sql`)
 
 ## File placement rules
-- New endpoint → controller + service method
-- New business rule → service layer (never in controller or repository)
-- New database query → repository
-- New external API call → dedicated client with its own error handling
-- New table/column → model + migration script
+- New endpoint → controller method
+- New business rule → service layer (InMemoryStore ou novo service)
+- New CSV parsing logic → `importer/parser/`
+- New frontend page → `pages/{user|admin|guia}/`
 
-## Key entities
-- `imovel` — catálogo principal de imóveis
-- `coleta_execucao` — metadados de cada execução de importação
-- `coleta_item_erro` — log de linhas rejeitadas
-- `imovel_historico` — snapshots de preço (fase 2)
+## Key domain model
+- `Imovel` — Java record com 18 campos (numero, uf, cidade, preço, desconto, etc.)
+- Dados voláteis: perdem-se ao reiniciar o servidor, recarregáveis dos CSVs

@@ -1,12 +1,15 @@
 <template>
   <div>
     <!-- Hero -->
-    <section class="bg-gradient-to-br from-brand-900 via-brand-800 to-brand-700 text-white">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 text-center">
-        <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight">
+    <section class="relative bg-brand-900 text-white overflow-hidden">
+      <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1600&q=80"
+           alt="" class="absolute inset-0 w-full h-full object-cover" />
+      <div class="absolute inset-0 bg-gradient-to-br from-brand-900/85 via-brand-800/75 to-brand-700/70"></div>
+      <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 text-center">
+        <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight drop-shadow-lg">
           Encontre imóveis de leilão<br class="hidden sm:block" /> com até <span class="text-blue-300">70% de desconto</span>
         </h1>
-        <p class="mt-4 text-lg text-blue-200 max-w-2xl mx-auto">
+        <p class="mt-4 text-lg text-blue-200 max-w-2xl mx-auto drop-shadow">
           Catálogo atualizado de imóveis da CAIXA. Selecione um estado para explorar oportunidades.
         </p>
       </div>

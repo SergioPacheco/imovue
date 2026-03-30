@@ -1,44 +1,42 @@
 # Backlog — Imovue
 
 ## Épico 1 — Fundamentos
-- [ ] REQ-001: Criar projeto backend Spring Boot Java 11 com Maven
-- [ ] REQ-002: Configurar PostgreSQL + Flyway
-- [ ] REQ-003: Criar entidades JPA (imovel, coleta_execucao, coleta_item_erro)
-- [ ] REQ-004: Criar migrations iniciais
-- [ ] REQ-005: Criar projeto frontend Vue 3 + TypeScript + Vite
+- [x] REQ-001: Criar projeto backend Spring Boot Java 17 com Maven
+- [x] REQ-002: Criar estrutura de pacotes (config, shared, importer, catalog, admin)
+- [x] REQ-003: Criar Imovel record (domain model in-memory)
+- [x] REQ-004: Criar projeto frontend Vue 3 + TypeScript + Vite
 
 ## Épico 2 — Importação
-- [ ] REQ-006: Criar parser CSV (encoding latin1, separador ;)
-- [ ] REQ-007: Criar serviço de importação com upsert idempotente
-- [ ] REQ-008: Criar registro de execução e log de erros
+- [x] REQ-005: Criar parser CSV (encoding latin1, separador ;)
+- [x] REQ-006: Criar InMemoryStore (serviço central de dados voláteis)
+- [x] REQ-007: Criar endpoints admin (upload, carregar arquivo, status)
 
 ## Épico 3 — API Catálogo (Dashboard Usuário)
-- [ ] REQ-009: GET /api/imoveis — listagem paginada
-- [ ] REQ-010: GET /api/imoveis — filtros dinâmicos (uf, cidade, preço, desconto, tipo)
-- [ ] REQ-011: GET /api/imoveis/{numero} — detalhe
-- [ ] REQ-012: GET /api/filtros — UFs, cidades, tipos disponíveis
-- [ ] REQ-013: GET /api/estatisticas — total, desconto médio, top cidade
+- [x] REQ-008: GET /api/imoveis — listagem paginada
+- [x] REQ-009: GET /api/imoveis — filtros dinâmicos (cidade, preço, desconto, tipo)
+- [x] REQ-010: GET /api/imoveis/{numero} — detalhe
+- [x] REQ-011: GET /api/filtros — cidades, tipos disponíveis
+- [x] REQ-012: GET /api/dashboard — estatísticas completas
 
-## Épico 4 — API Admin (Dashboard Admin)
-- [ ] REQ-014: POST /api/admin/upload — upload de CSV
-- [ ] REQ-015: POST /api/admin/importar — importar CSV para banco
-- [ ] REQ-016: GET /api/admin/importacoes — histórico de importações
-- [ ] REQ-017: GET /api/admin/importacoes/{id} — detalhe com erros
+## Épico 4 — Frontend Usuário
+- [x] REQ-013: Página Home com seletor de UF
+- [x] REQ-014: Página listagem com filtros avançados e paginação
+- [x] REQ-015: Página detalhe do imóvel
+- [x] REQ-016: Favoritos (localStorage)
+- [x] REQ-017: Dashboard de estatísticas
+- [ ] REQ-018: Comparador de imóveis
+- [x] REQ-019: Badges de oportunidade (>40% desconto)
+- [x] REQ-020: Compartilhamento com link (copiar link)
 
-## Épico 5 — Frontend Usuário
-- [ ] REQ-018: Página Home com busca rápida e estatísticas
-- [ ] REQ-019: Página listagem com filtros avançados e paginação
-- [ ] REQ-020: Página detalhe do imóvel
-- [ ] REQ-021: Favoritos (localStorage)
-- [ ] REQ-022: Comparador de imóveis
-- [ ] REQ-023: Badges de oportunidade
-- [ ] REQ-024: Compartilhamento com link
+## Épico 5 — Frontend Admin
+- [x] REQ-021: Página upload e importação de CSVs
 
-## Épico 6 — Frontend Admin
-- [ ] REQ-025: Página upload e importação de CSVs
-- [ ] REQ-026: Página estatísticas e histórico
+## Épico 6 — Qualidade
+- [ ] REQ-022: Testes unitários backend (parser, InMemoryStore)
+- [ ] REQ-023: Testes de API (endpoints REST)
+- [ ] REQ-024: Testes do frontend (componentes, pages)
 
 ## Fase 2
-- [ ] REQ-027: Mapa com pins
-- [ ] REQ-028: Histórico de preço
-- [ ] REQ-029: Alertas por email
+- [ ] REQ-025: Mapa com pins
+- [ ] REQ-026: Histórico de preço
+- [ ] REQ-027: Alertas por email
