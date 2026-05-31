@@ -20,7 +20,6 @@
                 {{ fav.count() }}
               </span>
             </router-link>
-            <router-link to="/admin" class="btn-ghost text-sm text-gray-400 hover:text-gray-600">Admin</router-link>
           </nav>
         </div>
       </div>
