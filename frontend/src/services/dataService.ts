@@ -40,8 +40,13 @@ function applySort(imoveis: Imovel[], sort?: string): Imovel[] {
   const [field, dir] = sort.split(',')
   const mult = dir === 'asc' ? 1 : -1
   return [...imoveis].sort((a, b) => {
-    const va = (a as any)[field] ?? 0
-    const vb = (b as any)[field] ?? 0
+    let va = (a as any)[field] ?? 0
+    let vb = (b as any)[field] ?? 0
+    // Descontos inválidos (>100 ou <0) vão pro final
+    if (field === 'percentualDesconto') {
+      if (va <= 0 || va > 100) va = 0
+      if (vb <= 0 || vb > 100) vb = 0
+    }
     return (va - vb) * mult
   })
 }

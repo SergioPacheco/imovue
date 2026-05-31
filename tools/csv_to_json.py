@@ -120,8 +120,8 @@ def parse_csv(filepath: str, uf: str) -> list[dict]:
         desconto = desconto_raw
         if desconto is None and preco and avaliacao and avaliacao > 0:
             desconto = round(((avaliacao - preco) / avaliacao) * 100, 2)
-            if desconto < 0:
-                desconto = 0.0
+        if desconto is not None and (desconto < 0 or desconto > 100):
+            desconto = None
 
         if not url.startswith("http"):
             url = f"https://venda-imoveis.caixa.gov.br/sistema/detalhe-imovel.asp?hdnimovel={numero}"

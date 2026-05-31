@@ -43,9 +43,9 @@
         <div>
           <label class="block text-xs font-medium text-gray-500 mb-1">Ordenar</label>
           <select v-model="filtros.sort" class="input-field">
-            <option value="desconto,desc">Maior desconto</option>
-            <option value="preco,asc">Menor preço</option>
-            <option value="preco,desc">Maior preço</option>
+            <option value="percentualDesconto,desc">Maior desconto</option>
+            <option value="precoVenda,asc">Menor preço</option>
+            <option value="precoVenda,desc">Maior preço</option>
           </select>
         </div>
         <div class="flex items-end">
@@ -82,10 +82,10 @@
         <PropertyImage :tipo="im.tipoImovel" :numero="im.numeroImovel">
           <div class="absolute top-3 left-3 flex gap-1.5">
             <span v-if="im.tipoImovel" class="badge badge-type">{{ im.tipoImovel }}</span>
-            <span v-if="im.percentualDesconto && im.percentualDesconto > 40" class="badge badge-hot">🔥 Oportunidade</span>
+            <span v-if="descontoValido(im) && im.percentualDesconto! > 40" class="badge badge-hot">🔥 Oportunidade</span>
           </div>
-          <div v-if="im.percentualDesconto" class="absolute top-3 right-3">
-            <span class="badge badge-discount text-sm font-bold">-{{ im.percentualDesconto }}%</span>
+          <div v-if="descontoValido(im)" class="absolute top-3 right-3">
+            <span class="badge badge-discount text-sm font-bold">-{{ im.percentualDesconto!.toFixed(1) }}%</span>
           </div>
         </PropertyImage>
 
@@ -171,6 +171,10 @@ const filtros = reactive({
 })
 
 const fmt = (v: number | null) => v ? v.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '-'
+
+function descontoValido(im: Imovel): boolean {
+  return !!im.percentualDesconto && im.percentualDesconto > 0 && im.percentualDesconto <= 100
+}
 
 function mapsLink(im: Imovel) {
   let e = im.endereco
