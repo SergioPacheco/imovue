@@ -5,6 +5,7 @@
       <div>
         <h1 class="text-2xl font-bold text-gray-900">📊 Dashboard — {{ d.uf }}</h1>
         <router-link to="/" class="text-sm text-brand-500">← Trocar estado</router-link>
+        <p v-if="d.ultimaAtualizacao" class="text-xs text-gray-400 mt-1">Atualizado em {{ fmtData(d.ultimaAtualizacao) }}</p>
       </div>
       <router-link to="/imoveis" class="btn-primary">Ver imóveis →</router-link>
     </div>
@@ -132,13 +133,16 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { catalogoApi } from '@/services/api'
+import { dataService } from '@/services/dataService'
+import { useCatalogoStore } from '@/stores/catalogo'
 
 const router = useRouter()
+const store = useCatalogoStore()
 const d = ref<any>({})
 const loading = ref(true)
 
 const fmt = (v: number | null) => v ? v.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '-'
+const fmtData = (iso: string) => new Date(iso).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
 const fmtK = (v: number) => {
   if (v >= 1_000_000) return (v / 1_000_000).toFixed(1) + 'M'
   if (v >= 1_000) return (v / 1_000).toFixed(0) + 'K'
@@ -160,9 +164,33 @@ const faixas = computed(() => {
 })
 
 onMounted(async () => {
-  const estado = await catalogoApi.estado()
-  if (!estado.uf) { router.push('/'); return }
-  d.value = await catalogoApi.dashboard()
+  const uf = store.ufSelecionada
+  if (!uf) { router.push('/'); return }
+
+  const stats = await dataService.estatisticas(uf)
+  const all = stats.topDescontos
+
+  // Calcula distribuição de desconto
+  const descontos = all.map((i: any) => i.percentualDesconto ?? 0)
+  const dist = { ate20: 0, de20a40: 0, de40a60: 0, acima60: 0 }
+  for (const desc of descontos) {
+    if (desc < 20) dist.ate20++
+    else if (desc < 40) dist.de20a40++
+    else if (desc < 60) dist.de40a60++
+    else dist.acima60++
+  }
+
+  d.value = {
+    uf,
+    total: stats.total,
+    descontoMedio: stats.descontoMedio.toFixed(1),
+    descontoMax: all.length ? all[0].percentualDesconto?.toFixed(1) : 0,
+    precoMedio: stats.precoMedio,
+    topDescontos: all,
+    distribuicaoDesconto: dist,
+    porTipo: [],
+    porCidade: [],
+  }
   loading.value = false
 })
 </script>

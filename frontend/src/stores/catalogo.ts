@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { Imovel, FiltrosImovel, PageResponse } from '@/types'
-import { catalogoApi } from '@/services/api'
+import type { Imovel, FiltrosImovel } from '@/types'
+import { dataService } from '@/services/dataService'
 
 export const useCatalogoStore = defineStore('catalogo', () => {
   const imoveis = ref<Imovel[]>([])
@@ -9,14 +9,16 @@ export const useCatalogoStore = defineStore('catalogo', () => {
   const totalElements = ref(0)
   const loading = ref(false)
   const filtros = ref<FiltrosImovel>({ page: 0, size: 20, sort: 'percentualDesconto,desc' })
+  const ufSelecionada = ref('')
   const ufs = ref<string[]>([])
   const cidades = ref<string[]>([])
   const favoritos = ref<string[]>(JSON.parse(localStorage.getItem('favoritos') || '[]'))
 
   async function buscar() {
+    if (!ufSelecionada.value) return
     loading.value = true
     try {
-      const data = await catalogoApi.listar(filtros.value)
+      const data = await dataService.listar(ufSelecionada.value, filtros.value)
       imoveis.value = data.content
       totalPages.value = data.totalPages
       totalElements.value = data.totalElements
@@ -26,11 +28,12 @@ export const useCatalogoStore = defineStore('catalogo', () => {
   }
 
   async function carregarUfs() {
-    ufs.value = await catalogoApi.ufs()
+    ufs.value = await dataService.ufsDisponiveis()
   }
 
-  async function carregarCidades(uf: string) {
-    cidades.value = await catalogoApi.cidades(uf)
+  async function carregarCidades() {
+    if (!ufSelecionada.value) return
+    cidades.value = await dataService.cidades(ufSelecionada.value)
   }
 
   function toggleFavorito(numero: string) {
@@ -44,5 +47,5 @@ export const useCatalogoStore = defineStore('catalogo', () => {
     return favoritos.value.includes(numero)
   }
 
-  return { imoveis, totalPages, totalElements, loading, filtros, ufs, cidades, favoritos, buscar, carregarUfs, carregarCidades, toggleFavorito, isFavorito }
+  return { imoveis, totalPages, totalElements, loading, filtros, ufSelecionada, ufs, cidades, favoritos, buscar, carregarUfs, carregarCidades, toggleFavorito, isFavorito }
 })

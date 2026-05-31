@@ -1,0 +1,35 @@
+name: Atualizar dados dos imóveis
+
+on:
+  schedule:
+    - cron: '0 8 * * 1'  # toda segunda-feira às 8h UTC
+  workflow_dispatch:       # permite execução manual
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Instalar Playwright
+        run: |
+          pip install playwright
+          playwright install chromium
+
+      - name: Baixar CSVs da Caixa
+        run: python tools/download_caixa.py
+
+      - name: Converter CSVs para JSON
+        run: python tools/csv_to_json.py
+
+      - name: Commit e push se houve mudanças
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add frontend/public/data/
+          git diff --cached --quiet || git commit -m "chore: atualiza dados imóveis $(date +%Y-%m-%d)"
+          git push

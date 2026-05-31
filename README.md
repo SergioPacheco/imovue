@@ -1,101 +1,83 @@
-# 🏠 Imovue
+# Imovue
 
-Catálogo de imóveis de leilão da CAIXA com filtros avançados, fotos reais e dashboard de oportunidades.
+Catálogo de imóveis de leilão da CAIXA. Site 100% estático hospedado no Cloudflare Pages.
 
-![Java](https://img.shields.io/badge/Java-17-blue) ![Vue](https://img.shields.io/badge/Vue-3-green) ![Tailwind](https://img.shields.io/badge/Tailwind-3-blue) ![Docker](https://img.shields.io/badge/Docker-ready-blue)
+## Arquitetura
 
-## O que é
-
-O Imovue é um visualizador de imóveis disponíveis para venda pela CAIXA Econômica Federal. Ele importa as listas públicas em CSV, extrai os dados e apresenta em uma interface moderna com filtros, fotos, mapa e estatísticas.
-
-**Não possui vínculo oficial com a CAIXA.** Os dados são extraídos de listas públicas.
-
-## Funcionalidades
-
-- 🔍 **Filtros avançados** — tipo, cidade, preço, desconto, quartos, vagas
-- 📸 **Fotos reais** dos imóveis (extraídas do site da CAIXA)
-- 📊 **Dashboard** — top descontos, distribuição, ranking por cidade e tipo
-- 📍 **Google Maps** — link direto para localização do imóvel
-- 📄 **Matrícula PDF** — acesso ao documento quando disponível
-- ❤️ **Favoritos** — salvos no navegador (localStorage)
-- 📋 **Guia do Comprador** — modalidades, documentos, cuidados e FAQ
-- ⚙️ **Painel Admin** — listagem de CSVs, upload e importação
+```
+tools/download_caixa.py  → baixa CSVs da Caixa (Playwright)
+tools/csv_to_json.py     → converte CSVs → JSON por UF
+frontend/public/data/    → JSONs estáticos servidos pelo site
+frontend/               → Vue 3 + Vite + Tailwind (SPA)
+```
 
 ## Stack
 
-| Camada | Tecnologia |
-|--------|------------|
-| Backend | Java 17 + Spring Boot 3.2 (in-memory, sem banco) |
-| Frontend | Vue 3 + TypeScript + Vite + Tailwind CSS |
-| Infra | Docker Compose |
+- **Frontend:** Vue 3, Vite, Tailwind CSS, Pinia, Vue Router
+- **Dados:** JSON estático (sem backend, sem banco)
+- **Pipeline:** Python + Playwright (download CSVs) → JSON
+- **Hospedagem:** Cloudflare Pages (grátis)
+- **CI:** GitHub Actions (atualização semanal automática)
 
-## Quick Start
+## Desenvolvimento local
 
 ```bash
-# 1. Clone
-git clone https://github.com/SergioPacheco/imovue.git
-cd imovue
-
-# 2. Baixe os CSVs manualmente do site da CAIXA e coloque em:
-mkdir -p data/listas
-# Exemplo: data/listas/Lista_imoveis_SP.csv
-
-# 3. Suba com Docker
-docker compose up -d --build
-
-# 4. Acesse
-# Frontend: http://localhost:3000
-# API:      http://localhost:8080/api
+cd frontend
+npm install
+npm run dev        # http://localhost:3000
 ```
 
-## Estrutura
+## Atualizar dados manualmente
 
-```
-imovue/
-├── backend/                  Spring Boot (Java 17)
-│   └── src/main/java/br/com/imovue/
-│       ├── catalog/          API de listagem e filtros
-│       ├── importer/         Parser CSV
-│       ├── admin/            Upload e gerenciamento
-│       ├── config/           CORS
-│       └── shared/           Exception handler
-├── frontend/                 Vue 3 + Tailwind
-│   └── src/
-│       ├── pages/            Home, Listagem, Detalhe, Dashboard, Guia, Admin
-│       ├── components/       PropertyImage
-│       ├── composables/      useFavoritos
-│       └── services/         API client
-├── data/listas/              CSVs (não versionados)
-├── docker-compose.yml
-└── .kiro/                    KiroRails steering docs
+```bash
+# 1. Baixar CSVs (requer Playwright)
+pip install playwright && playwright install chromium
+python tools/download_caixa.py
+
+# 2. Converter para JSON
+python tools/csv_to_json.py
+
+# 3. Commit e push (Cloudflare faz redeploy automático)
+git add frontend/public/data/
+git commit -m "chore: atualiza dados"
+git push
 ```
 
-## Screenshots
+## Deploy no Cloudflare Pages
 
-| Home | Listagem | Detalhe | Dashboard |
-|------|----------|---------|-----------|
-| Seleção de estado | Cards com fotos e filtros | Layout premium com sidebar | Estatísticas e top descontos |
+1. Conecte o repositório GitHub ao Cloudflare Pages
+2. Configure:
+   - **Build command:** `cd frontend && npm install && npm run build`
+   - **Build output directory:** `frontend/dist`
+3. Cada push na `main` faz deploy automático
 
-## Como funciona
+## Atualização automática (GitHub Actions)
 
-1. O admin baixa os CSVs do [site da CAIXA](https://venda-imoveis.caixa.gov.br) manualmente
-2. Os CSVs ficam em `data/listas/`
-3. O backend carrega o CSV do estado selecionado em memória
-4. O frontend consome a API REST com filtros dinâmicos
-5. Fotos são carregadas diretamente do CDN da CAIXA
+O workflow `.github/workflows/update-data.yml` roda toda segunda-feira:
+1. Baixa CSVs de todos os 27 estados
+2. Converte para JSON
+3. Faz commit + push → Cloudflare redeploy
 
-## API
+## Estrutura dos dados
 
-| Endpoint | Descrição |
-|----------|-----------|
-| `GET /api/ufs` | Estados com CSV disponível |
-| `POST /api/carregar?uf=SP` | Carrega estado |
-| `GET /api/imoveis?tipoImovel=Casa&descontoMin=40` | Listagem com filtros |
-| `GET /api/imoveis/{numero}` | Detalhe do imóvel |
-| `GET /api/dashboard` | Estatísticas completas |
-| `GET /api/filtros/cidades` | Cidades disponíveis |
-| `GET /api/filtros/tipos` | Tipos de imóvel |
+Cada UF tem um arquivo `frontend/public/data/{UF}.json` com array de imóveis:
 
-## Licença
+```json
+[
+  {
+    "numeroImovel": "123456",
+    "uf": "SP",
+    "cidade": "SÃO PAULO",
+    "bairro": "CENTRO",
+    "endereco": "RUA X, 100",
+    "precoVenda": 200000.00,
+    "valorAvaliacao": 400000.00,
+    "percentualDesconto": 50.0,
+    "tipoImovel": "Apartamento",
+    "quartos": 2,
+    "vagas": 1
+  }
+]
+```
 
-MIT
+O `manifest.json` lista todas as UFs com contagem de imóveis.

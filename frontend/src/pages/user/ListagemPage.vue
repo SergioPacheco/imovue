@@ -149,15 +149,17 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { catalogoApi } from '@/services/api'
+import { dataService } from '@/services/dataService'
+import { useCatalogoStore } from '@/stores/catalogo'
 import type { Imovel } from '@/types'
 
 import { useFavoritos } from '@/composables/useFavoritos'
 import PropertyImage from '@/components/PropertyImage.vue'
 
 const router = useRouter()
+const store = useCatalogoStore()
 const fav = useFavoritos()
-const estado = ref({ uf: '', total: 0 })
+const estado = ref({ uf: store.ufSelecionada, total: 0 })
 const cidades = ref<string[]>([])
 const tipos = ref<string[]>([])
 const resultado = ref<{ content: Imovel[]; totalElements: number; totalPages: number } | null>(null)
@@ -165,7 +167,7 @@ const loading = ref(true)
 const filtros = reactive({
   cidade: '', tipoImovel: '', precoMax: undefined as number | undefined,
   descontoMin: undefined as number | undefined, quartosMin: undefined as number | undefined,
-  vagasMin: undefined as number | undefined, sort: 'desconto,desc', page: 0, size: 21
+  vagasMin: undefined as number | undefined, sort: 'percentualDesconto,desc', page: 0, size: 21
 })
 
 const fmt = (v: number | null) => v ? v.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '-'
@@ -180,7 +182,7 @@ function mapsLink(im: Imovel) {
 async function buscar() {
   loading.value = true
   filtros.page = 0
-  resultado.value = await catalogoApi.listar(filtros as any)
+  resultado.value = await dataService.listar(estado.value.uf, filtros as any)
   loading.value = false
 }
 
@@ -193,13 +195,15 @@ function limpar() {
 function paginar(dir: number) {
   filtros.page += dir
   loading.value = true
-  catalogoApi.listar(filtros as any).then(r => { resultado.value = r; loading.value = false })
+  dataService.listar(estado.value.uf, filtros as any).then(r => { resultado.value = r; loading.value = false })
 }
 
 onMounted(async () => {
-  estado.value = await catalogoApi.estado()
   if (!estado.value.uf) { router.push('/'); return }
-  ;[cidades.value, tipos.value] = await Promise.all([catalogoApi.cidades(), catalogoApi.tipos()])
+  ;[cidades.value, tipos.value] = await Promise.all([
+    dataService.cidades(estado.value.uf),
+    dataService.tipos(estado.value.uf)
+  ])
   await buscar()
 })
 </script>

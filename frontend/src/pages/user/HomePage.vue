@@ -6,10 +6,10 @@
            alt="" class="absolute inset-0 w-full h-full object-cover" />
       <div class="absolute inset-0 bg-gradient-to-br from-brand-900/85 via-brand-800/75 to-brand-700/70"></div>
       <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 text-center">
-        <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight drop-shadow-lg">
+        <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight">
           Encontre imóveis de leilão<br class="hidden sm:block" /> com até <span class="text-blue-300">70% de desconto</span>
         </h1>
-        <p class="mt-4 text-lg text-blue-200 max-w-2xl mx-auto drop-shadow">
+        <p class="mt-4 text-lg text-blue-200 max-w-2xl mx-auto">
           Catálogo atualizado de imóveis da CAIXA. Selecione um estado para explorar oportunidades.
         </p>
       </div>
@@ -86,7 +86,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { catalogoApi } from '@/services/api'
+import { dataService } from '@/services/dataService'
+import { useCatalogoStore } from '@/stores/catalogo'
 
 const NOMES_UF: Record<string, string> = {
   AC:'Acre',AL:'Alagoas',AM:'Amazonas',AP:'Amapá',BA:'Bahia',CE:'Ceará',DF:'Distrito Federal',
@@ -97,6 +98,7 @@ const NOMES_UF: Record<string, string> = {
 }
 
 const router = useRouter()
+const store = useCatalogoStore()
 const ufs = ref<string[]>([])
 const loading = ref(true)
 const carregando = ref(false)
@@ -112,12 +114,12 @@ const ufsFiltradas = computed(() => {
 async function selecionar(uf: string) {
   carregando.value = true
   ufSelecionada.value = uf
-  await catalogoApi.carregar(uf)
+  store.ufSelecionada = uf
   router.push('/imoveis')
 }
 
 onMounted(async () => {
-  ufs.value = await catalogoApi.ufsDisponiveis()
+  ufs.value = await dataService.ufsDisponiveis()
   loading.value = false
 })
 </script>

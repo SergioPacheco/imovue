@@ -164,10 +164,12 @@
 import { ref, computed, onMounted } from 'vue'
 import PropertyImage from '@/components/PropertyImage.vue'
 import { useFavoritos } from '@/composables/useFavoritos'
-import { catalogoApi } from '@/services/api'
+import { useCatalogoStore } from '@/stores/catalogo'
+import { dataService } from '@/services/dataService'
 import type { Imovel } from '@/types'
 
 const props = defineProps<{ numero: string }>()
+const store = useCatalogoStore()
 const imovel = ref<Imovel | null>(null)
 const loading = ref(true)
 const fav = useFavoritos()
@@ -176,7 +178,6 @@ const fmt = (v: number | null) => v ? v.toLocaleString('pt-BR', { minimumFractio
 const compartilhar = () => { navigator.clipboard.writeText(window.location.href); alert('Link copiado!') }
 
 function limparEndereco(im: Imovel) {
-  // Remove termos cadastrais que confundem o Maps
   let e = im.endereco
     .replace(/,?\s*(LT|QD|SL|COND\.|BLOCO|BL|APTO|APT|ED\.|EDIF\.?)\s*[^,]*/gi, '')
     .replace(/\bN\.\s*/gi, '')
@@ -198,7 +199,18 @@ const matriculaUrl = computed(() => {
 })
 
 onMounted(async () => {
-  try { imovel.value = await catalogoApi.detalhe(props.numero) }
-  finally { loading.value = false }
+  try {
+    const uf = store.ufSelecionada
+    if (uf) {
+      imovel.value = (await dataService.detalhe(uf, props.numero)) ?? null
+    } else {
+      // Busca em todas as UFs se não tem UF selecionada
+      const ufs = await dataService.ufsDisponiveis()
+      for (const u of ufs) {
+        const found = await dataService.detalhe(u, props.numero)
+        if (found) { imovel.value = found; store.ufSelecionada = u; break }
+      }
+    }
+  } finally { loading.value = false }
 })
 </script>

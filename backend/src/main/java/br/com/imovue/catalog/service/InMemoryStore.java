@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -31,6 +32,7 @@ public class InMemoryStore {
 
     private volatile List<Imovel> imoveis = List.of();
     private volatile String ufAtual;
+    private volatile Instant ultimaAtualizacao;
 
     public InMemoryStore(CsvParser parser, @Value("${app.data-dir:data/listas}") String dataDir) {
         this.parser = parser;
@@ -58,6 +60,7 @@ public class InMemoryStore {
             CsvParser.ParseResult result = parser.parse(is);
             this.imoveis = List.copyOf(result.imoveis());
             this.ufAtual = uf.toUpperCase();
+            this.ultimaAtualizacao = Instant.now();
             log.info("Carregado [{}]: {} imóveis, {} rejeitadas", uf, result.imoveis().size(), result.rejeitadas());
             return result.imoveis().size();
         } catch (IOException e) {
@@ -72,6 +75,7 @@ public class InMemoryStore {
         List<Imovel> nova = new ArrayList<>(this.imoveis);
         nova.addAll(result.imoveis());
         this.imoveis = List.copyOf(nova);
+        this.ultimaAtualizacao = Instant.now();
         log.info("Importado [{}]: {} imóveis, {} rejeitadas. Total: {}", nome, result.imoveis().size(), result.rejeitadas(), this.imoveis.size());
         return result.imoveis().size();
     }
@@ -142,7 +146,7 @@ public class InMemoryStore {
 
     public Map<String, Object> dashboard() {
         List<Imovel> lista = imoveis;
-        if (lista.isEmpty()) return Map.of("total", 0, "uf", getUfAtual());
+        if (lista.isEmpty()) return Map.of("total", 0, "uf", getUfAtual(), "ultimaAtualizacao", ultimaAtualizacao != null ? ultimaAtualizacao.toString() : "");
 
         var comDesconto = lista.stream().filter(i -> i.percentualDesconto() != null).toList();
         double descontoMedio = comDesconto.stream().mapToDouble(i -> i.percentualDesconto().doubleValue()).average().orElse(0);
@@ -178,7 +182,8 @@ public class InMemoryStore {
                 Map.entry("descontoMedio", Math.round(descontoMedio * 100.0) / 100.0), Map.entry("descontoMax", Math.round(descontoMax * 100.0) / 100.0),
                 Map.entry("precoMedio", Math.round(precoMedio * 100.0) / 100.0), Map.entry("topDescontos", topDescontos),
                 Map.entry("distribuicaoDesconto", Map.of("ate20", faixa0, "de20a40", faixa20, "de40a60", faixa40, "acima60", faixa60)),
-                Map.entry("porTipo", porTipo), Map.entry("porCidade", porCidade));
+                Map.entry("porTipo", porTipo), Map.entry("porCidade", porCidade),
+                Map.entry("ultimaAtualizacao", ultimaAtualizacao != null ? ultimaAtualizacao.toString() : ""));
     }
 
     private void ordenar(List<Imovel> list, String sort) {
