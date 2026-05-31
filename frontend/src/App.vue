@@ -5,9 +5,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
           <router-link to="/" class="flex items-center gap-2 group">
-            <div class="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center">
-              <span class="text-white font-bold text-sm">iV</span>
-            </div>
+            <img src="/logo.svg" alt="Imovue" class="w-9 h-9 group-hover:scale-110 transition-transform" />
             <span class="text-xl font-bold text-gray-900 group-hover:text-brand-500 transition-colors">Imovue</span>
           </router-link>
           <nav class="flex items-center gap-1">
@@ -27,7 +25,11 @@
 
     <!-- Content -->
     <main class="flex-1">
-      <router-view />
+      <router-view v-slot="{ Component }">
+        <transition name="page" mode="out-in">
+          <component :is="Component" />
+        </transition>
+      </router-view>
     </main>
 
     <!-- Footer -->

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <!-- Telhado -->
+  <path d="M24 6L4 22h6v18h28V22h6L24 6z" fill="url(#grad)" stroke="none"/>
+  <!-- Porta -->
+  <rect x="20" y="28" width="8" height="12" rx="1" fill="white" opacity="0.9"/>
+  <!-- Janela -->
+  <rect x="12" y="24" width="6" height="6" rx="1" fill="white" opacity="0.7"/>
+  <rect x="30" y="24" width="6" height="6" rx="1" fill="white" opacity="0.7"/>
+  <!-- Gradiente -->
+  <defs>
+    <linearGradient id="grad" x1="4" y1="6" x2="44" y2="40">
+      <stop offset="0%" stop-color="#1e56a0"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+  </defs>
+</svg>

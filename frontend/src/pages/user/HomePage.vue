@@ -24,7 +24,7 @@
     </section>
 
     <!-- Seletor de Estado -->
-    <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
+    <section v-reveal class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
       <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 sm:p-8">
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
           <h2 class="text-xl font-bold text-gray-900">Selecione o estado</h2>
@@ -63,7 +63,7 @@
     </section>
 
     <!-- Info -->
-    <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <section v-reveal="200" class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <div class="grid sm:grid-cols-3 gap-8 text-center">
         <div>
           <div class="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center mx-auto mb-3">
