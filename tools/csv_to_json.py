@@ -14,9 +14,21 @@ OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "..", "frontend", "public",
 
 
 def parse_decimal(val: str):
+    """Parse valor monetário formato BR: 167.808,34 → 167808.34"""
     if not val or not val.strip():
         return None
     val = val.strip().replace(".", "").replace(",", ".")
+    try:
+        return float(val)
+    except ValueError:
+        return None
+
+
+def parse_percent(val: str):
+    """Parse percentual: 64.97 ou 64,97 → 64.97"""
+    if not val or not val.strip():
+        return None
+    val = val.strip().replace(",", ".")
     try:
         return float(val)
     except ValueError:
@@ -101,7 +113,7 @@ def parse_csv(filepath: str, uf: str) -> list[dict]:
         if has_financiamento:
             preco = parse_decimal(row[5])
             avaliacao = parse_decimal(row[6])
-            desconto_raw = parse_decimal(row[7])
+            desconto_raw = parse_percent(row[7])
             financiamento = row[8].strip() if row[8].strip() else None
             descricao = row[9].strip()
             modalidade = row[10].strip() if len(row) > 10 else ""
@@ -109,7 +121,7 @@ def parse_csv(filepath: str, uf: str) -> list[dict]:
         else:
             preco = parse_decimal(row[5])
             avaliacao = parse_decimal(row[6])
-            desconto_raw = parse_decimal(row[7])
+            desconto_raw = parse_percent(row[7])
             financiamento = None
             descricao = row[8].strip()
             modalidade = row[9].strip() if len(row) > 9 else ""
