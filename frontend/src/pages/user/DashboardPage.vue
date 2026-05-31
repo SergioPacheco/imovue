@@ -39,7 +39,7 @@
         <!-- Distribuição de desconto -->
         <div class="card p-6">
           <h2 class="font-bold text-gray-900 mb-4">Distribuição de Desconto</h2>
-          <div class="space-y-3">
+          <div v-if="faixas.length" class="space-y-3">
             <div v-for="(item, i) in faixas" :key="i">
               <div class="flex justify-between text-sm mb-1">
                 <span class="text-gray-600">{{ item.label }}</span>
