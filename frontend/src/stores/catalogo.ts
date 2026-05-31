@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import type { Imovel, FiltrosImovel } from '@/types'
 import { dataService } from '@/services/dataService'
 
@@ -9,10 +9,12 @@ export const useCatalogoStore = defineStore('catalogo', () => {
   const totalElements = ref(0)
   const loading = ref(false)
   const filtros = ref<FiltrosImovel>({ page: 0, size: 20, sort: 'percentualDesconto,desc' })
-  const ufSelecionada = ref('')
+  const ufSelecionada = ref(localStorage.getItem('uf') || '')
   const ufs = ref<string[]>([])
   const cidades = ref<string[]>([])
   const favoritos = ref<string[]>(JSON.parse(localStorage.getItem('favoritos') || '[]'))
+
+  watch(ufSelecionada, (v) => localStorage.setItem('uf', v))
 
   async function buscar() {
     if (!ufSelecionada.value) return
