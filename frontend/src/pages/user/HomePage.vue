@@ -12,6 +12,14 @@
         <p class="mt-4 text-lg text-blue-200 max-w-2xl mx-auto">
           Catálogo atualizado de imóveis da CAIXA. Selecione um estado para explorar oportunidades.
         </p>
+
+        <!-- Smart Search -->
+        <div class="mt-8 max-w-2xl mx-auto">
+          <SmartSearchBar
+            placeholder="Ex: apartamento em SP até 200 mil com 2 quartos..."
+            @search="onSmartSearch"
+          />
+        </div>
       </div>
     </section>
 
@@ -88,6 +96,8 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { dataService } from '@/services/dataService'
 import { useCatalogoStore } from '@/stores/catalogo'
+import SmartSearchBar from '@/components/SmartSearchBar.vue'
+import type { SmartSearchResult } from '@/composables/useSmartSearch'
 
 const NOMES_UF: Record<string, string> = {
   AC:'Acre',AL:'Alagoas',AM:'Amazonas',AP:'Amapá',BA:'Bahia',CE:'Ceará',DF:'Distrito Federal',
@@ -115,6 +125,13 @@ async function selecionar(uf: string) {
   carregando.value = true
   ufSelecionada.value = uf
   store.ufSelecionada = uf
+  router.push('/imoveis')
+}
+
+function onSmartSearch(result: SmartSearchResult) {
+  const uf = result.uf || 'SP'
+  store.ufSelecionada = uf
+  store.filtros = { ...store.filtros, ...result.filtros, page: 0 }
   router.push('/imoveis')
 }
 
