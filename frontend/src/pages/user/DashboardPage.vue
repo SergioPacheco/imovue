@@ -168,28 +168,69 @@ onMounted(async () => {
   if (!uf) { router.push('/'); return }
 
   const stats = await dataService.estatisticas(uf)
-  const all = stats.topDescontos
+  // Carrega todos os imóveis para calcular distribuições
+  const todos = (await dataService.listar(uf, { size: 99999 })).content
 
-  // Calcula distribuição de desconto
-  const descontos = all.map((i: any) => i.percentualDesconto ?? 0)
+  // Distribuição de desconto
   const dist = { ate20: 0, de20a40: 0, de40a60: 0, acima60: 0 }
-  for (const desc of descontos) {
+  for (const im of todos) {
+    const desc = im.percentualDesconto ?? 0
+    if (desc <= 0 || desc > 100) continue
     if (desc < 20) dist.ate20++
     else if (desc < 40) dist.de20a40++
     else if (desc < 60) dist.de40a60++
     else dist.acima60++
   }
 
+  // Por tipo
+  const tipoMap = new Map<string, { count: number; descontos: number[]; precos: number[] }>()
+  for (const im of todos) {
+    const tipo = im.tipoImovel || 'Outros'
+    if (!tipoMap.has(tipo)) tipoMap.set(tipo, { count: 0, descontos: [], precos: [] })
+    const t = tipoMap.get(tipo)!
+    t.count++
+    if (im.percentualDesconto && im.percentualDesconto > 0 && im.percentualDesconto <= 100) t.descontos.push(im.percentualDesconto)
+    if (im.precoVenda) t.precos.push(im.precoVenda)
+  }
+  const porTipo = [...tipoMap.entries()]
+    .map(([tipo, v]) => ({
+      tipo,
+      quantidade: v.count,
+      descontoMedio: v.descontos.length ? (v.descontos.reduce((a, b) => a + b, 0) / v.descontos.length).toFixed(1) : '0',
+      precoMedio: v.precos.length ? v.precos.reduce((a, b) => a + b, 0) / v.precos.length : 0,
+    }))
+    .sort((a, b) => b.quantidade - a.quantidade)
+    .slice(0, 8)
+
+  // Por cidade (top desconto médio, mín 3 imóveis)
+  const cidadeMap = new Map<string, { count: number; descontos: number[] }>()
+  for (const im of todos) {
+    if (!im.cidade) continue
+    if (!cidadeMap.has(im.cidade)) cidadeMap.set(im.cidade, { count: 0, descontos: [] })
+    const c = cidadeMap.get(im.cidade)!
+    c.count++
+    if (im.percentualDesconto && im.percentualDesconto > 0 && im.percentualDesconto <= 100) c.descontos.push(im.percentualDesconto)
+  }
+  const porCidade = [...cidadeMap.entries()]
+    .filter(([_, v]) => v.count >= 3 && v.descontos.length > 0)
+    .map(([cidade, v]) => ({
+      cidade,
+      quantidade: v.count,
+      descontoMedio: (v.descontos.reduce((a, b) => a + b, 0) / v.descontos.length).toFixed(1),
+    }))
+    .sort((a, b) => parseFloat(b.descontoMedio) - parseFloat(a.descontoMedio))
+    .slice(0, 10)
+
   d.value = {
     uf,
     total: stats.total,
     descontoMedio: stats.descontoMedio.toFixed(1),
-    descontoMax: all.length ? all[0].percentualDesconto?.toFixed(1) : 0,
+    descontoMax: stats.topDescontos.length ? stats.topDescontos[0].percentualDesconto?.toFixed(1) : 0,
     precoMedio: stats.precoMedio,
-    topDescontos: all,
+    topDescontos: stats.topDescontos,
     distribuicaoDesconto: dist,
-    porTipo: [],
-    porCidade: [],
+    porTipo,
+    porCidade,
   }
   loading.value = false
 })
