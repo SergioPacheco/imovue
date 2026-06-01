@@ -9,6 +9,7 @@ const router = createRouter({
     { path: '/dashboard', component: () => import('@/pages/user/DashboardPage.vue') },
     { path: '/favoritos', component: () => import('@/pages/user/FavoritosPage.vue') },
     { path: '/guia', component: () => import('@/pages/guia/GuiaPage.vue') },
+    { path: '/aprenda-leilao-imoveis', component: () => import('@/pages/guia/AprendaPage.vue') },
     { path: '/admin', component: () => import('@/pages/admin/ImportacaoPage.vue') },
   ]
 })

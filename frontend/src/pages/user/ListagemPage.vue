@@ -73,9 +73,26 @@
       <button @click="limpar" class="btn-secondary mt-4">Limpar filtros</button>
     </div>
 
+    <!-- Card afiliado topo -->
+    <AffiliateCourseCard v-if="resultado && resultado.content.length > 0" variant="top"
+      title="Vai comprar imóvel da Caixa pela primeira vez?"
+      description="Antes de fazer uma proposta, entenda como analisar edital, imóvel ocupado, débitos, financiamento, prazos e custos extras. Um bom desconto pode esconder riscos importantes."
+      button-text="Ver treinamento recomendado"
+      class="mb-6"
+    />
+
     <!-- Cards -->
-    <div v-else-if="resultado" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-      <div v-for="im in resultado.content" :key="im.numeroImovel" class="card overflow-hidden group relative">
+    <div v-if="!loading && resultado && resultado.content.length > 0" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <template v-for="(im, idx) in resultado.content" :key="im.numeroImovel">
+        <!-- Card afiliado compacto a cada 6 -->
+        <div v-if="idx > 0 && idx % 6 === 0" class="sm:col-span-2 lg:col-span-3">
+          <AffiliateCourseCard variant="compact"
+            title="Não sabe se esse imóvel vale a pena?"
+            description="Aprenda a identificar riscos antes de dar lance: edital, ocupação, débitos, documentação e custo real da compra."
+            button-text="Aprender a analisar imóveis"
+          />
+        </div>
+      <div class="card overflow-hidden group relative">
 
         <router-link :to="`/imoveis/${im.numeroImovel}`" class="block">
         <!-- Imagem -->
@@ -131,7 +148,16 @@
           </div>
         </div>
       </div>
+      </template>
     </div>
+
+    <!-- Card afiliado final -->
+    <AffiliateCourseCard v-if="resultado && resultado.content.length > 0" variant="afterList"
+      title="Encontrou um imóvel interessante?"
+      description="Antes de avançar, estude o processo. Comprar imóvel de leilão pode ser uma oportunidade, mas exige atenção com edital, ocupação, dívidas, prazos e documentação."
+      button-text="Começar pelo treinamento"
+      class="mt-8"
+    />
 
     <!-- Paginação -->
     <div v-if="resultado && resultado.totalPages > 1" class="flex items-center justify-center gap-2 mt-8">
@@ -155,6 +181,7 @@ import type { Imovel } from '@/types'
 
 import { useFavoritos } from '@/composables/useFavoritos'
 import PropertyImage from '@/components/PropertyImage.vue'
+import AffiliateCourseCard from '@/components/AffiliateCourseCard.vue'
 
 const router = useRouter()
 const store = useCatalogoStore()
