@@ -73,25 +73,17 @@
       <button @click="limpar" class="btn-secondary mt-4">Limpar filtros</button>
     </div>
 
-    <!-- Card afiliado topo -->
-    <AffiliateCourseCard v-if="resultado && resultado.content.length > 0" variant="top"
-      title="Vai comprar imóvel da Caixa pela primeira vez?"
-      description="Antes de fazer uma proposta, entenda como analisar edital, imóvel ocupado, débitos, financiamento, prazos e custos extras. Um bom desconto pode esconder riscos importantes."
-      button-text="Ver treinamento recomendado"
-      class="mb-6"
-    />
+    <!-- Dica discreta topo -->
+    <div v-if="resultado && resultado.content.length > 0" class="flex items-center gap-3 px-4 py-2.5 rounded-lg bg-gray-50 border border-gray-100 mb-5">
+      <span class="text-sm">💡</span>
+      <p class="text-xs sm:text-sm text-gray-500 flex-1">Novo em leilão de imóveis? Aprenda a analisar edital, ocupação e custos antes de dar lance.</p>
+      <a :href="AFFILIATE_CONFIG.courseUrl" target="_blank" rel="nofollow sponsored noopener"
+        class="text-xs font-medium text-brand-500 hover:text-brand-600 whitespace-nowrap">Ver guia recomendado →</a>
+    </div>
 
     <!-- Cards -->
     <div v-if="!loading && resultado && resultado.content.length > 0" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
       <template v-for="(im, idx) in resultado.content" :key="im.numeroImovel">
-        <!-- Card afiliado compacto a cada 6 -->
-        <div v-if="idx > 0 && idx % 6 === 0" class="sm:col-span-2 lg:col-span-3">
-          <AffiliateCourseCard variant="compact"
-            title="Não sabe se esse imóvel vale a pena?"
-            description="Aprenda a identificar riscos antes de dar lance: edital, ocupação, débitos, documentação e custo real da compra."
-            button-text="Aprender a analisar imóveis"
-          />
-        </div>
       <div class="card overflow-hidden group relative">
 
         <router-link :to="`/imoveis/${im.numeroImovel}`" class="block">
@@ -151,13 +143,18 @@
       </template>
     </div>
 
-    <!-- Card afiliado final -->
-    <AffiliateCourseCard v-if="resultado && resultado.content.length > 0" variant="afterList"
-      title="Encontrou um imóvel interessante?"
-      description="Antes de avançar, estude o processo. Comprar imóvel de leilão pode ser uma oportunidade, mas exige atenção com edital, ocupação, dívidas, prazos e documentação."
-      button-text="Começar pelo treinamento"
-      class="mt-8"
-    />
+    <!-- Bloco educativo final -->
+    <div v-if="resultado && resultado.content.length > 0" class="mt-10 rounded-xl border border-gray-200 bg-white p-6 sm:p-8 text-center">
+      <h3 class="text-lg font-bold text-gray-900">Encontrou um imóvel interessante?</h3>
+      <p class="mt-2 text-sm text-gray-500 max-w-lg mx-auto">
+        Antes de fazer uma proposta, entenda os principais riscos: edital, ocupação, débitos, financiamento, prazos e custo real da compra.
+      </p>
+      <a :href="AFFILIATE_CONFIG.courseUrl" target="_blank" rel="nofollow sponsored noopener"
+        class="mt-4 inline-block text-sm font-medium text-brand-500 border border-brand-200 px-5 py-2 rounded-lg hover:bg-brand-50 transition-colors">
+        Aprender antes de dar lance
+      </a>
+      <p class="mt-3 text-[10px] text-gray-400">{{ AFFILIATE_CONFIG.disclosure }}</p>
+    </div>
 
     <!-- Paginação -->
     <div v-if="resultado && resultado.totalPages > 1" class="flex items-center justify-center gap-2 mt-8">
@@ -181,7 +178,7 @@ import type { Imovel } from '@/types'
 
 import { useFavoritos } from '@/composables/useFavoritos'
 import PropertyImage from '@/components/PropertyImage.vue'
-import AffiliateCourseCard from '@/components/AffiliateCourseCard.vue'
+import { AFFILIATE_CONFIG } from '@/config/affiliate'
 
 const router = useRouter()
 const store = useCatalogoStore()
