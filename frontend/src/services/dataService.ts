@@ -89,6 +89,16 @@ export const dataService = {
     return [...new Set(all.map(i => i.tipoImovel).filter(Boolean) as string[])].sort()
   },
 
+  async bairros(uf: string): Promise<string[]> {
+    const all = await loadUf(uf)
+    return [...new Set(all.map(i => i.bairro).filter(Boolean))].sort()
+  },
+
+  async modalidades(uf: string): Promise<string[]> {
+    const all = await loadUf(uf)
+    return [...new Set(all.map(i => i.modalidadeVenda).filter(Boolean))].sort()
+  },
+
   async estatisticas(uf: string) {
     const all = await loadUf(uf)
     const precos = all.map(i => i.precoVenda).filter(Boolean) as number[]

@@ -13,7 +13,7 @@
 
     <!-- Filtros -->
     <div class="bg-white rounded-xl border border-gray-200 p-4 sm:p-5 mb-6">
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         <div>
           <label class="block text-xs font-medium text-gray-500 mb-1">Tipo</label>
           <select v-model="filtros.tipoImovel" class="input-field">
@@ -37,16 +37,48 @@
           <input v-model.number="filtros.descontoMin" type="number" placeholder="%" class="input-field" />
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Quartos</label>
-          <input v-model.number="filtros.quartosMin" type="number" placeholder="Mín" class="input-field" />
-        </div>
-        <div>
           <label class="block text-xs font-medium text-gray-500 mb-1">Ordenar</label>
           <select v-model="filtros.sort" class="input-field">
             <option value="percentualDesconto,desc">Maior desconto</option>
             <option value="precoVenda,asc">Menor preço</option>
             <option value="precoVenda,desc">Maior preço</option>
           </select>
+        </div>
+      </div>
+
+      <!-- Avançado -->
+      <div class="mt-3 border-t border-gray-100 pt-3">
+        <button @click="showAdvanced = !showAdvanced" class="text-xs font-medium text-gray-500 hover:text-brand-500 flex items-center gap-1">
+          <svg class="w-3.5 h-3.5 transition-transform" :class="{ 'rotate-180': showAdvanced }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          Avançado
+        </button>
+        <div v-show="showAdvanced" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mt-3">
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Bairro</label>
+            <select v-model="filtros.bairro" class="input-field">
+              <option value="">Todos</option>
+              <option v-for="b in bairros" :key="b">{{ b }}</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Quartos</label>
+            <input v-model.number="filtros.quartosMin" type="number" placeholder="Mín" class="input-field" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Vagas</label>
+            <input v-model.number="filtros.vagasMin" type="number" placeholder="Mín" class="input-field" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Modalidade</label>
+            <select v-model="filtros.modalidade" class="input-field">
+              <option value="">Todas</option>
+              <option v-for="m in modalidades" :key="m">{{ m }}</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Preço mín</label>
+            <input v-model.number="filtros.precoMin" type="number" placeholder="R$" class="input-field" />
+          </div>
         </div>
       </div>
     </div>
@@ -184,10 +216,14 @@ const fav = useFavoritos()
 const estado = ref({ uf: store.ufSelecionada, total: 0 })
 const cidades = ref<string[]>([])
 const tipos = ref<string[]>([])
+const bairros = ref<string[]>([])
+const modalidades = ref<string[]>([])
+const showAdvanced = ref(false)
 const resultado = ref<{ content: Imovel[]; totalElements: number; totalPages: number } | null>(null)
 const loading = ref(true)
 const filtros = reactive({
-  cidade: '', tipoImovel: '', precoMax: undefined as number | undefined,
+  cidade: '', bairro: '', tipoImovel: '', modalidade: '',
+  precoMin: undefined as number | undefined, precoMax: undefined as number | undefined,
   descontoMin: undefined as number | undefined, quartosMin: undefined as number | undefined,
   vagasMin: undefined as number | undefined, sort: 'percentualDesconto,desc', page: 0, size: 21
 })
@@ -219,9 +255,9 @@ watch(filtros, () => {
 })
 
 function limpar() {
-  filtros.cidade = ''; filtros.tipoImovel = ''; filtros.precoMax = undefined
+  filtros.cidade = ''; filtros.bairro = ''; filtros.tipoImovel = ''; filtros.modalidade = ''
+  filtros.precoMin = undefined; filtros.precoMax = undefined
   filtros.descontoMin = undefined; filtros.quartosMin = undefined; filtros.vagasMin = undefined
-  buscar()
 }
 
 function paginar(dir: number) {
@@ -232,9 +268,11 @@ function paginar(dir: number) {
 
 onMounted(async () => {
   if (!estado.value.uf) { router.push('/'); return }
-  ;[cidades.value, tipos.value] = await Promise.all([
+  ;[cidades.value, tipos.value, bairros.value, modalidades.value] = await Promise.all([
     dataService.cidades(estado.value.uf),
-    dataService.tipos(estado.value.uf)
+    dataService.tipos(estado.value.uf),
+    dataService.bairros(estado.value.uf),
+    dataService.modalidades(estado.value.uf),
   ])
   await buscar()
 })
