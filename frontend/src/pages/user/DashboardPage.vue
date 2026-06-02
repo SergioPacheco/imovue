@@ -1,237 +1,158 @@
 <template>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-    <!-- Header -->
-    <div class="flex items-center justify-between mb-8">
-      <div>
-        <h1 class="text-2xl font-bold text-gray-900">📊 Dashboard — {{ d.uf }}</h1>
-        <router-link to="/" class="text-sm text-brand-500">← Trocar estado</router-link>
-        <p v-if="d.ultimaAtualizacao" class="text-xs text-gray-400 mt-1">Atualizado em {{ fmtData(d.ultimaAtualizacao) }}</p>
-      </div>
-      <router-link to="/imoveis" class="btn-primary">Ver imóveis →</router-link>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+    <h1 class="text-xl font-bold text-gray-900 mb-4">Dashboard</h1>
+
+    <!-- Loading -->
+    <div v-if="loading" class="text-center py-20">
+      <div class="text-4xl mb-3 animate-pulse">📊</div>
+      <p class="text-gray-500">Carregando panorama...</p>
     </div>
 
-    <div v-if="loading" class="grid sm:grid-cols-4 gap-5">
-      <div v-for="i in 4" :key="i" class="skeleton h-28 rounded-xl"></div>
-    </div>
-
-    <template v-else-if="d.total">
-      <!-- KPIs -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-        <div class="card p-5 text-center">
-          <div class="text-3xl font-extrabold text-brand-500">{{ d.total }}</div>
-          <div class="text-sm text-gray-500 mt-1">Imóveis disponíveis</div>
+    <template v-if="data && !loading">
+      <!-- Área 1 — Resumo geral -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 mb-6">
+        <div class="bg-white rounded-lg border border-gray-200 p-3 text-center">
+          <div class="text-lg font-bold text-gray-900">{{ data.resumo.total.toLocaleString() }}</div>
+          <div class="text-xs text-gray-500">Imóveis</div>
         </div>
-        <div class="card p-5 text-center">
-          <div class="text-3xl font-extrabold text-success-600">{{ d.descontoMedio }}%</div>
-          <div class="text-sm text-gray-500 mt-1">Desconto médio</div>
+        <div class="bg-white rounded-lg border border-gray-200 p-3 text-center">
+          <div class="text-lg font-bold text-green-600">{{ data.resumo.maiorDesconto.toFixed(1) }}%</div>
+          <div class="text-xs text-gray-500">Maior desconto</div>
         </div>
-        <div class="card p-5 text-center">
-          <div class="text-3xl font-extrabold text-orange-500">{{ d.descontoMax }}%</div>
-          <div class="text-sm text-gray-500 mt-1">Maior desconto</div>
+        <div class="bg-white rounded-lg border border-gray-200 p-3 text-center">
+          <div class="text-lg font-bold text-gray-900">{{ data.resumo.descontoMedio }}%</div>
+          <div class="text-xs text-gray-500">Desconto médio</div>
         </div>
-        <div class="card p-5 text-center">
-          <div class="text-3xl font-extrabold text-gray-700">R$ {{ fmtK(d.precoMedio) }}</div>
-          <div class="text-sm text-gray-500 mt-1">Preço médio</div>
+        <div class="bg-white rounded-lg border border-gray-200 p-3 text-center">
+          <div class="text-lg font-bold text-blue-600">{{ data.resumo.financiaveis.toLocaleString() }}</div>
+          <div class="text-xs text-gray-500">Financiáveis</div>
+        </div>
+        <div class="bg-white rounded-lg border border-gray-200 p-3 text-center">
+          <div class="text-lg font-bold text-orange-500">{{ data.resumo.altosDescontos.toLocaleString() }}</div>
+          <div class="text-xs text-gray-500">>30% desconto</div>
+        </div>
+        <div class="bg-white rounded-lg border border-gray-200 p-3 text-center">
+          <div class="text-lg font-bold text-gray-900">R$ {{ (data.resumo.precoMedio / 1000).toFixed(0) }}k</div>
+          <div class="text-xs text-gray-500">Ticket médio</div>
+        </div>
+        <div class="bg-white rounded-lg border border-gray-200 p-3 text-center">
+          <div class="text-lg font-bold text-brand-600">{{ data.resumo.scoreMedio }}</div>
+          <div class="text-xs text-gray-500">Score médio</div>
         </div>
       </div>
 
-      <div class="grid lg:grid-cols-2 gap-8 mb-8">
-        <!-- Distribuição de desconto -->
-        <div class="card p-6">
-          <h2 class="font-bold text-gray-900 mb-4">Distribuição de Desconto</h2>
-          <div v-if="faixas.length" class="space-y-3">
-            <div v-for="(item, i) in faixas" :key="i">
-              <div class="flex justify-between text-sm mb-1">
-                <span class="text-gray-600">{{ item.label }}</span>
-                <span class="font-semibold">{{ item.count }} <span class="text-gray-400 font-normal">({{ item.pct }}%)</span></span>
-              </div>
-              <div class="h-3 bg-gray-100 rounded-full overflow-hidden">
-                <div class="h-full rounded-full transition-all duration-500" :class="item.color" :style="{ width: item.pct + '%' }"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Por tipo -->
-        <div class="card p-6">
-          <h2 class="font-bold text-gray-900 mb-4">Por Tipo de Imóvel</h2>
-          <div class="space-y-3">
-            <div v-for="t in d.porTipo" :key="t.tipo" class="flex items-center justify-between">
+      <!-- Área 2 — Top Oportunidades -->
+      <div class="bg-white rounded-xl border border-gray-200 p-4 mb-6">
+        <h2 class="text-sm font-bold text-gray-900 mb-3">🔥 Top Oportunidades</h2>
+        <div class="space-y-2">
+          <router-link v-for="(im, i) in data.topOportunidades" :key="im.numeroImovel"
+            :to="`/imoveis/${im.numeroImovel}?uf=${im.uf}`"
+            class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
+            <span class="text-xs font-bold text-gray-400 w-5">{{ i + 1 }}</span>
+            <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2">
-                <span class="badge badge-type">{{ t.tipo }}</span>
-                <span class="text-xs text-gray-400">{{ t.quantidade }} imóveis</span>
+                <span class="text-sm font-medium text-gray-900 truncate">{{ im.tipoImovel || 'Imóvel' }} em {{ im.cidade }}</span>
+                <span v-if="im.financiamento === 'Sim'" class="text-xs text-blue-500">🏦</span>
               </div>
-              <div class="text-right">
-                <span class="font-bold text-success-600">{{ t.descontoMedio }}%</span>
-                <span class="text-xs text-gray-400 ml-2">R$ {{ fmtK(t.precoMedio) }}</span>
+              <p class="text-xs text-gray-400 truncate">{{ im.bairro }} — {{ im.uf }}</p>
+            </div>
+            <div class="text-right shrink-0">
+              <div class="text-sm font-bold text-brand-600">{{ im.score }}</div>
+              <div class="text-xs text-gray-400">score</div>
+            </div>
+            <div class="text-right shrink-0 w-16">
+              <div class="text-sm font-bold text-green-600">-{{ (im.percentualDesconto ?? 0).toFixed(0) }}%</div>
+            </div>
+            <div class="text-right shrink-0">
+              <div class="text-xs font-medium text-gray-700">R$ {{ ((im.precoVenda ?? 0) / 1000).toFixed(0) }}k</div>
+            </div>
+          </router-link>
+        </div>
+      </div>
+
+      <!-- Área 3 — Ranking por Estado -->
+      <div class="grid sm:grid-cols-2 gap-4 mb-6">
+        <div class="bg-white rounded-xl border border-gray-200 p-4">
+          <h2 class="text-sm font-bold text-gray-900 mb-3">📍 Ranking por Estado (Score médio)</h2>
+          <div class="space-y-1.5">
+            <router-link v-for="e in data.rankingEstados" :key="e.uf" :to="`/imoveis?uf=${e.uf}`"
+              class="flex items-center justify-between p-1.5 rounded hover:bg-gray-50">
+              <span class="text-sm font-medium text-gray-700">{{ e.uf }}</span>
+              <div class="flex items-center gap-3">
+                <span class="text-xs text-gray-400">{{ e.total }} imóveis</span>
+                <span class="text-sm font-bold text-brand-600">{{ e.scoreMedio }}</span>
+              </div>
+            </router-link>
+          </div>
+        </div>
+
+        <!-- Área 4 — Alertas -->
+        <div class="bg-white rounded-xl border border-gray-200 p-4">
+          <h2 class="text-sm font-bold text-gray-900 mb-3">⚡ Radar Imovue</h2>
+          <div class="space-y-3">
+            <div class="flex items-start gap-2 p-2 bg-green-50 rounded-lg">
+              <span class="text-lg">🔥</span>
+              <div>
+                <div class="text-sm font-medium text-gray-900">{{ data.alertas.scoreAlto }} imóveis com score acima de 80</div>
+                <p class="text-xs text-gray-500">Oportunidades fortes para análise imediata</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-2 p-2 bg-yellow-50 rounded-lg">
+              <span class="text-lg">⚠️</span>
+              <div>
+                <div class="text-sm font-medium text-gray-900">{{ data.alertas.altosDescontosOcupados }} com alto desconto, mas ocupados</div>
+                <p class="text-xs text-gray-500">Desconto atrativo porém com risco de ocupação</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-2 p-2 bg-blue-50 rounded-lg">
+              <span class="text-lg">🏦</span>
+              <div>
+                <div class="text-sm font-medium text-gray-900">{{ data.resumo.financiaveis }} aceitam financiamento</div>
+                <p class="text-xs text-gray-500">Ideal para quem precisa de crédito</p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Top cidades -->
-      <div class="card p-6 mb-8">
-        <h2 class="font-bold text-gray-900 mb-4">🏆 Top Cidades por Desconto Médio</h2>
-        <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
-          <div v-for="(c, i) in d.porCidade" :key="c.cidade"
-            class="bg-gray-50 rounded-xl p-4 text-center hover:bg-brand-50 transition-colors">
-            <div class="text-xs text-gray-400 mb-1">#{{ i + 1 }}</div>
-            <div class="font-semibold text-gray-900 text-sm truncate">{{ c.cidade }}</div>
-            <div class="text-xl font-bold text-success-600 mt-1">{{ c.descontoMedio }}%</div>
-            <div class="text-xs text-gray-400">{{ c.quantidade }} imóveis</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Top 10 oportunidades -->
-      <div class="card p-6">
-        <h2 class="font-bold text-gray-900 mb-4">🔥 Top 10 Maiores Descontos</h2>
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="border-b-2 border-gray-200 text-left text-gray-500">
-                <th class="pb-3 font-medium">#</th>
-                <th class="pb-3 font-medium">Cidade</th>
-                <th class="pb-3 font-medium">Tipo</th>
-                <th class="pb-3 font-medium text-right">Preço</th>
-                <th class="pb-3 font-medium text-right">Avaliação</th>
-                <th class="pb-3 font-medium text-right">Desconto</th>
-                <th class="pb-3"></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(im, i) in d.topDescontos" :key="im.numeroImovel" class="border-b border-gray-100 hover:bg-gray-50">
-                <td class="py-3 font-bold text-gray-400">{{ i + 1 }}</td>
-                <td class="py-3">
-                  <div class="font-medium text-gray-900">{{ im.cidade }}</div>
-                  <div class="text-xs text-gray-400">{{ im.bairro }}</div>
-                </td>
-                <td class="py-3"><span class="badge badge-type">{{ im.tipoImovel }}</span></td>
-                <td class="py-3 text-right font-semibold">R$ {{ fmt(im.precoVenda) }}</td>
-                <td class="py-3 text-right text-gray-400 line-through">R$ {{ fmt(im.valorAvaliacao) }}</td>
-                <td class="py-3 text-right"><span class="badge badge-discount text-sm font-bold">-{{ im.percentualDesconto }}%</span></td>
-                <td class="py-3 text-right">
-                  <router-link :to="`/imoveis/${im.numeroImovel}`" class="text-brand-500 hover:text-brand-600 font-medium">Ver →</router-link>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+      <!-- Área 5 — Chamadas para listas -->
+      <div class="bg-white rounded-xl border border-gray-200 p-4">
+        <h2 class="text-sm font-bold text-gray-900 mb-3">🔎 Explorar oportunidades</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+          <router-link to="/imoveis?sort=percentualDesconto,desc" class="btn-outline text-center">💰 Maiores descontos</router-link>
+          <router-link to="/imoveis?financiamento=Sim" class="btn-outline text-center">🏦 Financiáveis</router-link>
+          <router-link to="/imoveis?precoMax=100000" class="btn-outline text-center">🎯 Até R$100 mil</router-link>
+          <router-link to="/imoveis?descontoMin=40" class="btn-outline text-center">🔥 Desconto >40%</router-link>
+          <router-link to="/imoveis?tipoImovel=Casa" class="btn-outline text-center">🏠 Casas</router-link>
         </div>
       </div>
     </template>
-
-    <div v-else class="text-center py-20">
-      <div class="text-5xl mb-4">📊</div>
-      <h3 class="text-lg font-semibold text-gray-700">Nenhum dado carregado</h3>
-      <p class="text-gray-400 mt-1">Selecione um estado primeiro.</p>
-      <router-link to="/" class="btn-primary mt-4 inline-block">Selecionar estado</router-link>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue'
 import { dataService } from '@/services/dataService'
-import { useCatalogoStore } from '@/stores/catalogo'
+import type { Imovel } from '@/types'
 
-const router = useRouter()
-const store = useCatalogoStore()
-const d = ref<any>({})
-const loading = ref(true)
-
-const fmt = (v: number | null) => v ? v.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '-'
-const fmtData = (iso: string) => new Date(iso).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
-const fmtK = (v: number) => {
-  if (v >= 1_000_000) return (v / 1_000_000).toFixed(1) + 'M'
-  if (v >= 1_000) return (v / 1_000).toFixed(0) + 'K'
-  return v.toFixed(0)
+interface DashboardData {
+  resumo: { total: number; maiorDesconto: number; descontoMedio: number; financiaveis: number; altosDescontos: number; precoMedio: number; scoreMedio: number }
+  topOportunidades: (Imovel & { score: number })[]
+  rankingEstados: { uf: string; total: number; scoreMedio: number }[]
+  alertas: { altosDescontosOcupados: number; naoFinanciaveis: number; scoreAlto: number }
 }
 
-const faixas = computed(() => {
-  const dist = d.value.distribuicaoDesconto
-  if (!dist) return []
-  const total = dist.ate20 + dist.de20a40 + dist.de40a60 + dist.acima60
-  if (total === 0) return []
-  const pct = (n: number) => Math.round((n / total) * 100)
-  return [
-    { label: 'Até 20%', count: dist.ate20, pct: pct(dist.ate20), color: 'bg-gray-400' },
-    { label: '20% a 40%', count: dist.de20a40, pct: pct(dist.de20a40), color: 'bg-blue-400' },
-    { label: '40% a 60%', count: dist.de40a60, pct: pct(dist.de40a60), color: 'bg-success-500' },
-    { label: 'Acima de 60%', count: dist.acima60, pct: pct(dist.acima60), color: 'bg-orange-500' },
-  ]
-})
+const data = ref<DashboardData | null>(null)
+const loading = ref(true)
 
 onMounted(async () => {
-  const uf = store.ufSelecionada
-  if (!uf) { router.push('/'); return }
-
-  const stats = await dataService.estatisticas(uf)
-  // Carrega todos os imóveis para calcular distribuições
-  const todos = (await dataService.listar(uf, { size: 99999 })).content
-
-  // Distribuição de desconto
-  const dist = { ate20: 0, de20a40: 0, de40a60: 0, acima60: 0 }
-  for (const im of todos) {
-    const desc = im.percentualDesconto ?? 0
-    if (desc <= 0 || desc > 100) continue
-    if (desc < 20) dist.ate20++
-    else if (desc < 40) dist.de20a40++
-    else if (desc < 60) dist.de40a60++
-    else dist.acima60++
-  }
-
-  // Por tipo
-  const tipoMap = new Map<string, { count: number; descontos: number[]; precos: number[] }>()
-  for (const im of todos) {
-    const tipo = im.tipoImovel || 'Outros'
-    if (!tipoMap.has(tipo)) tipoMap.set(tipo, { count: 0, descontos: [], precos: [] })
-    const t = tipoMap.get(tipo)!
-    t.count++
-    if (im.percentualDesconto && im.percentualDesconto > 0 && im.percentualDesconto <= 100) t.descontos.push(im.percentualDesconto)
-    if (im.precoVenda) t.precos.push(im.precoVenda)
-  }
-  const porTipo = [...tipoMap.entries()]
-    .map(([tipo, v]) => ({
-      tipo,
-      quantidade: v.count,
-      descontoMedio: v.descontos.length ? (v.descontos.reduce((a, b) => a + b, 0) / v.descontos.length).toFixed(1) : '0',
-      precoMedio: v.precos.length ? v.precos.reduce((a, b) => a + b, 0) / v.precos.length : 0,
-    }))
-    .sort((a, b) => b.quantidade - a.quantidade)
-    .slice(0, 8)
-
-  // Por cidade (top desconto médio, mín 3 imóveis)
-  const cidadeMap = new Map<string, { count: number; descontos: number[] }>()
-  for (const im of todos) {
-    if (!im.cidade) continue
-    if (!cidadeMap.has(im.cidade)) cidadeMap.set(im.cidade, { count: 0, descontos: [] })
-    const c = cidadeMap.get(im.cidade)!
-    c.count++
-    if (im.percentualDesconto && im.percentualDesconto > 0 && im.percentualDesconto <= 100) c.descontos.push(im.percentualDesconto)
-  }
-  const porCidade = [...cidadeMap.entries()]
-    .filter(([_, v]) => v.count >= 3 && v.descontos.length > 0)
-    .map(([cidade, v]) => ({
-      cidade,
-      quantidade: v.count,
-      descontoMedio: (v.descontos.reduce((a, b) => a + b, 0) / v.descontos.length).toFixed(1),
-    }))
-    .sort((a, b) => parseFloat(b.descontoMedio) - parseFloat(a.descontoMedio))
-    .slice(0, 10)
-
-  d.value = {
-    uf,
-    total: stats.total,
-    descontoMedio: stats.descontoMedio.toFixed(1),
-    descontoMax: stats.topDescontos.length ? stats.topDescontos[0].percentualDesconto?.toFixed(1) : 0,
-    precoMedio: stats.precoMedio,
-    topDescontos: stats.topDescontos,
-    distribuicaoDesconto: dist,
-    porTipo,
-    porCidade,
-  }
+  data.value = await dataService.dashboardGlobal() as DashboardData
   loading.value = false
 })
 </script>
+
+<style scoped>
+.btn-outline {
+  @apply text-xs font-medium text-gray-600 border border-gray-200 rounded-lg px-3 py-2 hover:bg-brand-50 hover:text-brand-600 hover:border-brand-200 transition-colors;
+}
+</style>

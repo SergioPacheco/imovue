@@ -121,4 +121,71 @@ export const dataService = {
       topDescontos: [...all].sort((a, b) => (b.percentualDesconto ?? 0) - (a.percentualDesconto ?? 0)).slice(0, 10),
     }
   },
+
+  calcScore(im: Imovel, precoMedio: number): number {
+    let score = 0
+    const desc = im.percentualDesconto ?? 0
+    if (desc > 0 && desc <= 100) score += Math.min(desc, 60) * 0.6  // max 36pts
+    if (im.financiamento === 'Sim') score += 20
+    if (im.modalidadeVenda?.includes('Direta') || im.modalidadeVenda?.includes('Online')) score += 10
+    if (im.precoVenda && im.precoVenda < precoMedio) score += 15
+    if (im.quartos && im.quartos >= 2) score += 5
+    if (im.vagas && im.vagas >= 1) score += 5
+    return Math.min(Math.round(score), 100)
+  },
+
+  async dashboardGlobal() {
+    const m = await loadManifest()
+    let todos: Imovel[] = []
+    for (const entry of m) {
+      const data = await loadUf(entry.uf)
+      todos = todos.concat(data)
+    }
+
+    const precos = todos.map(i => i.precoVenda).filter(Boolean) as number[]
+    const precoMedio = precos.length ? precos.reduce((a, b) => a + b, 0) / precos.length : 0
+    const descontos = todos.filter(i => (i.percentualDesconto ?? 0) > 0 && (i.percentualDesconto ?? 0) <= 100)
+    const descontoMedio = descontos.length ? descontos.reduce((a, b) => a + (b.percentualDesconto ?? 0), 0) / descontos.length : 0
+    const financiaveis = todos.filter(i => i.financiamento === 'Sim')
+    const altosDescontos = descontos.filter(i => (i.percentualDesconto ?? 0) >= 30)
+
+    // Score para todos
+    const scored = todos.map(i => ({ ...i, score: this.calcScore(i, precoMedio) }))
+    const topOportunidades = [...scored].sort((a, b) => b.score - a.score).slice(0, 10)
+
+    // Ranking por estado
+    const porEstado = new Map<string, { total: number; somaScore: number }>()
+    scored.forEach(i => {
+      const e = porEstado.get(i.uf) || { total: 0, somaScore: 0 }
+      e.total++; e.somaScore += i.score
+      porEstado.set(i.uf, e)
+    })
+    const rankingEstados = [...porEstado.entries()]
+      .map(([uf, v]) => ({ uf, total: v.total, scoreMedio: Math.round(v.somaScore / v.total) }))
+      .sort((a, b) => b.scoreMedio - a.scoreMedio)
+      .slice(0, 10)
+
+    // Alertas
+    const altosDescontosOcupados = todos.filter(i => (i.percentualDesconto ?? 0) >= 30 && !i.descricao?.toLowerCase().includes('desocupad'))
+    const scoreAlto = scored.filter(i => i.score >= 80)
+
+    return {
+      resumo: {
+        total: todos.length,
+        maiorDesconto: Math.max(...descontos.map(i => i.percentualDesconto ?? 0)),
+        descontoMedio: Math.round(descontoMedio * 10) / 10,
+        financiaveis: financiaveis.length,
+        altosDescontos: altosDescontos.length,
+        precoMedio: Math.round(precoMedio),
+        scoreMedio: Math.round(scored.reduce((a, b) => a + b.score, 0) / scored.length),
+      },
+      topOportunidades,
+      rankingEstados,
+      alertas: {
+        altosDescontosOcupados: altosDescontosOcupados.length,
+        naoFinanciaveis: todos.length - financiaveis.length,
+        scoreAlto: scoreAlto.length,
+      },
+    }
+  },
 }
