@@ -28,6 +28,9 @@ jobs:
       - name: Gerar JSONs
         run: python tools/csv_to_json.py
 
+      - name: Geocodificar imóveis
+        run: pip install requests && python tools/geocode.py
+
       - name: Validar dados gerados
         run: python tools/validate_data.py
 
