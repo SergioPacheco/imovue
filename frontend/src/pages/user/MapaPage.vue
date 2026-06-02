@@ -22,6 +22,9 @@ import { dataService } from '@/services/dataService'
 import type { Imovel } from '@/types'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import 'leaflet.markercluster'
+import 'leaflet.markercluster/dist/MarkerCluster.css'
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 
 const router = useRouter()
 const store = useCatalogoStore()
@@ -49,6 +52,8 @@ function createMap() {
     attribution: '© OpenStreetMap'
   }).addTo(map)
 
+  const cluster = (L as any).markerClusterGroup({ maxClusterRadius: 40 })
+
   for (const im of items) {
     const isHot = (im.percentualDesconto ?? 0) > 40
     const icon = L.divIcon({
@@ -58,7 +63,7 @@ function createMap() {
       iconAnchor: [35, 24],
     })
 
-    const marker = L.marker([im.lat!, im.lng!], { icon }).addTo(map)
+    const marker = L.marker([im.lat!, im.lng!], { icon })
     marker.bindPopup(`
       <div style="min-width:180px">
         <p style="margin:0;font-size:11px;color:#888">${im.cidade} / ${im.bairro}</p>
@@ -69,7 +74,10 @@ function createMap() {
         <a href="/imoveis/${im.numeroImovel}" style="font-size:11px;color:#2563eb">Ver detalhes →</a>
       </div>
     `)
+    cluster.addLayer(marker)
   }
+
+  map.addLayer(cluster)
 
   // Fit bounds
   const bounds = L.latLngBounds(items.map(i => [i.lat!, i.lng!]))
