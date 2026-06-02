@@ -17,6 +17,8 @@ export interface Imovel {
   areaTerreno: number | null
   quartos: number | null
   vagas: number | null
+  lat: number | null
+  lng: number | null
 }
 
 export interface PageResponse<T> {

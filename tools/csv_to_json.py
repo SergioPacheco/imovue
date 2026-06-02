@@ -168,6 +168,8 @@ def parse_csv(filepath: str, uf: str) -> list[dict]:
             "areaTerreno": area_terreno,
             "quartos": quartos,
             "vagas": vagas,
+            "lat": None,
+            "lng": None,
         })
 
     return imoveis

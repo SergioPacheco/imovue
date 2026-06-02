@@ -9,6 +9,9 @@
         </div>
         <router-link to="/" class="text-xs text-brand-500 hover:text-brand-600 inline-block">← Trocar estado</router-link>
       </div>
+      <router-link to="/mapa" class="text-sm font-medium text-brand-500 hover:text-brand-600 flex items-center gap-1">
+        🗺️ Ver no mapa
+      </router-link>
     </div>
 
     <!-- Filtros -->
