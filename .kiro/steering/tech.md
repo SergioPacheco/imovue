@@ -6,47 +6,41 @@ inclusion: always
 # Tech Steering
 
 ## Language and runtime
-- Backend: Java 17
+- Tools: Python 3.10+
 - Frontend: TypeScript 5.x
 
 ## Frameworks
-### Backend
-- Spring Boot 3.2
-- Armazenamento 100% in-memory (sem banco de dados)
-- Dados carregados de CSVs para lista volátil em memória
-
 ### Frontend
 - Vue 3
 - Vite
 - Vue Router
 - Pinia
-- Axios
 - Tailwind CSS
 
-## Libraries
-### Backend
-- `spring-boot-starter-web`
-- `spring-boot-starter-actuator`
-- `commons-csv` para parsing CSV
-- `spring-boot-starter-test`
+### Tools (CI/offline)
+- Python stdlib (csv, json, re)
+- requests (para download dos CSVs)
 
+## Libraries
 ### Frontend
 - `@vueuse/core`
 - `vitest`
 - `@testing-library/vue`
 
 ## Build and packaging
-- Backend: Maven
 - Frontend: npm com Vite
 - Pin all dependency versions explicitly
 - CI builds must be reproducible
 
 ## Deployment
-- Docker Compose (backend + frontend)
-- Backend: porta 8080
-- Frontend: porta 3000 (nginx em prod, Vite em dev)
-- Health check endpoint available via Actuator
+- Frontend: site estático (Vercel / Netlify / GitHub Pages)
+- Dados: JSONs estáticos em `frontend/public/data/`
+- Atualização: GitHub Actions (schedule cron)
 
-## Monitoring
-- Structured logging
-- Health check endpoint (`/actuator/health`)
+## CI/CD
+- GitHub Actions workflow `update-data.yml`:
+  - Schedule: cron (ex: diário às 6h)
+  - Roda `tools/download_caixa.py` para baixar CSVs
+  - Roda `tools/csv_to_json.py` para gerar JSONs
+  - Commit automático se houver mudanças
+  - Deploy disparado pelo push

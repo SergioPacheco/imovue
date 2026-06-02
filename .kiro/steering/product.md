@@ -78,11 +78,10 @@ Aplicação web para listar e filtrar imóveis de leilão da CAIXA. O sistema im
 - Estatísticas por UF (total de imóveis)
 
 ## Core constraints
-- Dados 100% in-memory — sem banco de dados
-- Importação idempotente — reexecução não gera duplicidade
-- Nenhuma conexão automática com site da CAIXA
-- CSVs são fonte externa, importados manualmente pelo admin
-- Dados voláteis: perdem-se ao reiniciar, recarregáveis dos CSVs
+- Dados servidos como JSONs estáticos — sem banco de dados, sem backend
+- Importação idempotente — reexecução gera mesmos JSONs
+- Download dos CSVs via `tools/download_caixa.py` (manual ou GitHub Actions)
+- Sem servidor: frontend 100% estático (Vue + JSONs pré-gerados)
 
 ## Business rules
 - `numero_imovel` é a chave funcional principal de deduplicação

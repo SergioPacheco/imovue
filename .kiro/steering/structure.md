@@ -8,31 +8,20 @@ inclusion: always
 ## Project layout
 ```
 imovue/
+├── .github/
+│   └── workflows/
+│       └── update-data.yml       ← GitHub Actions: atualiza CSVs periodicamente
 ├── tools/
-│   └── download_caixa.py            ← utilitário para baixar CSVs
+│   ├── download_caixa.py        ← baixa CSVs do site da Caixa
+│   └── csv_to_json.py           ← converte CSVs → JSONs estáticos
 ├── data/
-│   └── listas/                       ← CSVs baixados (upload via admin)
+│   └── listas/                   ← CSVs baixados
 │       ├── Lista_imoveis_RJ.csv
 │       ├── Lista_imoveis_SP.csv
 │       └── ...
-├── backend/
-│   ├── src/main/java/br/com/imovue/
-│   │   ├── ImovueApplication.java
-│   │   ├── config/
-│   │   ├── shared/
-│   │   │   └── exception/
-│   │   ├── importer/
-│   │   │   └── parser/          ← parser CSV (Latin-1, separador ;)
-│   │   ├── catalog/
-│   │   │   ├── api/             ← endpoints usuário: listar, filtrar, detalhe
-│   │   │   ├── service/         ← InMemoryStore (dados voláteis)
-│   │   │   └── domain/          ← Imovel record
-│   │   └── admin/
-│   │       └── api/             ← endpoints admin: upload, carregar, status
-│   ├── src/main/resources/
-│   │   └── application.yml
-│   └── pom.xml
 └── frontend/
+    ├── public/
+    │   └── data/                 ← JSONs gerados (um por UF + manifest.json)
     ├── src/
     │   ├── assets/
     │   ├── components/
@@ -44,8 +33,6 @@ imovue/
     │   │   │   ├── FavoritosPage.vue
     │   │   │   ├── DashboardPage.vue
     │   │   │   └── MapaPage.vue        ← Fase 2
-    │   │   ├── admin/          ← dashboard admin
-    │   │   │   └── ImportacaoPage.vue
     │   │   └── guia/
     │   │       └── GuiaPage.vue
     │   ├── router/
@@ -59,10 +46,9 @@ imovue/
 ```
 
 ## Module boundaries
-- `importer/` — parser CSV, normalização de dados
-- `catalog/` — API REST de consulta, listagem, filtros, detalhe, dashboard (InMemoryStore)
-- `admin/` — endpoints administrativos: upload CSV, carregar arquivo, status
-- `shared/` — exceções globais, utilitários comuns
+- `tools/` — scripts Python para download e conversão de dados (offline/CI)
+- `frontend/` — SPA Vue 3 que consome JSONs estáticos
+- `frontend/public/data/` — JSONs gerados, servidos como arquivos estáticos
 
 ## Frontend routes
 ### Dashboard Usuário
@@ -78,10 +64,10 @@ imovue/
 - `/admin` — Upload e importação de CSVs
 
 ## Architecture rules
-- Controllers depend on services. Never on other controllers.
-- Services contain business logic. InMemoryStore is the central service.
-- No database, no JPA, no migrations. Dados 100% in-memory.
-- CSVs são a fonte de verdade, carregados sob demanda.
+- Frontend consome exclusivamente JSONs estáticos de `public/data/`
+- Toda lógica de filtros, paginação e sort é client-side
+- Dados atualizados via CI (GitHub Actions) — sem servidor backend
+- Scripts Python (`tools/`) são a ponte entre CSVs da Caixa e JSONs do frontend
 
 ## Naming conventions
 - Classes/types: `PascalCase`
@@ -90,10 +76,9 @@ imovue/
 - REST endpoints: `kebab-case`
 
 ## File placement rules
-- New endpoint → controller method
-- New business rule → service layer (InMemoryStore ou novo service)
-- New CSV parsing logic → `importer/parser/`
-- New frontend page → `pages/{user|admin|guia}/`
+- New CSV parsing logic → `tools/csv_to_json.py`
+- New download logic → `tools/download_caixa.py`
+- New frontend page → `pages/{user|guia}/`
 
 ## Key domain model
 - `Imovel` — Java record com 18 campos (numero, uf, cidade, preço, desconto, etc.)
