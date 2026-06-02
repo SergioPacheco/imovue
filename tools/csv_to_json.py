@@ -53,6 +53,21 @@ def parse_int(val: str):
     return int(m.group()) if m else None
 
 
+def normalizar_endereco(e: str) -> str:
+    """Remove complementos (Apto, BL, LT, QD, PAV, VAGA, etc.) para facilitar geocodificação."""
+    e = re.sub(r',\s*(Apto|APT|BL|BLOCO|LT|QD|QUADRA|SL|SALA|COND|TORRE|TR|PAV|PV|VG|VAGA|BOX|CS|CASA|RES|LOT|SETOR|ÁREA|AREA|UND|UNID)\.?\s*[^,]*', '', e, flags=re.I)
+    e = re.sub(r',?\s*N\.\s*(00|SN|S/N[º°]?)\b', '', e, flags=re.I)
+    e = re.sub(r'\bN\.\s*', '', e)
+    e = re.sub(r'\b(LT|QD|LOT|LOTE|QUADRA)\s*[\w\d\-/]+', '', e, flags=re.I)
+    e = re.sub(r'\b(PAV|PV|PAVIMENTO|VG|VAGA|BOX|TORRE|BL|BLOCO)\s*[\w\d\-/]*', '', e, flags=re.I)
+    e = re.sub(r'\d+º\s*(PAV|ANDAR)?', '', e, flags=re.I)
+    e = re.sub(r',\s*,', ',', e)
+    e = re.sub(r',\s*$', '', e)
+    e = re.sub(r'^\s*,', '', e)
+    e = re.sub(r'\s{2,}', ' ', e)
+    return e.strip()
+
+
 def extract_fields(descricao: str):
     """Extrai tipo, áreas, quartos e vagas da descrição."""
     tipo = None
@@ -154,7 +169,7 @@ def parse_csv(filepath: str, uf: str) -> list[dict]:
             "uf": uf,
             "cidade": row[2].strip(),
             "bairro": row[3].strip(),
-            "endereco": row[4].strip(),
+            "endereco": normalizar_endereco(row[4].strip()),
             "precoVenda": preco,
             "valorAvaliacao": avaliacao,
             "percentualDesconto": desconto,
