@@ -24,6 +24,17 @@ def parse_decimal(val: str):
         return None
 
 
+def parse_area(val: str):
+    """Parse área da descrição (ponto é separador decimal): 8640.00 → 8640.0"""
+    if not val or not val.strip():
+        return None
+    val = val.strip().replace(",", ".")
+    try:
+        return float(val)
+    except ValueError:
+        return None
+
+
 def parse_percent(val: str):
     """Parse percentual: 64.97 ou 64,97 → 64.97"""
     if not val or not val.strip():
@@ -59,17 +70,17 @@ def extract_fields(descricao: str):
 
         m = re.search(r"([\d.,]+)\s*de\s*[áa]rea\s*total", descricao)
         if m:
-            v = parse_decimal(m.group(1))
+            v = parse_area(m.group(1))
             area_total = v if v and v > 0 else None
 
         m = re.search(r"([\d.,]+)\s*de\s*[áa]rea\s*privativa", descricao)
         if m:
-            v = parse_decimal(m.group(1))
+            v = parse_area(m.group(1))
             area_privativa = v if v and v > 0 else None
 
         m = re.search(r"([\d.,]+)\s*de\s*[áa]rea\s*do\s*terreno", descricao)
         if m:
-            v = parse_decimal(m.group(1))
+            v = parse_area(m.group(1))
             area_terreno = v if v and v > 0 else None
 
         m = re.search(r"(\d+)\s*qto", descricao)
