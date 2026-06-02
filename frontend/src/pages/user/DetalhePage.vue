@@ -75,6 +75,11 @@
             <p class="text-gray-600 text-sm leading-relaxed">{{ imovel.descricao }}</p>
           </div>
 
+          <!-- Mapa -->
+          <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <iframe :src="osmUrl" class="w-full h-64" frameborder="0" loading="lazy" referrerpolicy="no-referrer"></iframe>
+          </div>
+
           <!-- Informações -->
           <div class="bg-white rounded-xl border border-gray-200 p-5">
             <h2 class="font-semibold text-gray-900 mb-3">Informações</h2>
@@ -133,7 +138,9 @@
               :class="fav.isFav(imovel.numeroImovel) ? 'bg-red-50 border-red-300 text-red-600 hover:bg-red-100 font-semibold px-5 py-2.5 rounded-lg border' : 'btn-secondary'">
               {{ fav.isFav(imovel.numeroImovel) ? '❤️ Favoritado' : '🤍 Favoritar' }}
             </button>
-            <button @click="compartilhar" class="btn-secondary w-full">📋 Copiar link</button>
+            <button @click="compartilhar" class="btn-secondary w-full">
+              {{ copiado ? '✅ Link copiado!' : '📤 Compartilhar' }}
+            </button>
 
             <!-- Aviso -->
             <div class="bg-blue-50 rounded-xl p-4 text-xs text-blue-700 leading-relaxed">
@@ -175,7 +182,18 @@ const loading = ref(true)
 const fav = useFavoritos()
 
 const fmt = (v: number | null) => v ? v.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '-'
-const compartilhar = () => { navigator.clipboard.writeText(window.location.href); alert('Link copiado!') }
+const compartilhar = async () => {
+  const url = window.location.href
+  const texto = `${imovel.value?.tipoImovel || 'Imóvel'} em ${imovel.value?.cidade} — R$ ${fmt(imovel.value?.precoVenda ?? null)} (${imovel.value?.percentualDesconto?.toFixed(0)}% desconto)`
+  if (navigator.share) {
+    await navigator.share({ title: texto, url }).catch(() => {})
+  } else {
+    await navigator.clipboard.writeText(url)
+    copiado.value = true
+    setTimeout(() => copiado.value = false, 2000)
+  }
+}
+const copiado = ref(false)
 
 function limparEndereco(im: Imovel) {
   let e = im.endereco
@@ -191,6 +209,12 @@ function limparEndereco(im: Imovel) {
 const mapsUrl = computed(() => {
   if (!imovel.value) return ''
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(limparEndereco(imovel.value))}`
+})
+
+const osmUrl = computed(() => {
+  if (!imovel.value) return ''
+  const q = encodeURIComponent(`${imovel.value.bairro}, ${imovel.value.cidade}, ${imovel.value.uf}, Brasil`)
+  return `https://www.openstreetmap.org/export/embed.html?bbox=&layer=mapnik&marker=&query=${q}`
 })
 
 const matriculaUrl = computed(() => {
