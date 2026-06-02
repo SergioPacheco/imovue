@@ -26,6 +26,9 @@ jobs:
       - name: Gerar JSONs
         run: python tools/csv_to_json.py
 
+      - name: Validar dados gerados
+        run: python tools/validate_data.py
+
       - name: Commit e push se houve mudanças
         run: |
           git config user.name "github-actions[bot]"
