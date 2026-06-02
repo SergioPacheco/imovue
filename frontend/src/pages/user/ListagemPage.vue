@@ -1,18 +1,18 @@
 <template>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1 mb-3">
       <div>
         <div class="flex items-center gap-2">
-          <h1 class="text-2xl font-bold text-gray-900">Imóveis — {{ estado.uf }}</h1>
+          <h1 class="text-xl font-bold text-gray-900">Imóveis — {{ estado.uf }}</h1>
           <span class="badge badge-type">{{ resultado?.totalElements || 0 }} encontrados</span>
         </div>
-        <router-link to="/" class="text-sm text-brand-500 hover:text-brand-600 mt-1 inline-block">← Trocar estado</router-link>
+        <router-link to="/" class="text-xs text-brand-500 hover:text-brand-600 inline-block">← Trocar estado</router-link>
       </div>
     </div>
 
     <!-- Filtros -->
-    <div class="bg-white rounded-xl border border-gray-200 p-4 sm:p-5 mb-6">
+    <div class="bg-white rounded-xl border border-gray-200 p-3 sm:p-4 mb-4">
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         <div>
           <label class="block text-xs font-medium text-gray-500 mb-1">Tipo</label>
@@ -103,7 +103,7 @@
     </div>
 
     <!-- Dica discreta topo -->
-    <div v-if="resultado && resultado.content.length > 0" class="flex items-center gap-3 px-4 py-2.5 rounded-lg bg-gray-50 border border-gray-100 mb-5">
+    <div v-if="resultado && resultado.content.length > 0" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-gray-50 border border-gray-100 mb-4">
       <span class="text-sm">💡</span>
       <p class="text-xs sm:text-sm text-gray-500 flex-1">Novo em leilão de imóveis? Aprenda a analisar edital, ocupação e custos antes de dar lance.</p>
       <a :href="AFFILIATE_CONFIG.courseUrl" target="_blank" rel="nofollow sponsored noopener"
