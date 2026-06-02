@@ -99,8 +99,9 @@
         </PropertyImage>
 
         <div class="p-4">
+          <p class="text-xs font-medium text-gray-500 mb-0.5">{{ im.cidade }}</p>
           <h3 class="font-semibold text-gray-900 group-hover:text-brand-500 transition-colors truncate">
-            {{ im.cidade }} — {{ im.bairro }}
+            {{ im.bairro }}
           </h3>
           <p class="text-xs text-gray-400 truncate mt-0.5">
             <a :href="mapsLink(im)"
