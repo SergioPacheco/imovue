@@ -95,8 +95,9 @@ export const dataService = {
     return [...new Set(all.map(i => i.tipoImovel).filter(Boolean) as string[])].sort()
   },
 
-  async bairros(uf: string): Promise<string[]> {
-    const all = await loadUf(uf)
+  async bairros(uf: string, cidade?: string): Promise<string[]> {
+    let all = await loadUf(uf)
+    if (cidade) all = all.filter(i => i.cidade === cidade)
     const count = new Map<string, number>()
     all.forEach(i => { if (i.bairro) count.set(i.bairro, (count.get(i.bairro) || 0) + 1) })
     return [...count.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([b, n]) => `${b} (${n})`)

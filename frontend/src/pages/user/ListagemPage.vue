@@ -254,6 +254,12 @@ watch(filtros, () => {
   debounceTimer = setTimeout(buscar, 300)
 })
 
+watch(() => filtros.cidade, async (val) => {
+  filtros.bairro = ''
+  const cidade = val.replace(/ \(\d+\)$/, '') || undefined
+  bairros.value = await dataService.bairros(estado.value.uf, cidade)
+})
+
 function limpar() {
   filtros.cidade = ''; filtros.bairro = ''; filtros.tipoImovel = ''; filtros.modalidade = ''
   filtros.precoMin = undefined; filtros.precoMax = undefined
