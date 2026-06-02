@@ -85,27 +85,29 @@ export const dataService = {
 
   async cidades(uf: string): Promise<string[]> {
     const all = await loadUf(uf)
-    const count = new Map<string, number>()
-    all.forEach(i => count.set(i.cidade, (count.get(i.cidade) || 0) + 1))
-    return [...count.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([c, n]) => `${c} (${n})`)
+    return [...new Set(all.map(i => i.cidade))].sort()
   },
 
-  async tipos(uf: string): Promise<string[]> {
+  async opcoesFiltros(uf: string, filtros: FiltrosImovel) {
     const all = await loadUf(uf)
-    return [...new Set(all.map(i => i.tipoImovel).filter(Boolean) as string[])].sort()
-  },
 
-  async bairros(uf: string, cidade?: string): Promise<string[]> {
-    let all = await loadUf(uf)
-    if (cidade) all = all.filter(i => i.cidade === cidade)
-    const count = new Map<string, number>()
-    all.forEach(i => { if (i.bairro) count.set(i.bairro, (count.get(i.bairro) || 0) + 1) })
-    return [...count.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([b, n]) => `${b} (${n})`)
-  },
+    function filtered(exclude: keyof FiltrosImovel) {
+      const f = { ...filtros, [exclude]: undefined }
+      return applyFilters(all, f)
+    }
 
-  async modalidades(uf: string): Promise<string[]> {
-    const all = await loadUf(uf)
-    return [...new Set(all.map(i => i.modalidadeVenda).filter(Boolean))].sort()
+    function counted(items: Imovel[], key: (i: Imovel) => string | null): string[] {
+      const count = new Map<string, number>()
+      items.forEach(i => { const v = key(i); if (v) count.set(v, (count.get(v) || 0) + 1) })
+      return [...count.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([k, n]) => `${k} (${n})`)
+    }
+
+    return {
+      cidades: counted(filtered('cidade'), i => i.cidade),
+      bairros: counted(filtered('bairro'), i => i.bairro),
+      tipos: [...new Set(filtered('tipoImovel').map(i => i.tipoImovel).filter(Boolean) as string[])].sort(),
+      modalidades: [...new Set(filtered('modalidade').map(i => i.modalidadeVenda).filter(Boolean))].sort(),
+    }
   },
 
   async estatisticas(uf: string) {

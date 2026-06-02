@@ -245,6 +245,11 @@ async function buscar() {
   loading.value = true
   filtros.page = 0
   resultado.value = await dataService.listar(estado.value.uf, filtros as any)
+  const opcoes = await dataService.opcoesFiltros(estado.value.uf, filtros as any)
+  cidades.value = opcoes.cidades
+  tipos.value = opcoes.tipos
+  bairros.value = opcoes.bairros
+  modalidades.value = opcoes.modalidades
   loading.value = false
 }
 
@@ -254,11 +259,7 @@ watch(filtros, () => {
   debounceTimer = setTimeout(buscar, 300)
 })
 
-watch(() => filtros.cidade, async (val) => {
-  filtros.bairro = ''
-  const cidade = val.replace(/ \(\d+\)$/, '') || undefined
-  bairros.value = await dataService.bairros(estado.value.uf, cidade)
-})
+watch(() => filtros.cidade, () => { filtros.bairro = '' })
 
 function limpar() {
   filtros.cidade = ''; filtros.bairro = ''; filtros.tipoImovel = ''; filtros.modalidade = ''
@@ -274,12 +275,6 @@ function paginar(dir: number) {
 
 onMounted(async () => {
   if (!estado.value.uf) { router.push('/'); return }
-  ;[cidades.value, tipos.value, bairros.value, modalidades.value] = await Promise.all([
-    dataService.cidades(estado.value.uf),
-    dataService.tipos(estado.value.uf),
-    dataService.bairros(estado.value.uf),
-    dataService.modalidades(estado.value.uf),
-  ])
   await buscar()
 })
 </script>
