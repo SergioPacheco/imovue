@@ -13,7 +13,7 @@
 
     <!-- Filtros -->
     <div class="bg-white rounded-xl border border-gray-200 p-4 sm:p-5 mb-6">
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         <div>
           <label class="block text-xs font-medium text-gray-500 mb-1">Tipo</label>
           <select v-model="filtros.tipoImovel" class="input-field">
@@ -47,9 +47,6 @@
             <option value="precoVenda,asc">Menor preço</option>
             <option value="precoVenda,desc">Maior preço</option>
           </select>
-        </div>
-        <div class="flex items-end">
-          <button @click="buscar" class="btn-primary w-full">Buscar</button>
         </div>
       </div>
     </div>
@@ -171,7 +168,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { dataService } from '@/services/dataService'
 import { useCatalogoStore } from '@/stores/catalogo'
@@ -214,6 +211,12 @@ async function buscar() {
   resultado.value = await dataService.listar(estado.value.uf, filtros as any)
   loading.value = false
 }
+
+let debounceTimer: ReturnType<typeof setTimeout>
+watch(filtros, () => {
+  clearTimeout(debounceTimer)
+  debounceTimer = setTimeout(buscar, 300)
+})
 
 function limpar() {
   filtros.cidade = ''; filtros.tipoImovel = ''; filtros.precoMax = undefined
