@@ -254,7 +254,9 @@ async function buscar() {
 }
 
 let debounceTimer: ReturnType<typeof setTimeout>
-watch(filtros, () => {
+watch(() => [filtros.cidade, filtros.bairro, filtros.tipoImovel, filtros.modalidade,
+  filtros.precoMin, filtros.precoMax, filtros.descontoMin, filtros.quartosMin,
+  filtros.vagasMin, filtros.sort], () => {
   clearTimeout(debounceTimer)
   debounceTimer = setTimeout(buscar, 300)
 })
