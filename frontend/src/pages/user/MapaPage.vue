@@ -1,12 +1,20 @@
 <template>
   <div class="h-[calc(100vh-64px)] flex flex-col">
-    <!-- Header -->
-    <div class="bg-white border-b border-gray-200 px-4 py-2 flex items-center justify-between shrink-0">
-      <div class="flex items-center gap-2">
-        <router-link to="/imoveis" class="text-xs text-brand-500 hover:text-brand-600">← Listagem</router-link>
-        <h1 class="text-sm font-bold text-gray-900">Mapa — {{ uf }}</h1>
-        <span class="text-xs text-gray-400">{{ imoveisNoMapa.length }} imóveis no mapa</span>
-      </div>
+    <!-- Header com filtros -->
+    <div class="bg-white border-b border-gray-200 px-4 py-2 flex items-center gap-3 shrink-0 flex-wrap">
+      <router-link to="/imoveis" class="text-xs text-brand-500 hover:text-brand-600">← Listagem</router-link>
+      <h1 class="text-sm font-bold text-gray-900">Mapa — {{ uf }}</h1>
+      <select v-model="filtroTipo" class="text-xs border border-gray-200 rounded px-2 py-1">
+        <option value="">Todos os tipos</option>
+        <option v-for="t in tipos" :key="t">{{ t }}</option>
+      </select>
+      <select v-model="filtroCidade" class="text-xs border border-gray-200 rounded px-2 py-1">
+        <option value="">Todas as cidades</option>
+        <option v-for="c in cidades" :key="c">{{ c }}</option>
+      </select>
+      <input v-model.number="filtroPrecoMax" type="number" placeholder="Preço máx" class="text-xs border border-gray-200 rounded px-2 py-1 w-24" />
+      <input v-model.number="filtroDescontoMin" type="number" placeholder="Desc. mín %" class="text-xs border border-gray-200 rounded px-2 py-1 w-24" />
+      <span class="text-xs text-gray-400 ml-auto">{{ filtrados.length }} imóveis</span>
     </div>
 
     <!-- Mapa -->
@@ -31,8 +39,27 @@ const store = useCatalogoStore()
 const uf = store.ufSelecionada
 const imoveis = ref<Imovel[]>([])
 const mapContainer = ref<HTMLElement>()
+const tipos = ref<string[]>([])
+const cidades = ref<string[]>([])
 
-const imoveisNoMapa = computed(() => imoveis.value.filter(i => i.lat && i.lng))
+const filtroTipo = ref('')
+const filtroCidade = ref('')
+const filtroPrecoMax = ref<number | undefined>()
+const filtroDescontoMin = ref<number | undefined>()
+
+const filtrados = computed(() => {
+  return imoveis.value.filter(i => {
+    if (!i.lat || !i.lng) return false
+    if (filtroTipo.value && i.tipoImovel !== filtroTipo.value) return false
+    if (filtroCidade.value && i.cidade !== filtroCidade.value) return false
+    if (filtroPrecoMax.value && (i.precoVenda ?? Infinity) > filtroPrecoMax.value) return false
+    if (filtroDescontoMin.value && (i.percentualDesconto ?? 0) < filtroDescontoMin.value) return false
+    return true
+  })
+})
+
+let map: L.Map | null = null
+let cluster: any = null
 
 function formatPrice(v: number | null): string {
   if (!v) return '-'
@@ -40,19 +67,14 @@ function formatPrice(v: number | null): string {
   return `${(v / 1000).toFixed(0)}k`
 }
 
-function createMap() {
-  if (!mapContainer.value || !imoveisNoMapa.value.length) return
+function renderMarkers() {
+  if (!map) return
+  if (cluster) map.removeLayer(cluster)
 
-  const items = imoveisNoMapa.value
-  const avgLat = items.reduce((s, i) => s + i.lat!, 0) / items.length
-  const avgLng = items.reduce((s, i) => s + i.lng!, 0) / items.length
+  const items = filtrados.value
+  if (!items.length) return
 
-  const map = L.map(mapContainer.value).setView([avgLat, avgLng], 7)
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap'
-  }).addTo(map)
-
-  const cluster = (L as any).markerClusterGroup({ maxClusterRadius: 40 })
+  cluster = (L as any).markerClusterGroup({ maxClusterRadius: 40 })
 
   for (const im of items) {
     const isHot = (im.percentualDesconto ?? 0) > 40
@@ -78,20 +100,28 @@ function createMap() {
   }
 
   map.addLayer(cluster)
-
-  // Fit bounds
   const bounds = L.latLngBounds(items.map(i => [i.lat!, i.lng!]))
   map.fitBounds(bounds, { padding: [30, 30] })
 }
+
+function initMap() {
+  if (!mapContainer.value) return
+  map = L.map(mapContainer.value).setView([-15.78, -47.93], 5)
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
+  }).addTo(map)
+  renderMarkers()
+}
+
+watch(filtrados, () => { if (map) renderMarkers() })
 
 onMounted(async () => {
   if (!uf) { router.push('/'); return }
   const all = await dataService.listar(uf, { size: 99999 })
   imoveis.value = all.content
-})
-
-watch(imoveisNoMapa, (items) => {
-  if (items.length) createMap()
+  tipos.value = [...new Set(all.content.map(i => i.tipoImovel).filter(Boolean) as string[])].sort()
+  cidades.value = [...new Set(all.content.map(i => i.cidade))].sort()
+  initMap()
 })
 </script>
 
