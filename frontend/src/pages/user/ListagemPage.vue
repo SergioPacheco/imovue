@@ -237,11 +237,24 @@ function descontoValido(im: Imovel): boolean {
   return !!im.percentualDesconto && im.percentualDesconto > 0 && im.percentualDesconto <= 100
 }
 
+function normalizarEndereco(endereco: string): string {
+  return endereco
+    .replace(/,\s*(Apto|APT|BL|BLOCO|LT|QD|QUADRA|SL|SALA|COND|TORRE|TR|PAV|PV|VG|VAGA|BOX|CS|CASA|RES|LOT|SETOR|ÁREA|AREA|UND|UNID)\.?\s*[^,]*/gi, '')
+    .replace(/,?\s*N\.\s*(00|SN|S\/N[º°]?)\b/gi, '')
+    .replace(/\bN\.\s*/gi, '')
+    .replace(/\b(LT|QD|LOT|LOTE|QUADRA)\s*[\w\d\-\/]+/gi, '')
+    .replace(/\b(PAV|PV|PAVIMENTO|VG|VAGA|BOX|TORRE|BL|BLOCO)\s*[\w\d\-\/]*/gi, '')
+    .replace(/\d+º\s*(PAV|ANDAR)?/gi, '')
+    .replace(/,\s*,/g, ',')
+    .replace(/,\s*$/g, '')
+    .replace(/^\s*,/, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim()
+}
+
 function mapsLink(im: Imovel) {
-  let e = im.endereco
-    .replace(/,?\s*(LT|QD|SL|COND\.|BLOCO|BL|APTO|APT|ED\.|EDIF\.?)\s*[^,]*/gi, '')
-    .replace(/\bN\.\s*/gi, '').replace(/\s{2,}/g, ' ').replace(/,\s*,/g, ',').replace(/,\s*$/, '').trim()
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${e}, ${im.bairro}, ${im.cidade} - ${im.uf}, Brasil`)}`
+  const e = normalizarEndereco(im.endereco)
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${e}, ${im.bairro}, ${im.cidade} - ${im.uf}`)}`
 }
 
 async function buscar() {
