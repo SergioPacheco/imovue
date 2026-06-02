@@ -125,10 +125,34 @@
               class="btn-secondary w-full text-center block">
               📄 Ver Matrícula (PDF)
             </a>
-            <button @click="fav.toggle(imovel)" class="w-full text-center block transition-all"
-              :class="fav.isFav(imovel.numeroImovel) ? 'bg-red-50 border-red-300 text-red-600 hover:bg-red-100 font-semibold px-5 py-2.5 rounded-lg border' : 'btn-secondary'">
-              {{ fav.isFav(imovel.numeroImovel) ? '❤️ Favoritado' : '🤍 Favoritar' }}
-            </button>
+            <div class="flex gap-2">
+              <button @click="fav.toggle(imovel)" class="flex-1 text-center block transition-all"
+                :class="fav.isFav(imovel.numeroImovel) ? 'bg-red-50 border-red-300 text-red-600 hover:bg-red-100 font-semibold px-5 py-2.5 rounded-lg border' : 'btn-secondary'">
+                {{ fav.isFav(imovel.numeroImovel) ? '❤️ Favoritado' : '🤍 Favoritar' }}
+              </button>
+              <div class="relative">
+                <button @click="showShare = !showShare" class="btn-secondary px-3 py-2.5">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+                </button>
+                <div v-show="showShare" class="absolute right-0 mt-2 w-48 bg-white rounded-lg border border-gray-200 shadow-lg z-50 py-1">
+                  <a :href="shareWhatsApp" target="_blank" rel="noopener" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                    <span class="text-lg">💬</span> WhatsApp
+                  </a>
+                  <a :href="shareTelegram" target="_blank" rel="noopener" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                    <span class="text-lg">✈️</span> Telegram
+                  </a>
+                  <a :href="shareFacebook" target="_blank" rel="noopener" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                    <span class="text-lg">📘</span> Facebook
+                  </a>
+                  <a :href="shareX" target="_blank" rel="noopener" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                    <span class="text-lg">𝕏</span> X (Twitter)
+                  </a>
+                  <button @click="copyLink" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 w-full text-left">
+                    <span class="text-lg">🔗</span> {{ linkCopiado ? 'Copiado!' : 'Copiar link' }}
+                  </button>
+                </div>
+              </div>
+            </div>
 
             <!-- Aviso -->
             <div class="bg-blue-50 rounded-xl p-4 text-xs text-blue-700 leading-relaxed">
@@ -170,6 +194,25 @@ const loading = ref(true)
 const fav = useFavoritos()
 
 const fmt = (v: number | null) => v ? v.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '-'
+
+const showShare = ref(false)
+const linkCopiado = ref(false)
+
+const shareText = computed(() => {
+  if (!imovel.value) return ''
+  const im = imovel.value
+  return `${im.tipoImovel || 'Imóvel'} em ${im.cidade}/${im.uf} — R$ ${fmt(im.precoVenda)} (${(im.percentualDesconto ?? 0).toFixed(0)}% desconto)`
+})
+const shareUrl = computed(() => window.location.href)
+const shareWhatsApp = computed(() => `https://wa.me/?text=${encodeURIComponent(shareText.value + '\n' + shareUrl.value)}`)
+const shareTelegram = computed(() => `https://t.me/share/url?url=${encodeURIComponent(shareUrl.value)}&text=${encodeURIComponent(shareText.value)}`)
+const shareFacebook = computed(() => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl.value)}`)
+const shareX = computed(() => `https://x.com/intent/tweet?text=${encodeURIComponent(shareText.value)}&url=${encodeURIComponent(shareUrl.value)}`)
+const copyLink = async () => {
+  await navigator.clipboard.writeText(shareUrl.value)
+  linkCopiado.value = true
+  setTimeout(() => { linkCopiado.value = false; showShare.value = false }, 1500)
+}
 
 const matriculaUrl = computed(() => {
   if (!imovel.value) return ''
