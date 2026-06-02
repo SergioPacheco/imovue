@@ -10,52 +10,99 @@
     </div>
 
     <!-- Mapa -->
-    <div class="flex-1 relative">
-      <l-map ref="map" :zoom="7" :center="center" :use-global-leaflet="false" class="h-full w-full z-0">
-        <l-tile-layer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="© OpenStreetMap"/>
-        <l-marker v-for="im in imoveisNoMapa" :key="im.numeroImovel" :lat-lng="[im.lat!, im.lng!]">
-          <l-popup>
-            <div class="min-w-[200px]">
-              <p class="text-xs text-gray-500">{{ im.cidade }} / {{ im.bairro }}</p>
-              <p class="font-bold text-sm">{{ im.tipoImovel || 'Imóvel' }}</p>
-              <p class="text-sm font-bold text-green-700">R$ {{ (im.precoVenda ?? 0).toLocaleString('pt-BR') }}</p>
-              <p v-if="im.percentualDesconto" class="text-xs text-orange-600">-{{ im.percentualDesconto.toFixed(0) }}% desconto</p>
-              <router-link :to="`/imoveis/${im.numeroImovel}`" class="text-xs text-brand-500 hover:underline mt-1 block">Ver detalhes →</router-link>
-            </div>
-          </l-popup>
-        </l-marker>
-      </l-map>
-    </div>
+    <div class="flex-1 relative" ref="mapContainer"></div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCatalogoStore } from '@/stores/catalogo'
 import { dataService } from '@/services/dataService'
 import type { Imovel } from '@/types'
-import "leaflet/dist/leaflet.css"
-import { LMap, LTileLayer, LMarker, LPopup } from "@vue-leaflet/vue-leaflet"
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
 
 const router = useRouter()
 const store = useCatalogoStore()
 const uf = store.ufSelecionada
 const imoveis = ref<Imovel[]>([])
+const mapContainer = ref<HTMLElement>()
 
 const imoveisNoMapa = computed(() => imoveis.value.filter(i => i.lat && i.lng))
 
-const center = computed<[number, number]>(() => {
+function formatPrice(v: number | null): string {
+  if (!v) return '-'
+  if (v >= 1000000) return `${(v / 1000000).toFixed(1)}M`
+  return `${(v / 1000).toFixed(0)}k`
+}
+
+function createMap() {
+  if (!mapContainer.value || !imoveisNoMapa.value.length) return
+
   const items = imoveisNoMapa.value
-  if (!items.length) return [-27.5, -50.5]
   const avgLat = items.reduce((s, i) => s + i.lat!, 0) / items.length
   const avgLng = items.reduce((s, i) => s + i.lng!, 0) / items.length
-  return [avgLat, avgLng]
-})
+
+  const map = L.map(mapContainer.value).setView([avgLat, avgLng], 7)
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
+  }).addTo(map)
+
+  for (const im of items) {
+    const isHot = (im.percentualDesconto ?? 0) > 40
+    const icon = L.divIcon({
+      className: '',
+      html: `<div class="price-tag ${isHot ? 'hot' : ''}">R$ ${formatPrice(im.precoVenda)}</div>`,
+      iconSize: [70, 24],
+      iconAnchor: [35, 24],
+    })
+
+    const marker = L.marker([im.lat!, im.lng!], { icon }).addTo(map)
+    marker.bindPopup(`
+      <div style="min-width:180px">
+        <p style="margin:0;font-size:11px;color:#888">${im.cidade} / ${im.bairro}</p>
+        <p style="margin:2px 0;font-weight:bold;font-size:13px">${im.tipoImovel || 'Imóvel'}</p>
+        <p style="margin:2px 0;font-weight:bold;color:#16a34a">R$ ${(im.precoVenda ?? 0).toLocaleString('pt-BR')}</p>
+        ${im.percentualDesconto ? `<p style="margin:2px 0;font-size:11px;color:#ea580c">-${im.percentualDesconto.toFixed(0)}% desconto</p>` : ''}
+        <p style="margin:2px 0;font-size:11px;color:#888">${im.endereco}</p>
+        <a href="/imoveis/${im.numeroImovel}" style="font-size:11px;color:#2563eb">Ver detalhes →</a>
+      </div>
+    `)
+  }
+
+  // Fit bounds
+  const bounds = L.latLngBounds(items.map(i => [i.lat!, i.lng!]))
+  map.fitBounds(bounds, { padding: [30, 30] })
+}
 
 onMounted(async () => {
   if (!uf) { router.push('/'); return }
   const all = await dataService.listar(uf, { size: 99999 })
   imoveis.value = all.content
 })
+
+watch(imoveisNoMapa, (items) => {
+  if (items.length) createMap()
+})
 </script>
+
+<style>
+.price-tag {
+  background: white;
+  border: 2px solid #2563eb;
+  border-radius: 6px;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #1e40af;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  text-align: center;
+}
+.price-tag.hot {
+  background: #dc2626;
+  border-color: #991b1b;
+  color: white;
+}
+</style>
