@@ -20,10 +20,14 @@ async function loadUf(uf: string): Promise<Imovel[]> {
   return data
 }
 
+function stripCount(val: string): string {
+  return val.replace(/ \(\d+\)$/, '')
+}
+
 function applyFilters(imoveis: Imovel[], filtros: FiltrosImovel): Imovel[] {
   return imoveis.filter(i => {
-    if (filtros.cidade && i.cidade !== filtros.cidade) return false
-    if (filtros.bairro && i.bairro !== filtros.bairro) return false
+    if (filtros.cidade && i.cidade !== stripCount(filtros.cidade)) return false
+    if (filtros.bairro && i.bairro !== stripCount(filtros.bairro)) return false
     if (filtros.tipoImovel && i.tipoImovel !== filtros.tipoImovel) return false
     if (filtros.precoMin && (i.precoVenda ?? 0) < filtros.precoMin) return false
     if (filtros.precoMax && (i.precoVenda ?? Infinity) > filtros.precoMax) return false
@@ -81,7 +85,9 @@ export const dataService = {
 
   async cidades(uf: string): Promise<string[]> {
     const all = await loadUf(uf)
-    return [...new Set(all.map(i => i.cidade))].sort()
+    const count = new Map<string, number>()
+    all.forEach(i => count.set(i.cidade, (count.get(i.cidade) || 0) + 1))
+    return [...count.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([c, n]) => `${c} (${n})`)
   },
 
   async tipos(uf: string): Promise<string[]> {
@@ -91,7 +97,9 @@ export const dataService = {
 
   async bairros(uf: string): Promise<string[]> {
     const all = await loadUf(uf)
-    return [...new Set(all.map(i => i.bairro).filter(Boolean))].sort()
+    const count = new Map<string, number>()
+    all.forEach(i => { if (i.bairro) count.set(i.bairro, (count.get(i.bairro) || 0) + 1) })
+    return [...count.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([b, n]) => `${b} (${n})`)
   },
 
   async modalidades(uf: string): Promise<string[]> {
