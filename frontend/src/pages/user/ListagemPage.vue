@@ -47,12 +47,13 @@
       </div>
 
       <!-- Avançado -->
-      <div class="mt-3 border-t border-gray-100 pt-3">
+      <div class="mt-3 border-t border-gray-100 pt-3 flex justify-end">
         <button @click="showAdvanced = !showAdvanced" class="text-xs font-medium text-gray-500 hover:text-brand-500 flex items-center gap-1">
           <svg class="w-3.5 h-3.5 transition-transform" :class="{ 'rotate-180': showAdvanced }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           Avançado
         </button>
-        <div v-show="showAdvanced" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mt-3">
+      </div>
+      <div v-show="showAdvanced" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mt-3">
           <div>
             <label class="block text-xs font-medium text-gray-500 mb-1">Bairro</label>
             <select v-model="filtros.bairro" class="input-field">
@@ -79,7 +80,6 @@
             <label class="block text-xs font-medium text-gray-500 mb-1">Preço mín</label>
             <input v-model.number="filtros.precoMin" type="number" placeholder="R$" class="input-field" />
           </div>
-        </div>
       </div>
     </div>
 
