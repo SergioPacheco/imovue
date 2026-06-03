@@ -7,6 +7,7 @@ import csv
 import json
 import os
 import re
+import statistics
 import sys
 
 INPUT_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "listas")
@@ -190,6 +191,55 @@ def parse_csv(filepath: str, uf: str) -> list[dict]:
     return imoveis
 
 
+def calcular_valor_m2(imovel: dict) -> float | None:
+    """Calcula valor/m² usando área disponível (privativa > terreno > total)."""
+    preco = imovel.get("precoVenda")
+    if not preco or preco <= 0:
+        return None
+    area = imovel.get("areaPrivativa") or imovel.get("areaTerreno") or imovel.get("areaTotal")
+    if not area or area <= 0:
+        return None
+    return preco / area
+
+
+def gerar_estatisticas_bairros(todos_imoveis: dict[str, list[dict]]):
+    """Gera estatisticas_bairros.json com mediana de valor/m² por cidade+bairro."""
+    stats = {}
+
+    for uf, imoveis in todos_imoveis.items():
+        # Agrupa por cidade+bairro
+        grupos: dict[str, dict[str, list[float]]] = {}
+        for im in imoveis:
+            vm2 = calcular_valor_m2(im)
+            if vm2 is None:
+                continue
+            cidade = im["cidade"]
+            bairro = im["bairro"]
+            grupos.setdefault(cidade, {}).setdefault(bairro, []).append(vm2)
+
+        uf_stats = {}
+        for cidade, bairros in grupos.items():
+            cidade_stats = {}
+            for bairro, valores in bairros.items():
+                if len(valores) < 2:
+                    continue  # precisa de pelo menos 2 imóveis para comparação
+                cidade_stats[bairro] = {
+                    "medianaM2": round(statistics.median(valores), 2),
+                    "total": len(valores),
+                }
+            if cidade_stats:
+                uf_stats[cidade] = cidade_stats
+        if uf_stats:
+            stats[uf] = uf_stats
+
+    out_path = os.path.join(OUTPUT_DIR, "estatisticas_bairros.json")
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(stats, f, ensure_ascii=False)
+
+    total_bairros = sum(len(cidades) for uf in stats.values() for cidades in uf.values())
+    print(f"\n📊 Estatísticas de bairro: {total_bairros} bairros com dados suficientes")
+
+
 def run():
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
@@ -199,6 +249,7 @@ def run():
 
     manifest = []
     total_geral = 0
+    todos_imoveis: dict[str, list[dict]] = {}
 
     csvs = sorted([f for f in os.listdir(INPUT_DIR) if f.endswith(".csv")])
     print(f"📊 Convertendo {len(csvs)} CSVs → JSON")
@@ -216,6 +267,8 @@ def run():
         out_path = os.path.join(OUTPUT_DIR, f"{uf}.json")
         with open(out_path, "w", encoding="utf-8") as f:
             json.dump(imoveis, f, ensure_ascii=False)
+
+        todos_imoveis[uf] = imoveis
 
         # Pré-calcular summary por UF
         precos = [i["precoVenda"] for i in imoveis if i["precoVenda"]]
@@ -242,6 +295,9 @@ def run():
 
     print(f"\n✅ Total: {total_geral} imóveis em {len(manifest)} UFs")
     print(f"📁 Output: {os.path.abspath(OUTPUT_DIR)}/")
+
+    # Gera estatísticas por bairro (detector de cilada)
+    gerar_estatisticas_bairros(todos_imoveis)
 
 
 if __name__ == "__main__":

@@ -2,7 +2,11 @@ import type { Imovel, FiltrosImovel, PageResponse } from '@/types'
 
 interface ManifestEntry { uf: string; total: number }
 
+interface BairroStats { medianaM2: number; total: number }
+type EstatisticasBairros = Record<string, Record<string, Record<string, BairroStats>>>
+
 let manifest: ManifestEntry[] | null = null
+let bairroStats: EstatisticasBairros | null = null
 const cache = new Map<string, Imovel[]>()
 
 async function loadManifest(): Promise<ManifestEntry[]> {
@@ -16,6 +20,19 @@ async function loadManifest(): Promise<ManifestEntry[]> {
     manifest = []
   }
   return manifest!
+}
+
+async function loadBairroStats(): Promise<EstatisticasBairros> {
+  if (bairroStats) return bairroStats
+  try {
+    const res = await fetch('/data/estatisticas_bairros.json')
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    bairroStats = await res.json()
+  } catch (e) {
+    console.error('Erro ao carregar stats de bairro:', e)
+    bairroStats = {}
+  }
+  return bairroStats!
 }
 
 async function loadUf(uf: string): Promise<Imovel[]> {
@@ -145,6 +162,18 @@ export const dataService = {
     if (im.quartos && im.quartos >= 2) score += 5
     if (im.vagas && im.vagas >= 1) score += 5
     return Math.min(Math.round(score), 100)
+  },
+
+  async getAnalisePreco(im: Imovel): Promise<{ valorM2: number; medianaM2: number; ratio: number; classificacao: 'sub' | 'normal' | 'sobre' } | null> {
+    const area = im.areaPrivativa || im.areaTerreno || im.areaTotal
+    if (!im.precoVenda || !area || area <= 0) return null
+    const stats = await loadBairroStats()
+    const bairro = stats[im.uf]?.[im.cidade]?.[im.bairro]
+    if (!bairro) return null
+    const valorM2 = im.precoVenda / area
+    const ratio = valorM2 / bairro.medianaM2
+    const classificacao = ratio < 0.8 ? 'sub' : ratio > 1.2 ? 'sobre' : 'normal'
+    return { valorM2: Math.round(valorM2), medianaM2: bairro.medianaM2, ratio, classificacao }
   },
 
   async dashboardGlobal(ufFilter?: string, cidadeFilter?: string, tipoFilter?: string) {

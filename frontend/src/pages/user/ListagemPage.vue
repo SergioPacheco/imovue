@@ -155,6 +155,18 @@
             <span v-if="im.quartos">🛏️ {{ im.quartos }} qto</span>
             <span v-if="im.vagas">🚗 {{ im.vagas }} vaga</span>
           </div>
+
+          <!-- Termômetro de preço -->
+          <div v-if="analises.get(im.numeroImovel)" class="mt-2">
+            <span v-if="analises.get(im.numeroImovel)!.classificacao === 'sub'"
+              class="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
+              ✅ Abaixo da média local
+            </span>
+            <span v-else-if="analises.get(im.numeroImovel)!.classificacao === 'sobre'"
+              class="inline-flex items-center gap-1 text-[11px] font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">
+              ⚠️ Acima da média local
+            </span>
+          </div>
         </div>
         </router-link>
 
@@ -224,6 +236,7 @@ const modalidades = ref<string[]>([])
 const showAdvanced = ref(false)
 const resultado = ref<{ content: Imovel[]; totalElements: number; totalPages: number } | null>(null)
 const loading = ref(true)
+const analises = ref<Map<string, { classificacao: 'sub' | 'normal' | 'sobre'; ratio: number }>>(new Map())
 const filtros = reactive({
   cidade: '', bairro: '', tipoImovel: '', modalidade: '',
   precoMin: undefined as number | undefined, precoMax: undefined as number | undefined,
@@ -251,6 +264,15 @@ async function buscar() {
   bairros.value = opcoes.bairros
   modalidades.value = opcoes.modalidades
   loading.value = false
+  // Analisa preço vs bairro em background
+  if (resultado.value) {
+    const map = new Map<string, { classificacao: 'sub' | 'normal' | 'sobre'; ratio: number }>()
+    await Promise.all(resultado.value.content.map(async (im) => {
+      const a = await dataService.getAnalisePreco(im)
+      if (a) map.set(im.numeroImovel, { classificacao: a.classificacao, ratio: a.ratio })
+    }))
+    analises.value = map
+  }
 }
 
 let debounceTimer: ReturnType<typeof setTimeout>

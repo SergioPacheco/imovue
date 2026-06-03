@@ -69,6 +69,34 @@
             </div>
           </div>
 
+          <!-- Análise Comparativa -->
+          <div v-if="analise" class="rounded-xl border p-5" :class="analise.classificacao === 'sub' ? 'border-emerald-200 bg-emerald-50' : analise.classificacao === 'sobre' ? 'border-amber-200 bg-amber-50' : 'border-gray-200 bg-white'">
+            <h2 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+              📊 Análise Comparativa do Bairro
+            </h2>
+            <div class="grid sm:grid-cols-2 gap-4 text-sm">
+              <div>
+                <span class="text-gray-500">Valor/m² deste imóvel</span>
+                <div class="text-lg font-bold text-gray-900">R$ {{ analise.valorM2.toLocaleString('pt-BR') }}</div>
+              </div>
+              <div>
+                <span class="text-gray-500">Mediana do bairro ({{ imovel.bairro }})</span>
+                <div class="text-lg font-bold text-gray-900">R$ {{ analise.medianaM2.toLocaleString('pt-BR') }}</div>
+              </div>
+            </div>
+            <div class="mt-3 pt-3 border-t" :class="analise.classificacao === 'sub' ? 'border-emerald-200' : analise.classificacao === 'sobre' ? 'border-amber-200' : 'border-gray-200'">
+              <p v-if="analise.classificacao === 'sub'" class="text-sm font-medium text-emerald-800">
+                ✅ Este imóvel está {{ Math.round((1 - analise.ratio) * 100) }}% abaixo da mediana do bairro — possível oportunidade real.
+              </p>
+              <p v-else-if="analise.classificacao === 'sobre'" class="text-sm font-medium text-amber-800">
+                ⚠️ Este imóvel está {{ Math.round((analise.ratio - 1) * 100) }}% acima da mediana do bairro — o desconto da Caixa pode estar sobre uma avaliação inflada.
+              </p>
+              <p v-else class="text-sm font-medium text-gray-700">
+                Preço alinhado com a mediana do bairro.
+              </p>
+            </div>
+          </div>
+
           <!-- Descrição -->
           <div class="bg-white rounded-xl border border-gray-200 p-5">
             <h2 class="font-semibold text-gray-900 mb-2">Descrição</h2>
@@ -213,6 +241,7 @@ const imovel = ref<Imovel | null>(null)
 const loading = ref(true)
 const mapEl = ref<HTMLElement>()
 const fav = useFavoritos()
+const analise = ref<{ valorM2: number; medianaM2: number; ratio: number; classificacao: 'sub' | 'normal' | 'sobre' } | null>(null)
 
 const fmt = (v: number | null) => v ? v.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '-'
 
@@ -254,6 +283,9 @@ onMounted(async () => {
       }
     }
   } finally { loading.value = false }
+  if (imovel.value) {
+    analise.value = await dataService.getAnalisePreco(imovel.value)
+  }
 })
 
 watch(imovel, async (im) => {
