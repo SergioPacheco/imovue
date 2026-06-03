@@ -58,13 +58,13 @@
         </router-link>
       </div>
 
-      <!-- Top Oportunidades -->
+      <!-- Top Oportunidades (2 colunas) -->
       <div class="bg-white rounded-xl border border-gray-200 p-4 sm:p-5 mb-6">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-base font-bold text-gray-900">🔥 Comece por estas oportunidades</h2>
           <router-link to="/imoveis?sort=percentualDesconto,desc" class="text-xs font-medium text-brand-500 hover:text-brand-600">Ver ranking completo →</router-link>
         </div>
-        <div class="space-y-3">
+        <div class="grid sm:grid-cols-2 gap-3">
           <router-link v-for="(im, i) in data.topOportunidades" :key="im.numeroImovel"
             :to="`/imoveis/${im.numeroImovel}?uf=${im.uf}`"
             class="block p-3 rounded-lg border border-gray-100 hover:border-brand-200 hover:shadow-sm transition-all">
@@ -89,10 +89,8 @@
         </div>
       </div>
 
-      <!-- Radar + Ranking lado a lado -->
-      <div class="grid sm:grid-cols-2 gap-4 mb-6">
-        <!-- Alertas do Radar -->
-        <div class="bg-white rounded-xl border border-gray-200 p-4">
+      <!-- Alertas do Radar -->
+      <div class="bg-white rounded-xl border border-gray-200 p-4 mb-6">
           <h2 class="text-sm font-bold text-gray-900 mb-3">⚡ Alertas do radar</h2>
           <div class="space-y-3">
             <router-link to="/imoveis?descontoMin=30" class="block p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
@@ -107,21 +105,6 @@
               <div class="text-sm font-medium text-gray-900">🏦 {{ data.resumo.financiaveis.toLocaleString() }} aceitam financiamento</div>
               <p class="text-xs text-gray-500 mt-0.5">Ideal para quem precisa de crédito</p>
             </router-link>
-          </div>
-        </div>
-
-        <!-- Ranking por estado -->
-        <div class="bg-white rounded-xl border border-gray-200 p-4">
-          <h2 class="text-sm font-bold text-gray-900 mb-3">📍 Cidades com melhor potencial</h2>
-          <div class="space-y-1">
-            <div v-for="e in data.rankingEstados" :key="e.uf"
-              class="flex items-center justify-between p-2 rounded hover:bg-gray-50">
-              <span class="text-sm font-medium text-gray-700">{{ e.uf }}</span>
-              <div class="flex items-center gap-3">
-                <span class="text-xs text-gray-400">{{ e.total }} imóveis</span>
-                <span class="text-sm font-bold text-brand-600">{{ e.scoreMedio }}</span>
-              </div>
-            </div>
           </div>
         </div>
       </div>
