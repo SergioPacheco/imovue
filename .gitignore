@@ -22,3 +22,4 @@ __pycache__/
 # Cache
 data/geocode_cache.json
 data/listas/
+tools/.geocode_cache.json
