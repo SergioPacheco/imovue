@@ -7,7 +7,7 @@
         <p class="mt-4 text-lg text-blue-200 max-w-2xl mx-auto">
           Imóveis com desconto chamam atenção, mas o comprador precisa saber analisar edital, ocupação, débitos, financiamento, comissão, prazos e documentação.
         </p>
-        <a :href="AFFILIATE_CONFIG.courseUrl" target="_blank" rel="nofollow sponsored noopener"
+        <a v-if="AFFILIATE_CONFIG.courseUrl" :href="AFFILIATE_CONFIG.courseUrl" target="_blank" rel="nofollow sponsored noopener"
           class="mt-8 inline-block bg-white text-brand-700 font-bold px-8 py-3.5 rounded-xl hover:shadow-lg hover:-translate-y-0.5 transition-all">
           Ver curso recomendado
         </a>
@@ -60,7 +60,7 @@
         <p class="mt-4 text-gray-600 max-w-xl mx-auto">
           Veja um treinamento recomendado para iniciantes que querem entender como funcionam imóveis da Caixa, leilões, editais e riscos antes de fazer uma proposta.
         </p>
-        <a :href="AFFILIATE_CONFIG.courseUrl" target="_blank" rel="nofollow sponsored noopener"
+        <a v-if="AFFILIATE_CONFIG.courseUrl" :href="AFFILIATE_CONFIG.courseUrl" target="_blank" rel="nofollow sponsored noopener"
           class="mt-8 inline-block bg-brand-500 text-white font-bold px-8 py-3.5 rounded-xl hover:bg-brand-600 hover:shadow-lg hover:-translate-y-0.5 transition-all">
           Ver treinamento recomendado
         </a>

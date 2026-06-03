@@ -106,10 +106,10 @@
     </div>
 
     <!-- Dica discreta topo -->
-    <div v-if="resultado && resultado.content.length > 0" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-gray-50 border border-gray-100 mb-4">
+    <div v-if="AFFILIATE_CONFIG.courseUrl && resultado && resultado.content.length > 0" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-gray-50 border border-gray-100 mb-4">
       <span class="text-sm">💡</span>
       <p class="text-xs sm:text-sm text-gray-500 flex-1">Novo em leilão de imóveis? Aprenda a analisar edital, ocupação e custos antes de dar lance.</p>
-      <a :href="AFFILIATE_CONFIG.courseUrl" target="_blank" rel="nofollow sponsored noopener"
+      <a v-if="AFFILIATE_CONFIG.courseUrl" :href="AFFILIATE_CONFIG.courseUrl" target="_blank" rel="nofollow sponsored noopener"
         class="text-xs font-medium text-brand-500 hover:text-brand-600 whitespace-nowrap">Ver guia recomendado →</a>
     </div>
 
@@ -182,7 +182,7 @@
       <p class="mt-2 text-sm text-gray-500 max-w-lg mx-auto">
         Antes de fazer uma proposta, entenda os principais riscos: edital, ocupação, débitos, financiamento, prazos e custo real da compra.
       </p>
-      <a :href="AFFILIATE_CONFIG.courseUrl" target="_blank" rel="nofollow sponsored noopener"
+      <a v-if="AFFILIATE_CONFIG.courseUrl" :href="AFFILIATE_CONFIG.courseUrl" target="_blank" rel="nofollow sponsored noopener"
         class="mt-4 inline-block text-sm font-medium text-brand-500 border border-brand-200 px-5 py-2 rounded-lg hover:bg-brand-50 transition-colors">
         Aprender antes de dar lance
       </a>
