@@ -117,77 +117,8 @@
 
     <!-- Cards -->
     <div v-if="!loading && resultado && resultado.content.length > 0" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-      <template v-for="(im, idx) in resultado.content" :key="im.numeroImovel">
-      <div class="card overflow-hidden group relative">
-
-        <router-link :to="`/imoveis/${im.numeroImovel}`" class="block">
-        <!-- Imagem -->
-        <PropertyImage :tipo="im.tipoImovel" :numero="im.numeroImovel">
-          <div class="absolute top-3 left-3 flex gap-1.5">
-            <span v-if="im.tipoImovel" class="badge badge-type">{{ im.tipoImovel }}</span>
-            <span v-if="descontoValido(im) && im.percentualDesconto! > 40" class="badge badge-hot">🔥 Oportunidade</span>
-          </div>
-          <div v-if="descontoValido(im)" class="absolute top-3 right-3">
-            <span class="badge badge-discount text-sm font-bold">-{{ im.percentualDesconto!.toFixed(1) }}%</span>
-          </div>
-        </PropertyImage>
-
-        <div class="p-4">
-          <p class="text-xs font-medium text-gray-500 mb-0.5">{{ im.cidade }}</p>
-          <h3 class="font-semibold text-gray-900 group-hover:text-brand-500 transition-colors truncate">
-            {{ im.bairro }}
-          </h3>
-          <p class="text-xs text-gray-400 truncate mt-0.5">
-            <a :href="mapsLink(im)"
-              target="_blank" rel="noopener" @click.stop class="hover:text-brand-500 hover:underline">
-              📍 {{ im.endereco }}
-            </a>
-          </p>
-
-          <div class="mt-3 flex items-baseline gap-2">
-            <span class="text-xl font-bold text-gray-900">R$ {{ fmt(im.precoVenda) }}</span>
-          </div>
-          <p v-if="im.valorAvaliacao" class="text-xs text-gray-400 line-through">
-            Avaliação: R$ {{ fmt(im.valorAvaliacao) }}
-          </p>
-
-          <div class="flex flex-wrap gap-x-3 gap-y-1 mt-3 text-xs text-gray-500">
-            <span v-if="im.areaPrivativa">📐 {{ im.areaPrivativa }}m²</span>
-            <span v-if="im.areaTerreno">🏞️ {{ im.areaTerreno }}m²</span>
-            <span v-if="im.quartos">🛏️ {{ im.quartos }} qto</span>
-            <span v-if="im.vagas">🚗 {{ im.vagas }} vaga</span>
-          </div>
-
-          <!-- Termômetro de preço -->
-          <div v-if="analises.get(im.numeroImovel)" class="mt-2">
-            <span v-if="analises.get(im.numeroImovel)!.classificacao === 'sub'"
-              class="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
-              ✅ Abaixo da média local
-            </span>
-            <span v-else-if="analises.get(im.numeroImovel)!.classificacao === 'sobre'"
-              class="inline-flex items-center gap-1 text-[11px] font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">
-              ⚠️ Acima da média local
-            </span>
-          </div>
-        </div>
-        </router-link>
-
-        <!-- Rodapé com favoritar -->
-        <div class="px-4 pb-4 pt-0">
-          <div class="pt-3 border-t border-gray-100 flex items-center justify-between">
-            <button @click="fav.toggle(im)"
-              class="flex items-center gap-1 text-xs font-medium transition-colors"
-              :class="fav.isFav(im.numeroImovel) ? 'text-red-500' : 'text-gray-400 hover:text-red-500'">
-              <svg class="w-4 h-4" :fill="fav.isFav(im.numeroImovel) ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-              </svg>
-              {{ fav.isFav(im.numeroImovel) ? 'Favoritado' : 'Favoritar' }}
-            </button>
-            <span class="text-xs text-gray-400">{{ im.modalidadeVenda }}</span>
-          </div>
-        </div>
-      </div>
-      </template>
+      <PropertyCard v-for="im in resultado.content" :key="im.numeroImovel"
+        :imovel="im" :analise="analises.get(im.numeroImovel)" />
     </div>
 
     <!-- Bloco educativo final -->
@@ -222,14 +153,12 @@ import { useRouter } from 'vue-router'
 import { dataService } from '@/services/dataService'
 import { useCatalogoStore } from '@/stores/catalogo'
 import type { Imovel } from '@/types'
-
-import { useFavoritos } from '@/composables/useFavoritos'
-import PropertyImage from '@/components/PropertyImage.vue'
+import { UF_NOMES } from '@/constants/uf'
+import PropertyCard from '@/components/PropertyCard.vue'
 import { AFFILIATE_CONFIG } from '@/config/affiliate'
 
 const router = useRouter()
 const store = useCatalogoStore()
-const fav = useFavoritos()
 const estado = ref({ uf: store.ufSelecionada, total: 0 })
 const ufsDisponiveis = ref<string[]>([])
 const cidades = ref<string[]>([])
@@ -240,31 +169,14 @@ const showAdvanced = ref(false)
 const resultado = ref<{ content: Imovel[]; totalElements: number; totalPages: number } | null>(null)
 const loading = ref(true)
 const analises = ref<Map<string, { classificacao: 'sub' | 'normal' | 'sobre'; ratio: number }>>(new Map())
+let skipNextFilterWatch = false
+
 const filtros = reactive({
   cidade: '', bairro: '', tipoImovel: '', modalidade: '',
   precoMin: undefined as number | undefined, precoMax: undefined as number | undefined,
   descontoMin: undefined as number | undefined, quartosMin: undefined as number | undefined,
   vagasMin: undefined as number | undefined, sort: 'percentualDesconto,desc', page: 0, size: 21
 })
-
-const fmt = (v: number | null) => v ? v.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '-'
-
-const UF_NOMES: Record<string, string> = {
-  AC: 'Acre', AL: 'Alagoas', AM: 'Amazonas', AP: 'Amapá', BA: 'Bahia',
-  CE: 'Ceará', DF: 'Distrito Federal', ES: 'Espírito Santo', GO: 'Goiás',
-  MA: 'Maranhão', MG: 'Minas Gerais', MS: 'Mato Grosso do Sul', MT: 'Mato Grosso',
-  PA: 'Pará', PB: 'Paraíba', PE: 'Pernambuco', PI: 'Piauí', PR: 'Paraná',
-  RJ: 'Rio de Janeiro', RN: 'Rio Grande do Norte', RO: 'Rondônia', RR: 'Roraima',
-  RS: 'Rio Grande do Sul', SC: 'Santa Catarina', SE: 'Sergipe', SP: 'São Paulo', TO: 'Tocantins',
-}
-
-function descontoValido(im: Imovel): boolean {
-  return !!im.percentualDesconto && im.percentualDesconto > 0 && im.percentualDesconto <= 100
-}
-
-function mapsLink(im: Imovel) {
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${im.endereco}, ${im.bairro}, ${im.cidade} - ${im.uf}`)}`
-}
 
 async function buscar() {
   loading.value = true
@@ -291,6 +203,7 @@ let debounceTimer: ReturnType<typeof setTimeout>
 watch(() => [filtros.cidade, filtros.bairro, filtros.tipoImovel, filtros.modalidade,
   filtros.precoMin, filtros.precoMax, filtros.descontoMin, filtros.quartosMin,
   filtros.vagasMin, filtros.sort], () => {
+  if (skipNextFilterWatch) { skipNextFilterWatch = false; return }
   clearTimeout(debounceTimer)
   debounceTimer = setTimeout(buscar, 300)
 })
@@ -299,6 +212,7 @@ watch(() => filtros.cidade, () => { filtros.bairro = '' })
 
 watch(() => estado.value.uf, (novaUf) => {
   store.ufSelecionada = novaUf
+  skipNextFilterWatch = true
   filtros.cidade = ''
   filtros.bairro = ''
   buscar()
@@ -322,11 +236,8 @@ onMounted(async () => {
     if (ufsDisponiveis.value.length > 0) {
       estado.value.uf = ufsDisponiveis.value[0]
       store.ufSelecionada = estado.value.uf
-    } else {
-      router.push('/'); return
-    }
+    } else { router.push('/'); return }
   }
-  // Ler filtros da URL (links do dashboard)
   const q = router.currentRoute.value.query
   if (q.cidade) filtros.cidade = q.cidade as string
   if (q.tipoImovel) filtros.tipoImovel = q.tipoImovel as string

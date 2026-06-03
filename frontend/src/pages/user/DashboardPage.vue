@@ -12,7 +12,9 @@
         <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900">Radar — {{ uf }}</h1>
         <p class="text-gray-500 mt-1 text-sm">Imóveis organizados por score, desconto e sinais de oportunidade. Comece pelos que têm maior potencial.</p>
         <div class="flex items-center gap-3 mt-3 flex-wrap">
-          <router-link to="/" class="text-xs text-brand-500 hover:text-brand-600">← Trocar estado</router-link>
+          <select v-model="uf" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5">
+            <option v-for="u in ufsDisponiveis" :key="u" :value="u">{{ UF_NOMES[u] || u }}</option>
+          </select>
           <select v-model="filtroCidade" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5">
             <option value="">Todas as cidades</option>
             <option v-for="c in cidades" :key="c">{{ c }}</option>
@@ -92,7 +94,7 @@
       <!-- Alertas do Radar -->
       <div class="bg-white rounded-xl border border-gray-200 p-4 mb-6">
           <h2 class="text-sm font-bold text-gray-900 mb-3">⚡ Alertas do radar</h2>
-          <div class="space-y-3">
+          <div class="grid sm:grid-cols-3 gap-3">
             <router-link to="/imoveis?descontoMin=30" class="block p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
               <div class="text-sm font-medium text-gray-900">🔥 {{ data.alertas.scoreAlto }} com score acima de 80</div>
               <p class="text-xs text-gray-500 mt-0.5">Oportunidades fortes para análise imediata</p>
@@ -147,6 +149,7 @@ import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { dataService } from '@/services/dataService'
 import { useCatalogoStore } from '@/stores/catalogo'
+import { UF_NOMES } from '@/constants/uf'
 import type { Imovel } from '@/types'
 
 interface DashboardData {
@@ -164,6 +167,7 @@ const filtroCidade = ref('')
 const filtroTipo = ref('')
 const cidades = ref<string[]>([])
 const tipos = ref<string[]>([])
+const ufsDisponiveis = ref<string[]>([])
 const uf = ref(store.ufSelecionada)
 
 function scoreLabel(s: number): string {
@@ -196,11 +200,29 @@ async function load() {
   loading.value = false
 }
 
+async function loadOpcoes() {
+  const opcoes = await dataService.opcoesFiltros(uf.value, {})
+  cidades.value = opcoes.cidades.map(c => c.replace(/ \(\d+\)$/, ''))
+  tipos.value = opcoes.tipos
+}
+
 onMounted(async () => {
-  if (!uf.value) { router.push('/'); return }
-  const all = await dataService.listar(uf.value, { size: 99999 })
-  cidades.value = [...new Set(all.content.map(i => i.cidade))].sort()
-  tipos.value = [...new Set(all.content.map(i => i.tipoImovel).filter(Boolean) as string[])].sort()
+  ufsDisponiveis.value = await dataService.ufsDisponiveis()
+  if (!uf.value) {
+    if (ufsDisponiveis.value.length > 0) {
+      uf.value = ufsDisponiveis.value[0]
+      store.ufSelecionada = uf.value
+    } else { router.push('/'); return }
+  }
+  await loadOpcoes()
+  await load()
+})
+
+watch(uf, async (novaUf) => {
+  store.ufSelecionada = novaUf
+  filtroCidade.value = ''
+  filtroTipo.value = ''
+  await loadOpcoes()
   await load()
 })
 

@@ -88,6 +88,80 @@
         </div>
       </div>
     </section>
+
+    <!-- Guia do Comprador -->
+    <section v-reveal="300" class="bg-gray-50 py-16">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-10">
+          <h2 class="text-2xl sm:text-3xl font-bold text-gray-900">Como comprar imóvel de leilão da CAIXA</h2>
+          <p class="mt-2 text-gray-500">Guia rápido para você entender o processo do início ao fim.</p>
+        </div>
+
+        <!-- Modalidades -->
+        <div class="grid sm:grid-cols-3 gap-5 mb-12">
+          <div class="bg-white rounded-xl p-5 border border-gray-200">
+            <h3 class="font-bold text-brand-600 mb-2">🏷️ Venda Direta Online</h3>
+            <p class="text-sm text-gray-600">Preço fixo pela CAIXA. O primeiro que formalizar leva. Processo mais rápido.</p>
+          </div>
+          <div class="bg-white rounded-xl p-5 border border-gray-200">
+            <h3 class="font-bold text-brand-600 mb-2">🏷️ Venda Online (Licitação)</h3>
+            <p class="text-sm text-gray-600">Leilão online. Propostas em envelope fechado, vence a maior acima do mínimo.</p>
+          </div>
+          <div class="bg-white rounded-xl p-5 border border-gray-200">
+            <h3 class="font-bold text-brand-600 mb-2">🏷️ Licitação Aberta</h3>
+            <p class="text-sm text-gray-600">Processo presencial/híbrido com edital público. Exige caução prévia.</p>
+          </div>
+        </div>
+
+        <!-- Passo a passo -->
+        <h3 class="text-xl font-bold text-gray-900 mb-6">📋 Passo a Passo</h3>
+        <div class="grid sm:grid-cols-2 gap-4 mb-12">
+          <div v-for="(step, i) in passos" :key="i" class="flex gap-3 items-start bg-white rounded-lg p-4 border border-gray-200">
+            <div class="w-8 h-8 rounded-full bg-brand-500 text-white flex items-center justify-center font-bold text-sm shrink-0">{{ i + 1 }}</div>
+            <div>
+              <h4 class="font-semibold text-gray-900 text-sm">{{ step.title }}</h4>
+              <p class="text-xs text-gray-600 mt-0.5">{{ step.desc }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pagamento -->
+        <h3 class="text-xl font-bold text-gray-900 mb-6">💳 Condições de Pagamento</h3>
+        <div class="grid sm:grid-cols-3 gap-5 mb-12">
+          <div class="bg-white rounded-xl p-5 border-l-4 border-l-brand-500 border border-gray-200">
+            <h4 class="font-bold text-gray-900 mb-1">À Vista</h4>
+            <p class="text-xs text-gray-600">Maiores descontos. Prazo após homologação varia no edital.</p>
+          </div>
+          <div class="bg-white rounded-xl p-5 border-l-4 border-l-green-500 border border-gray-200">
+            <h4 class="font-bold text-gray-900 mb-1">Financiamento CAIXA</h4>
+            <p class="text-xs text-gray-600">Sujeito a análise de crédito. Taxas e prazos do SFH/SFI.</p>
+          </div>
+          <div class="bg-white rounded-xl p-5 border-l-4 border-l-orange-500 border border-gray-200">
+            <h4 class="font-bold text-gray-900 mb-1">FGTS</h4>
+            <p class="text-xs text-gray-600">Imóvel residencial, até teto SFH, sem outro imóvel na cidade.</p>
+          </div>
+        </div>
+
+        <!-- FAQ resumido -->
+        <h3 class="text-xl font-bold text-gray-900 mb-6">❓ Perguntas Frequentes</h3>
+        <div class="space-y-3 mb-8">
+          <details v-for="f in faq" :key="f.q" class="bg-white rounded-lg border border-gray-200 group">
+            <summary class="p-4 cursor-pointer font-medium text-sm text-gray-900 hover:text-brand-500 list-none flex justify-between items-center">
+              {{ f.q }}
+              <span class="text-gray-400 group-open:rotate-180 transition-transform text-xs">▼</span>
+            </summary>
+            <p class="px-4 pb-4 text-xs text-gray-600 -mt-1">{{ f.a }}</p>
+          </details>
+        </div>
+
+        <!-- Link para guia de riscos -->
+        <div class="text-center">
+          <router-link to="/guia" class="inline-flex items-center gap-2 text-sm font-medium text-brand-500 hover:text-brand-600 border border-brand-200 px-5 py-2.5 rounded-lg hover:bg-brand-50 transition-colors">
+            ⚠️ Ver guia completo de riscos em leilão →
+          </router-link>
+        </div>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -97,15 +171,8 @@ import { useRouter } from 'vue-router'
 import { dataService } from '@/services/dataService'
 import { useCatalogoStore } from '@/stores/catalogo'
 import SmartSearchBar from '@/components/SmartSearchBar.vue'
+import { UF_NOMES } from '@/constants/uf'
 import type { SmartSearchResult } from '@/composables/useSmartSearch'
-
-const NOMES_UF: Record<string, string> = {
-  AC:'Acre',AL:'Alagoas',AM:'Amazonas',AP:'Amapá',BA:'Bahia',CE:'Ceará',DF:'Distrito Federal',
-  ES:'Espírito Santo',GO:'Goiás',MA:'Maranhão',MG:'Minas Gerais',MS:'Mato Grosso do Sul',
-  MT:'Mato Grosso',PA:'Pará',PB:'Paraíba',PE:'Pernambuco',PI:'Piauí',PR:'Paraná',
-  RJ:'Rio de Janeiro',RN:'Rio Grande do Norte',RO:'Rondônia',RR:'Roraima',RS:'Rio Grande do Sul',
-  SC:'Santa Catarina',SE:'Sergipe',SP:'São Paulo',TO:'Tocantins'
-}
 
 const router = useRouter()
 const store = useCatalogoStore()
@@ -118,7 +185,7 @@ const busca = ref('')
 const ufsFiltradas = computed(() => {
   if (!busca.value) return ufs.value
   const q = busca.value.toUpperCase()
-  return ufs.value.filter(uf => uf.includes(q) || (NOMES_UF[uf] || '').toUpperCase().includes(q))
+  return ufs.value.filter(uf => uf.includes(q) || (UF_NOMES[uf] || '').toUpperCase().includes(q))
 })
 
 async function selecionar(uf: string) {
@@ -131,12 +198,30 @@ async function selecionar(uf: string) {
 function onSmartSearch(result: SmartSearchResult) {
   const uf = result.uf || 'SP'
   store.ufSelecionada = uf
-  store.filtros = { ...store.filtros, ...result.filtros, page: 0 }
-  router.push('/imoveis')
+  router.push({ path: '/imoveis', query: result.filtros as any })
 }
 
 onMounted(async () => {
   ufs.value = await dataService.ufsDisponiveis()
   loading.value = false
 })
+
+const passos = [
+  { title: 'Pesquise o imóvel', desc: 'Filtre por estado, cidade, tipo, preço e desconto.' },
+  { title: 'Visite (se possível)', desc: 'Verifique conservação e vizinhança.' },
+  { title: 'Leia o edital', desc: 'Cada imóvel tem condições específicas.' },
+  { title: 'Faça sua proposta', desc: 'Venda Direta: formalize. Venda Online: envie no prazo.' },
+  { title: 'Aguarde homologação', desc: 'A CAIXA analisa e notifica o vencedor.' },
+  { title: 'Documentação e pagamento', desc: 'Apresente documentos e efetue o pagamento.' },
+  { title: 'Assine e registre', desc: 'Contrato + registro no Cartório de Imóveis.' },
+]
+
+const faq = [
+  { q: 'Posso visitar o imóvel antes?', a: 'Desocupados geralmente permitem visita agendada. Ocupados podem não permitir acesso interno.' },
+  { q: 'Posso usar FGTS?', a: 'Sim, se o imóvel aceitar, for residencial, até o teto SFH e você não tiver outro na mesma cidade.' },
+  { q: 'E se estiver ocupado?', a: 'A desocupação geralmente é responsabilidade do comprador. Pode exigir ação judicial.' },
+  { q: 'Quem paga IPTU atrasado?', a: 'Varia conforme edital. Em muitos casos, débitos anteriores são do comprador.' },
+  { q: 'Posso financiar pela CAIXA?', a: 'Sim, para imóveis que aceitam. Passa por análise de crédito normal.' },
+  { q: 'O desconto é real?', a: 'Sim. É calculado sobre o valor de avaliação da CAIXA. O preço de venda é o que você paga.' },
+]
 </script>
