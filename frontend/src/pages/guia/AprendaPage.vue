@@ -26,10 +26,16 @@
     <section v-reveal="100" class="bg-gray-50 py-16">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 class="text-2xl font-bold text-gray-900 mb-8">Principais riscos</h2>
-        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div v-for="risco in riscos" :key="risco" class="bg-white rounded-xl p-4 border border-gray-200 text-center">
-            <span class="text-2xl">⚠️</span>
-            <p class="text-sm font-medium text-gray-700 mt-2">{{ risco }}</p>
+        <div class="space-y-6">
+          <div v-for="risco in riscos" :key="risco.titulo" class="bg-white rounded-xl p-5 border border-gray-200">
+            <div class="flex items-start gap-3">
+              <span class="text-2xl shrink-0">⚠️</span>
+              <div>
+                <h3 class="font-bold text-gray-900">{{ risco.titulo }}</h3>
+                <p class="text-sm text-gray-600 mt-1 leading-relaxed">{{ risco.descricao }}</p>
+                <p class="text-xs text-brand-600 mt-2 font-medium">💡 {{ risco.dica }}</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -74,14 +80,46 @@
 import { AFFILIATE_CONFIG } from '@/config/affiliate'
 
 const riscos = [
-  'Imóvel ocupado',
-  'Débitos de condomínio',
-  'Débitos de IPTU',
-  'Prazo curto para pagamento',
-  'Imóvel sem visita interna',
-  'Edital com regras específicas',
-  'Custos de cartório, ITBI e registro',
-  'Financiamento não disponível',
+  {
+    titulo: 'Imóvel ocupado',
+    descricao: 'O imóvel pode estar ocupado pelo antigo proprietário, inquilino ou terceiros. A desocupação é responsabilidade do comprador e pode levar meses ou até anos na Justiça, com custos advocatícios e risco de danos ao imóvel.',
+    dica: 'Verifique no edital se o imóvel está "ocupado" ou "desocupado". Imóveis desocupados têm menos risco e geralmente permitem vistoria.',
+  },
+  {
+    titulo: 'Débitos de condomínio',
+    descricao: 'Dívidas de condomínio acompanham o imóvel (são obrigações "propter rem"), ou seja, o novo comprador herda todos os débitos anteriores. Em prédios, essa dívida pode ser de dezenas de milhares de reais.',
+    dica: 'Antes de dar lance, consulte a administradora do condomínio para saber o valor total da dívida. Some ao custo real de aquisição.',
+  },
+  {
+    titulo: 'Débitos de IPTU',
+    descricao: 'Assim como o condomínio, dívidas de IPTU acompanham o imóvel. A Prefeitura pode cobrar do novo proprietário os valores em aberto, inclusive com juros e multa.',
+    dica: 'Consulte o site da Prefeitura com o número de inscrição do imóvel para verificar débitos. Alguns editais informam que a Caixa quita o IPTU — leia com atenção.',
+  },
+  {
+    titulo: 'Prazo curto para pagamento',
+    descricao: 'Em modalidades como leilão, o pagamento do lance vencedor geralmente deve ser feito em 24 a 48 horas. Se você não tiver o valor aprovado previamente (financiamento ou à vista), perde o imóvel e pode sofrer penalidades.',
+    dica: 'Se pretende financiar, tenha a carta de crédito pré-aprovada antes de participar. Para pagamento à vista, garanta liquidez imediata.',
+  },
+  {
+    titulo: 'Imóvel sem visita interna',
+    descricao: 'Na maioria dos casos, não é possível visitar o interior do imóvel antes da compra. Você compra "no estado em que se encontra", sem garantia de conservação, instalações ou acabamentos.',
+    dica: 'Visite o exterior e a vizinhança. Converse com porteiros e vizinhos. Pesquise o valor de mercado da região para ter margem de segurança.',
+  },
+  {
+    titulo: 'Edital com regras específicas',
+    descricao: 'Cada imóvel tem um edital próprio com regras de pagamento, prazos, comissão do leiloeiro (geralmente 5%), condições de financiamento e penalidades. Ignorar o edital pode causar perda do lance e multas.',
+    dica: 'Leia o edital COMPLETO antes de dar qualquer lance. Preste atenção em: forma de pagamento, prazo, comissão, ITBI e responsabilidade por débitos.',
+  },
+  {
+    titulo: 'Custos de cartório, ITBI e registro',
+    descricao: 'Além do valor do imóvel, o comprador paga ITBI (2-3% do valor), custas de cartório para escritura e registro (variam por estado), e eventualmente comissão do leiloeiro (5%). Esses custos podem somar 10-15% do valor de compra.',
+    dica: 'Some ao preço: ITBI (~3%) + cartório (~2%) + comissão leiloeiro (5%) + eventuais débitos. Esse é o custo real de aquisição.',
+  },
+  {
+    titulo: 'Financiamento não disponível',
+    descricao: 'Nem todos os imóveis aceitam financiamento. Imóveis em leilão SFI geralmente exigem pagamento à vista ou em parcelas curtas. Apenas modalidades como "Venda Direta" costumam aceitar financiamento habitacional.',
+    dica: 'Filtre por "Aceita financiamento: Sim" se precisar de crédito. No Imovue, esse filtro já está disponível.',
+  },
 ]
 
 const aprendizados = [
