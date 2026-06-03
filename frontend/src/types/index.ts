@@ -37,6 +37,7 @@ export interface FiltrosImovel {
   precoMax?: number
   descontoMin?: number
   modalidade?: string
+  financiamento?: string
   quartosMin?: number
   vagasMin?: number
   page?: number

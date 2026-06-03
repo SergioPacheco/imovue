@@ -277,6 +277,15 @@ function paginar(dir: number) {
 
 onMounted(async () => {
   if (!estado.value.uf) { router.push('/'); return }
+  // Ler filtros da URL (links do dashboard)
+  const q = router.currentRoute.value.query
+  if (q.cidade) filtros.cidade = q.cidade as string
+  if (q.tipoImovel) filtros.tipoImovel = q.tipoImovel as string
+  if (q.precoMax) filtros.precoMax = Number(q.precoMax)
+  if (q.precoMin) filtros.precoMin = Number(q.precoMin)
+  if (q.descontoMin) filtros.descontoMin = Number(q.descontoMin)
+  if (q.sort) filtros.sort = q.sort as string
+  if (q.financiamento) (filtros as any).financiamento = q.financiamento as string
   await buscar()
 })
 </script>

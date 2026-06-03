@@ -33,6 +33,7 @@ function applyFilters(imoveis: Imovel[], filtros: FiltrosImovel): Imovel[] {
     if (filtros.precoMax && (i.precoVenda ?? Infinity) > filtros.precoMax) return false
     if (filtros.descontoMin && (i.percentualDesconto ?? 0) < filtros.descontoMin) return false
     if (filtros.modalidade && i.modalidadeVenda !== filtros.modalidade) return false
+    if (filtros.financiamento && i.financiamento !== filtros.financiamento) return false
     if (filtros.quartosMin && (i.quartos ?? 0) < filtros.quartosMin) return false
     if (filtros.vagasMin && (i.vagas ?? 0) < filtros.vagasMin) return false
     return true
