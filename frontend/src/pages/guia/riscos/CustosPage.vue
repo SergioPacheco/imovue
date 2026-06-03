@@ -59,3 +59,8 @@
       <div class="max-w-3xl mx-auto px-4 sm:px-6 pb-10"><router-link to="/aprenda/financiamento" class="inline-flex items-center gap-1 text-sm font-medium text-brand-500 hover:text-brand-600">Próximo: Financiamento →</router-link></div>
   </article>
 </template>
+
+<script setup lang="ts">
+import { useHead } from '@/composables/useHead'
+useHead('Custos de Cartório ITBI e Registro', 'Calcule o custo real: ITBI, cartório, comissão do leiloeiro e registro do imóvel.')
+</script>

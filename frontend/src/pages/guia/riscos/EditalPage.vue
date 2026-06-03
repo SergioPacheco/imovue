@@ -45,3 +45,8 @@
       <div class="max-w-3xl mx-auto px-4 sm:px-6 pb-10"><router-link to="/aprenda/custos-cartorio-itbi" class="inline-flex items-center gap-1 text-sm font-medium text-brand-500 hover:text-brand-600">Próximo: Custos e ITBI →</router-link></div>
   </article>
 </template>
+
+<script setup lang="ts">
+import { useHead } from '@/composables/useHead'
+useHead('Como Ler o Edital do Leilão', 'Checklist completo do que verificar no edital antes de dar lance em imóvel da Caixa.')
+</script>

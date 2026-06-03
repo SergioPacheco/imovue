@@ -38,3 +38,8 @@
       <div class="max-w-3xl mx-auto px-4 sm:px-6 pb-10"><router-link to="/aprenda/edital-regras" class="inline-flex items-center gap-1 text-sm font-medium text-brand-500 hover:text-brand-600">Próximo: Edital e Regras →</router-link></div>
   </article>
 </template>
+
+<script setup lang="ts">
+import { useHead } from '@/composables/useHead'
+useHead('Imóvel Sem Visita Interna', 'Riscos de comprar imóvel sem visitar por dentro e como se proteger.')
+</script>

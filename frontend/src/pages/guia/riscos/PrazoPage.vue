@@ -42,3 +42,8 @@
       <div class="max-w-3xl mx-auto px-4 sm:px-6 pb-10"><router-link to="/aprenda/sem-visita-interna" class="inline-flex items-center gap-1 text-sm font-medium text-brand-500 hover:text-brand-600">Próximo: Sem Visita Interna →</router-link></div>
   </article>
 </template>
+
+<script setup lang="ts">
+import { useHead } from '@/composables/useHead'
+useHead('Prazo de Pagamento em Leilão', 'Conheça os prazos de pagamento por modalidade e como evitar perder o lance.')
+</script>

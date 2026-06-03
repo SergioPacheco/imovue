@@ -21,7 +21,6 @@ const router = createRouter({
     { path: '/aprenda/financiamento', component: () => import('@/pages/guia/riscos/FinanciamentoPage.vue') },
     { path: '/termos', component: () => import('@/pages/legal/TermosPage.vue') },
     { path: '/privacidade', component: () => import('@/pages/legal/PrivacidadePage.vue') },
-    { path: '/admin', component: () => import('@/pages/admin/ImportacaoPage.vue') },
   ]
 })
 

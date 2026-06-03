@@ -217,7 +217,21 @@ def run():
         with open(out_path, "w", encoding="utf-8") as f:
             json.dump(imoveis, f, ensure_ascii=False)
 
-        manifest.append({"uf": uf, "total": len(imoveis)})
+        # Pré-calcular summary por UF
+        precos = [i["precoVenda"] for i in imoveis if i["precoVenda"]]
+        descontos = [i["percentualDesconto"] for i in imoveis if i["percentualDesconto"] and 0 < i["percentualDesconto"] <= 100]
+        financiaveis = sum(1 for i in imoveis if i.get("financiamento") == "Sim")
+        altos = sum(1 for i in imoveis if (i["percentualDesconto"] or 0) >= 30)
+
+        manifest.append({
+            "uf": uf,
+            "total": len(imoveis),
+            "precoMedio": round(sum(precos) / len(precos)) if precos else 0,
+            "descontoMedio": round(sum(descontos) / len(descontos), 1) if descontos else 0,
+            "maiorDesconto": round(max(descontos), 1) if descontos else 0,
+            "financiaveis": financiaveis,
+            "altosDescontos": altos,
+        })
         total_geral += len(imoveis)
         print(f"  {uf}: {len(imoveis)} imóveis")
 

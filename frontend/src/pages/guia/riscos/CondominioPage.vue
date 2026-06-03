@@ -40,3 +40,8 @@
       <div class="max-w-3xl mx-auto px-4 sm:px-6 pb-10"><router-link to="/aprenda/debitos-iptu" class="inline-flex items-center gap-1 text-sm font-medium text-brand-500 hover:text-brand-600">Próximo: Débitos de IPTU →</router-link></div>
   </article>
 </template>
+
+<script setup lang="ts">
+import { useHead } from '@/composables/useHead'
+useHead('Débitos de Condomínio em Leilão', 'Saiba como dívidas de condomínio funcionam em imóveis de leilão e como calcular o custo real.')
+</script>

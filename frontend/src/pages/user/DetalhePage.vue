@@ -197,10 +197,15 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
 // Fix Leaflet default icon (broken with bundlers)
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png'
-import markerIcon from 'leaflet/dist/images/marker-icon.png'
-import markerShadow from 'leaflet/dist/images/marker-shadow.png'
-L.Icon.Default.mergeOptions({ iconUrl: markerIcon, iconRetinaUrl: markerIcon2x, shadowUrl: markerShadow })
+let leafletReady = false
+async function initLeaflet() {
+  if (leafletReady) return
+  const markerIcon2x = (await import('leaflet/dist/images/marker-icon-2x.png')).default
+  const markerIcon = (await import('leaflet/dist/images/marker-icon.png')).default
+  const markerShadow = (await import('leaflet/dist/images/marker-shadow.png')).default
+  L.Icon.Default.mergeOptions({ iconUrl: markerIcon, iconRetinaUrl: markerIcon2x, shadowUrl: markerShadow })
+  leafletReady = true
+}
 
 const props = defineProps<{ numero: string }>()
 const store = useCatalogoStore()
@@ -255,6 +260,7 @@ watch(imovel, async (im) => {
   if (!im?.lat || !im?.lng) return
   await nextTick()
   if (!mapEl.value) return
+  await initLeaflet()
   const map = L.map(mapEl.value).setView([im.lat, im.lng], 15)
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map)
   L.marker([im.lat, im.lng]).addTo(map)

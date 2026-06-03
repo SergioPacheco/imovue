@@ -45,3 +45,8 @@
       <div class="max-w-3xl mx-auto px-4 sm:px-6 pb-10"><router-link to="/aprenda/debitos-condominio" class="inline-flex items-center gap-1 text-sm font-medium text-brand-500 hover:text-brand-600">Próximo: Débitos de Condomínio →</router-link></div>
   </article>
 </template>
+
+<script setup lang="ts">
+import { useHead } from '@/composables/useHead'
+useHead('Imóvel Ocupado em Leilão', 'Entenda os riscos de comprar imóvel ocupado em leilão da Caixa e como se proteger juridicamente.')
+</script>

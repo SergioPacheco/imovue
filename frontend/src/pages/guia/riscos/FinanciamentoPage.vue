@@ -52,3 +52,8 @@
       <div class="max-w-3xl mx-auto px-4 sm:px-6 pb-10"><router-link to="/aprenda/imovel-ocupado" class="inline-flex items-center gap-1 text-sm font-medium text-brand-500 hover:text-brand-600">Próximo: Imóvel Ocupado →</router-link></div>
   </article>
 </template>
+
+<script setup lang="ts">
+import { useHead } from '@/composables/useHead'
+useHead('Financiamento em Leilão de Imóveis', 'Quais modalidades aceitam financiamento e como usar FGTS em imóveis da Caixa.')
+</script>

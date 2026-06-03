@@ -7,17 +7,29 @@ const cache = new Map<string, Imovel[]>()
 
 async function loadManifest(): Promise<ManifestEntry[]> {
   if (manifest) return manifest
-  const res = await fetch('/data/manifest.json')
-  manifest = await res.json()
+  try {
+    const res = await fetch('/data/manifest.json')
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    manifest = await res.json()
+  } catch (e) {
+    console.error('Erro ao carregar manifest:', e)
+    manifest = []
+  }
   return manifest!
 }
 
 async function loadUf(uf: string): Promise<Imovel[]> {
   if (cache.has(uf)) return cache.get(uf)!
-  const res = await fetch(`/data/${uf}.json`)
-  const data: Imovel[] = await res.json()
-  cache.set(uf, data)
-  return data
+  try {
+    const res = await fetch(`/data/${uf}.json`)
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const data: Imovel[] = await res.json()
+    cache.set(uf, data)
+    return data
+  } catch (e) {
+    console.error(`Erro ao carregar ${uf}:`, e)
+    return []
+  }
 }
 
 function stripCount(val: string): string {

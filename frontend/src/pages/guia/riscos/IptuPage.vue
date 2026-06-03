@@ -38,3 +38,8 @@
       <div class="max-w-3xl mx-auto px-4 sm:px-6 pb-10"><router-link to="/aprenda/prazo-pagamento" class="inline-flex items-center gap-1 text-sm font-medium text-brand-500 hover:text-brand-600">Próximo: Prazo de Pagamento →</router-link></div>
   </article>
 </template>
+
+<script setup lang="ts">
+import { useHead } from '@/composables/useHead'
+useHead('Débitos de IPTU em Leilão', 'Entenda a responsabilidade por IPTU atrasado em imóveis arrematados em leilão da Caixa.')
+</script>

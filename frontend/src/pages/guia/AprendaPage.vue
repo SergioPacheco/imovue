@@ -79,6 +79,9 @@
 
 <script setup lang="ts">
 import { AFFILIATE_CONFIG } from '@/config/affiliate'
+import { useHead } from '@/composables/useHead'
+
+useHead('Aprenda sobre Leilão de Imóveis', 'Guia completo sobre riscos em leilão de imóveis da Caixa: imóvel ocupado, débitos, edital, financiamento, ITBI e custos de cartório.')
 
 const riscos = [
   {
