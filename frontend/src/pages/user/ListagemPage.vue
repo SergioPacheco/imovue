@@ -1,27 +1,18 @@
 <template>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1 mb-3">
-      <div>
-        <div class="flex items-center gap-2">
-          <h1 class="text-xl font-bold text-gray-900">Imóveis — {{ estado.uf }}</h1>
-          <span class="badge badge-type">{{ resultado?.totalElements || 0 }} encontrados</span>
-        </div>
-        <router-link to="/" class="text-xs text-brand-500 hover:text-brand-600 inline-block">← Trocar estado</router-link>
-      </div>
-      <router-link to="/mapa" class="text-sm font-medium text-brand-500 hover:text-brand-600 flex items-center gap-1">
-        🗺️ Ver no mapa
-      </router-link>
+    <div class="flex items-center gap-2 mb-3">
+      <h1 class="text-xl font-bold text-gray-900">{{ UF_NOMES[estado.uf] || estado.uf }} - {{ estado.uf }}</h1>
+      <span class="badge badge-type">{{ resultado?.totalElements || 0 }} encontrados</span>
     </div>
 
     <!-- Filtros -->
     <div class="bg-white rounded-xl border border-gray-200 p-3 sm:p-4 mb-4">
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Tipo</label>
-          <select v-model="filtros.tipoImovel" class="input-field">
-            <option value="">Todos</option>
-            <option v-for="t in tipos" :key="t">{{ t }}</option>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Estado</label>
+          <select v-model="estado.uf" class="input-field">
+            <option v-for="uf in ufsDisponiveis" :key="uf" :value="uf">{{ UF_NOMES[uf] || uf }}</option>
           </select>
         </div>
         <div>
@@ -32,12 +23,11 @@
           </select>
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Preço máx</label>
-          <input v-model.number="filtros.precoMax" type="number" placeholder="R$" class="input-field" />
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Desconto mín</label>
-          <input v-model.number="filtros.descontoMin" type="number" placeholder="%" class="input-field" />
+          <label class="block text-xs font-medium text-gray-500 mb-1">Bairro</label>
+          <select v-model="filtros.bairro" class="input-field">
+            <option value="">Todos</option>
+            <option v-for="b in bairros" :key="b">{{ b }}</option>
+          </select>
         </div>
         <div>
           <label class="block text-xs font-medium text-gray-500 mb-1">Ordenar</label>
@@ -49,18 +39,34 @@
         </div>
       </div>
 
+      <!-- 2ª linha -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Tipo</label>
+          <select v-model="filtros.tipoImovel" class="input-field">
+            <option value="">Todos</option>
+            <option v-for="t in tipos" :key="t">{{ t }}</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Quartos</label>
+          <input v-model.number="filtros.quartosMin" type="number" placeholder="Mín" class="input-field" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Preço mín</label>
+          <input v-model.number="filtros.precoMin" type="number" placeholder="R$" class="input-field" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Preço máx</label>
+          <input v-model.number="filtros.precoMax" type="number" placeholder="R$" class="input-field" />
+        </div>
+      </div>
+
       <!-- Avançado -->
-      <div v-show="showAdvanced" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mt-3">
+      <div v-show="showAdvanced" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
           <div>
-            <label class="block text-xs font-medium text-gray-500 mb-1">Bairro</label>
-            <select v-model="filtros.bairro" class="input-field">
-              <option value="">Todos</option>
-              <option v-for="b in bairros" :key="b">{{ b }}</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-gray-500 mb-1">Quartos</label>
-            <input v-model.number="filtros.quartosMin" type="number" placeholder="Mín" class="input-field" />
+            <label class="block text-xs font-medium text-gray-500 mb-1">Desconto mín</label>
+            <input v-model.number="filtros.descontoMin" type="number" placeholder="%" class="input-field" />
           </div>
           <div>
             <label class="block text-xs font-medium text-gray-500 mb-1">Vagas</label>
@@ -73,15 +79,11 @@
               <option v-for="m in modalidades" :key="m">{{ m }}</option>
             </select>
           </div>
-          <div>
-            <label class="block text-xs font-medium text-gray-500 mb-1">Preço mín</label>
-            <input v-model.number="filtros.precoMin" type="number" placeholder="R$" class="input-field" />
-          </div>
       </div>
       <div class="mt-3 border-t border-gray-100 pt-3 flex justify-end">
         <button @click="showAdvanced = !showAdvanced" class="text-xs font-medium text-gray-500 hover:text-brand-500 flex items-center gap-1">
           <svg class="w-3.5 h-3.5 transition-transform" :class="{ 'rotate-180': showAdvanced }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-          Avançado
+          Mais filtros
         </button>
       </div>
     </div>
@@ -229,6 +231,7 @@ const router = useRouter()
 const store = useCatalogoStore()
 const fav = useFavoritos()
 const estado = ref({ uf: store.ufSelecionada, total: 0 })
+const ufsDisponiveis = ref<string[]>([])
 const cidades = ref<string[]>([])
 const tipos = ref<string[]>([])
 const bairros = ref<string[]>([])
@@ -245,6 +248,15 @@ const filtros = reactive({
 })
 
 const fmt = (v: number | null) => v ? v.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '-'
+
+const UF_NOMES: Record<string, string> = {
+  AC: 'Acre', AL: 'Alagoas', AM: 'Amazonas', AP: 'Amapá', BA: 'Bahia',
+  CE: 'Ceará', DF: 'Distrito Federal', ES: 'Espírito Santo', GO: 'Goiás',
+  MA: 'Maranhão', MG: 'Minas Gerais', MS: 'Mato Grosso do Sul', MT: 'Mato Grosso',
+  PA: 'Pará', PB: 'Paraíba', PE: 'Pernambuco', PI: 'Piauí', PR: 'Paraná',
+  RJ: 'Rio de Janeiro', RN: 'Rio Grande do Norte', RO: 'Rondônia', RR: 'Roraima',
+  RS: 'Rio Grande do Sul', SC: 'Santa Catarina', SE: 'Sergipe', SP: 'São Paulo', TO: 'Tocantins',
+}
 
 function descontoValido(im: Imovel): boolean {
   return !!im.percentualDesconto && im.percentualDesconto > 0 && im.percentualDesconto <= 100
@@ -285,6 +297,13 @@ watch(() => [filtros.cidade, filtros.bairro, filtros.tipoImovel, filtros.modalid
 
 watch(() => filtros.cidade, () => { filtros.bairro = '' })
 
+watch(() => estado.value.uf, (novaUf) => {
+  store.ufSelecionada = novaUf
+  filtros.cidade = ''
+  filtros.bairro = ''
+  buscar()
+})
+
 function limpar() {
   filtros.cidade = ''; filtros.bairro = ''; filtros.tipoImovel = ''; filtros.modalidade = ''
   filtros.precoMin = undefined; filtros.precoMax = undefined
@@ -298,7 +317,15 @@ function paginar(dir: number) {
 }
 
 onMounted(async () => {
-  if (!estado.value.uf) { router.push('/'); return }
+  ufsDisponiveis.value = await dataService.ufsDisponiveis()
+  if (!estado.value.uf) {
+    if (ufsDisponiveis.value.length > 0) {
+      estado.value.uf = ufsDisponiveis.value[0]
+      store.ufSelecionada = estado.value.uf
+    } else {
+      router.push('/'); return
+    }
+  }
   // Ler filtros da URL (links do dashboard)
   const q = router.currentRoute.value.query
   if (q.cidade) filtros.cidade = q.cidade as string
