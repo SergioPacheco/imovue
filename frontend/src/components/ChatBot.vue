@@ -40,7 +40,7 @@
           <!-- Imóveis inline -->
           <div v-if="msg.imoveis && msg.imoveis.length > 0" class="mt-2 space-y-1.5">
             <router-link v-for="im in msg.imoveis" :key="im.numeroImovel"
-              :to="`/imoveis/${im.numeroImovel}`"
+              :to="`/imoveis/${im.numeroImovel}?uf=${im.uf}`"
               @click="aberto = false"
               class="block text-xs bg-white/80 rounded-lg px-2.5 py-1.5 hover:bg-white transition-colors border border-gray-200">
               <span class="font-medium">{{ im.cidade }}</span> · R$ {{ fmt(im.precoVenda) }}
