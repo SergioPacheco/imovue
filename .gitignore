@@ -1,17 +1,9 @@
 # Dependencies
-node_modules/
 frontend/node_modules/
-frontend/dist/
-
-# Build
-backend/target/
-*.class
-*.jar
-
-# Python
 .venv/
-__pycache__/
-*.pyc
+
+# Build output
+frontend/dist/
 
 # IDE
 .idea/
@@ -22,13 +14,10 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
-# Data (CSVs são grandes)
-data/listas/*.csv
+# Python
+__pycache__/
+*.pyc
 
-# Docker
-*.log
-
-# Misc
-*.crdownload
-backend/settings-local.xml
-Lista_imoveis_*
+# Cache
+data/geocode_cache.json
+data/listas/
