@@ -10,5 +10,5 @@ module.exports = {
       fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
     },
   },
-  plugins: [],
+  plugins: [require('@tailwindcss/typography')],
 }
