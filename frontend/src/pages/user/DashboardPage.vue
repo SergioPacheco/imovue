@@ -192,9 +192,30 @@ onMounted(async () => {
 
 <style scoped>
 .card-stat {
-  @apply bg-white rounded-lg border border-gray-200 p-3 text-center cursor-pointer hover:border-brand-300 hover:shadow-sm transition-all;
+  display: block;
+  background: white;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  padding: 0.75rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.card-stat:hover {
+  border-color: #bfdbfe;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 .card-explore {
-  @apply flex items-start gap-3 p-3 rounded-lg border border-gray-100 hover:border-brand-200 hover:bg-brand-50 transition-all;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid #f3f4f6;
+  transition: all 0.15s;
+}
+.card-explore:hover {
+  border-color: #bfdbfe;
+  background: #eff6ff;
 }
 </style>
