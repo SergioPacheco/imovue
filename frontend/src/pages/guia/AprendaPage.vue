@@ -27,7 +27,8 @@
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 class="text-2xl font-bold text-gray-900 mb-8">Principais riscos</h2>
         <div class="space-y-6">
-          <div v-for="risco in riscos" :key="risco.titulo" class="bg-white rounded-xl p-5 border border-gray-200">
+          <router-link v-for="risco in riscos" :key="risco.titulo" :to="risco.link"
+            class="block bg-white rounded-xl p-5 border border-gray-200 hover:border-brand-200 hover:shadow-sm transition-all no-underline">
             <div class="flex items-start gap-3">
               <span class="text-2xl shrink-0">⚠️</span>
               <div>
@@ -36,7 +37,7 @@
                 <p class="text-xs text-brand-600 mt-2 font-medium">💡 {{ risco.dica }}</p>
               </div>
             </div>
-          </div>
+          </router-link>
         </div>
       </div>
     </section>
@@ -84,41 +85,49 @@ const riscos = [
     titulo: 'Imóvel ocupado',
     descricao: 'O imóvel pode estar ocupado pelo antigo proprietário, inquilino ou terceiros. A desocupação é responsabilidade do comprador e pode levar meses ou até anos na Justiça, com custos advocatícios e risco de danos ao imóvel.',
     dica: 'Verifique no edital se o imóvel está "ocupado" ou "desocupado". Imóveis desocupados têm menos risco e geralmente permitem vistoria.',
+    link: '/aprenda/imovel-ocupado',
   },
   {
     titulo: 'Débitos de condomínio',
     descricao: 'Dívidas de condomínio acompanham o imóvel (são obrigações "propter rem"), ou seja, o novo comprador herda todos os débitos anteriores. Em prédios, essa dívida pode ser de dezenas de milhares de reais.',
     dica: 'Antes de dar lance, consulte a administradora do condomínio para saber o valor total da dívida. Some ao custo real de aquisição.',
+    link: '/aprenda/debitos-condominio',
   },
   {
     titulo: 'Débitos de IPTU',
     descricao: 'Assim como o condomínio, dívidas de IPTU acompanham o imóvel. A Prefeitura pode cobrar do novo proprietário os valores em aberto, inclusive com juros e multa.',
     dica: 'Consulte o site da Prefeitura com o número de inscrição do imóvel para verificar débitos. Alguns editais informam que a Caixa quita o IPTU — leia com atenção.',
+    link: '/aprenda/debitos-iptu',
   },
   {
     titulo: 'Prazo curto para pagamento',
     descricao: 'Em modalidades como leilão, o pagamento do lance vencedor geralmente deve ser feito em 24 a 48 horas. Se você não tiver o valor aprovado previamente (financiamento ou à vista), perde o imóvel e pode sofrer penalidades.',
     dica: 'Se pretende financiar, tenha a carta de crédito pré-aprovada antes de participar. Para pagamento à vista, garanta liquidez imediata.',
+    link: '/aprenda/prazo-pagamento',
   },
   {
     titulo: 'Imóvel sem visita interna',
     descricao: 'Na maioria dos casos, não é possível visitar o interior do imóvel antes da compra. Você compra "no estado em que se encontra", sem garantia de conservação, instalações ou acabamentos.',
     dica: 'Visite o exterior e a vizinhança. Converse com porteiros e vizinhos. Pesquise o valor de mercado da região para ter margem de segurança.',
+    link: '/aprenda/sem-visita-interna',
   },
   {
     titulo: 'Edital com regras específicas',
     descricao: 'Cada imóvel tem um edital próprio com regras de pagamento, prazos, comissão do leiloeiro (geralmente 5%), condições de financiamento e penalidades. Ignorar o edital pode causar perda do lance e multas.',
     dica: 'Leia o edital COMPLETO antes de dar qualquer lance. Preste atenção em: forma de pagamento, prazo, comissão, ITBI e responsabilidade por débitos.',
+    link: '/aprenda/edital-regras',
   },
   {
     titulo: 'Custos de cartório, ITBI e registro',
     descricao: 'Além do valor do imóvel, o comprador paga ITBI (2-3% do valor), custas de cartório para escritura e registro (variam por estado), e eventualmente comissão do leiloeiro (5%). Esses custos podem somar 10-15% do valor de compra.',
     dica: 'Some ao preço: ITBI (~3%) + cartório (~2%) + comissão leiloeiro (5%) + eventuais débitos. Esse é o custo real de aquisição.',
+    link: '/aprenda/custos-cartorio-itbi',
   },
   {
     titulo: 'Financiamento não disponível',
     descricao: 'Nem todos os imóveis aceitam financiamento. Imóveis em leilão SFI geralmente exigem pagamento à vista ou em parcelas curtas. Apenas modalidades como "Venda Direta" costumam aceitar financiamento habitacional.',
     dica: 'Filtre por "Aceita financiamento: Sim" se precisar de crédito. No Imovue, esse filtro já está disponível.',
+    link: '/aprenda/financiamento',
   },
 ]
 
