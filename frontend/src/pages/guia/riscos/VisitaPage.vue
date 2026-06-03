@@ -35,5 +35,6 @@
         <p class="text-sm text-blue-800"><strong>Resumo:</strong> Reserve 20-30% do valor para reformas. Visite a vizinhança. Se o desconto não cobrir uma reforma completa, pode não valer a pena.</p>
       </div>
     </div>
+      <div class="max-w-3xl mx-auto px-4 sm:px-6 pb-10"><router-link to="/aprenda/edital-regras" class="inline-flex items-center gap-1 text-sm font-medium text-brand-500 hover:text-brand-600">Próximo: Edital e Regras →</router-link></div>
   </article>
 </template>

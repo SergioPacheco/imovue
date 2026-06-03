@@ -49,5 +49,6 @@
         <p class="text-sm text-blue-800"><strong>Resumo:</strong> Venda Direta = aceita financiamento. Leilão SFI = geralmente à vista. Sempre verifique no edital e tenha crédito pré-aprovado.</p>
       </div>
     </div>
+      <div class="max-w-3xl mx-auto px-4 sm:px-6 pb-10"><router-link to="/aprenda/imovel-ocupado" class="inline-flex items-center gap-1 text-sm font-medium text-brand-500 hover:text-brand-600">Próximo: Imóvel Ocupado →</router-link></div>
   </article>
 </template>

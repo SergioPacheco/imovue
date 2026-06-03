@@ -37,5 +37,6 @@
         <p class="text-sm text-blue-800"><strong>Resumo:</strong> Sempre consulte a administradora para saber o débito exato. Some ao preço de compra. Se o desconto não compensar, passe para o próximo.</p>
       </div>
     </div>
+      <div class="max-w-3xl mx-auto px-4 sm:px-6 pb-10"><router-link to="/aprenda/debitos-iptu" class="inline-flex items-center gap-1 text-sm font-medium text-brand-500 hover:text-brand-600">Próximo: Débitos de IPTU →</router-link></div>
   </article>
 </template>

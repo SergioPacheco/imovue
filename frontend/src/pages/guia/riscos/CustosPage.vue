@@ -56,5 +56,6 @@
         <p class="text-sm text-blue-800"><strong>Resumo:</strong> O preço do imóvel não é o custo final. Some ITBI + cartório + comissão + débitos = custo real. Se o desconto não cobrir esses extras, repense.</p>
       </div>
     </div>
+      <div class="max-w-3xl mx-auto px-4 sm:px-6 pb-10"><router-link to="/aprenda/financiamento" class="inline-flex items-center gap-1 text-sm font-medium text-brand-500 hover:text-brand-600">Próximo: Financiamento →</router-link></div>
   </article>
 </template>

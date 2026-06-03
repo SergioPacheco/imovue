@@ -39,5 +39,6 @@
         <p class="text-sm text-blue-800"><strong>Resumo:</strong> Nunca dê lance sem ter certeza de que pode pagar no prazo. Financiamento precisa ser pré-aprovado. Venda Direta é a mais segura para iniciantes.</p>
       </div>
     </div>
+      <div class="max-w-3xl mx-auto px-4 sm:px-6 pb-10"><router-link to="/aprenda/sem-visita-interna" class="inline-flex items-center gap-1 text-sm font-medium text-brand-500 hover:text-brand-600">Próximo: Sem Visita Interna →</router-link></div>
   </article>
 </template>

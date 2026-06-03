@@ -42,5 +42,6 @@
         <p class="text-sm text-blue-800"><strong>Resumo:</strong> Imóvel ocupado = desconto maior + risco judicial + custo extra de desocupação. Some tudo antes de decidir.</p>
       </div>
     </div>
+      <div class="max-w-3xl mx-auto px-4 sm:px-6 pb-10"><router-link to="/aprenda/debitos-condominio" class="inline-flex items-center gap-1 text-sm font-medium text-brand-500 hover:text-brand-600">Próximo: Débitos de Condomínio →</router-link></div>
   </article>
 </template>
