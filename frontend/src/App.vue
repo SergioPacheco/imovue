@@ -11,6 +11,7 @@
           <nav class="flex items-center gap-1">
             <router-link to="/imoveis" class="btn-ghost text-sm">Imóveis</router-link>
             <router-link to="/dashboard" class="btn-ghost text-sm">Dashboard</router-link>
+            <router-link to="/mapa" class="btn-ghost text-sm">Mapa</router-link>
             <router-link to="/aprenda-leilao-imoveis" class="btn-ghost text-sm">Aprenda</router-link>
             <router-link to="/guia" class="btn-ghost text-sm">Guia</router-link>
             <router-link to="/favoritos" class="btn-ghost text-sm relative">

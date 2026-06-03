@@ -10,15 +10,12 @@
       <!-- Hero -->
       <!-- Hero + Filtros -->
       <div class="text-center mb-4">
-        <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900">Radar de Oportunidades</h1>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900">Radar — {{ uf }}</h1>
         <p class="text-gray-500 mt-1 max-w-2xl mx-auto text-sm">Pare de procurar imóvel por imóvel. Comece pelos que têm maior potencial.</p>
       </div>
-      <div class="flex items-center justify-center gap-3 mb-6 flex-wrap">
-        <select v-model="filtroUf" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5">
-          <option value="">🇧🇷 Todos os estados</option>
-          <option v-for="uf in ufs" :key="uf">{{ uf }}</option>
-        </select>
-        <select v-model="filtroCidade" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5" :disabled="!filtroUf">
+      <div class="flex items-center justify-center gap-3 mb-6">
+        <router-link to="/" class="text-xs text-brand-500 hover:text-brand-600">← Trocar estado</router-link>
+        <select v-model="filtroCidade" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5">
           <option value="">Todas as cidades</option>
           <option v-for="c in cidades" :key="c">{{ c }}</option>
         </select>
@@ -182,7 +179,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { dataService } from '@/services/dataService'
+import { useCatalogoStore } from '@/stores/catalogo'
 import type { Imovel } from '@/types'
 
 interface DashboardData {
@@ -192,31 +191,23 @@ interface DashboardData {
   alertas: { altosDescontosOcupados: number; naoFinanciaveis: number; scoreAlto: number }
 }
 
+const router = useRouter()
+const store = useCatalogoStore()
 const data = ref<DashboardData | null>(null)
 const loading = ref(true)
-const filtroUf = ref('')
 const filtroCidade = ref('')
-const ufs = ref<string[]>([])
 const cidades = ref<string[]>([])
+const uf = ref(store.ufSelecionada)
 
 async function load() {
   loading.value = true
-  data.value = await dataService.dashboardGlobal(filtroUf.value || undefined, filtroCidade.value || undefined) as DashboardData
+  data.value = await dataService.dashboardGlobal(uf.value || undefined, filtroCidade.value || undefined) as DashboardData
   loading.value = false
 }
 
 onMounted(async () => {
-  ufs.value = await dataService.ufsDisponiveis()
-  await load()
-})
-
-watch(filtroUf, async (uf) => {
-  filtroCidade.value = ''
-  if (uf) {
-    cidades.value = await dataService.cidades(uf)
-  } else {
-    cidades.value = []
-  }
+  if (!uf.value) { router.push('/'); return }
+  cidades.value = await dataService.cidades(uf.value)
   await load()
 })
 
