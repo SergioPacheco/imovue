@@ -97,6 +97,11 @@
               </div>
             </dl>
           </div>
+
+          <!-- Mapa -->
+          <div v-if="imovel.lat && imovel.lng" class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <div ref="mapEl" class="h-64 w-full"></div>
+          </div>
         </div>
 
         <!-- Sidebar -->
@@ -180,17 +185,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import PropertyImage from '@/components/PropertyImage.vue'
 import { useFavoritos } from '@/composables/useFavoritos'
 import { useCatalogoStore } from '@/stores/catalogo'
 import { dataService } from '@/services/dataService'
 import type { Imovel } from '@/types'
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
 
 const props = defineProps<{ numero: string }>()
 const store = useCatalogoStore()
 const imovel = ref<Imovel | null>(null)
 const loading = ref(true)
+const mapEl = ref<HTMLElement>()
 const fav = useFavoritos()
 
 const fmt = (v: number | null) => v ? v.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '-'
@@ -233,5 +241,14 @@ onMounted(async () => {
       }
     }
   } finally { loading.value = false }
+})
+
+watch(imovel, async (im) => {
+  if (!im?.lat || !im?.lng) return
+  await nextTick()
+  if (!mapEl.value) return
+  const map = L.map(mapEl.value).setView([im.lat, im.lng], 15)
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map)
+  L.marker([im.lat, im.lng]).addTo(map)
 })
 </script>
