@@ -106,7 +106,6 @@
               <p class="text-xs text-gray-500 mt-0.5">Ideal para quem precisa de crédito</p>
             </router-link>
           </div>
-        </div>
       </div>
 
       <!-- Explorar por objetivo -->
