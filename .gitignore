@@ -8,6 +8,7 @@ frontend/dist/
 # IDE
 .idea/
 .vscode/
+.kiro/
 *.iml
 
 # OS
