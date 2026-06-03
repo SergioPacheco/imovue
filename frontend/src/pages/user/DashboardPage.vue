@@ -8,10 +8,21 @@
 
     <template v-if="data && !loading">
       <!-- Hero -->
-      <div class="text-center mb-6">
+      <!-- Hero + Filtros -->
+      <div class="text-center mb-4">
         <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900">Radar de Oportunidades</h1>
         <p class="text-gray-500 mt-1 max-w-2xl mx-auto text-sm">Pare de procurar imóvel por imóvel. Comece pelos que têm maior potencial.</p>
-        <router-link to="/imoveis" class="mt-3 inline-block text-sm font-medium text-brand-500 hover:text-brand-600">Ver ranking completo →</router-link>
+      </div>
+      <div class="flex items-center justify-center gap-3 mb-6 flex-wrap">
+        <select v-model="filtroUf" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5">
+          <option value="">🇧🇷 Todos os estados</option>
+          <option v-for="uf in ufs" :key="uf">{{ uf }}</option>
+        </select>
+        <select v-model="filtroCidade" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5" :disabled="!filtroUf">
+          <option value="">Todas as cidades</option>
+          <option v-for="c in cidades" :key="c">{{ c }}</option>
+        </select>
+        <span class="text-xs text-gray-400">{{ data.resumo.total.toLocaleString() }} imóveis</span>
       </div>
 
       <!-- Cards principais (clicáveis) -->
@@ -170,7 +181,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { dataService } from '@/services/dataService'
 import type { Imovel } from '@/types'
 
@@ -183,11 +194,33 @@ interface DashboardData {
 
 const data = ref<DashboardData | null>(null)
 const loading = ref(true)
+const filtroUf = ref('')
+const filtroCidade = ref('')
+const ufs = ref<string[]>([])
+const cidades = ref<string[]>([])
+
+async function load() {
+  loading.value = true
+  data.value = await dataService.dashboardGlobal(filtroUf.value || undefined, filtroCidade.value || undefined) as DashboardData
+  loading.value = false
+}
 
 onMounted(async () => {
-  data.value = await dataService.dashboardGlobal() as DashboardData
-  loading.value = false
+  ufs.value = await dataService.ufsDisponiveis()
+  await load()
 })
+
+watch(filtroUf, async (uf) => {
+  filtroCidade.value = ''
+  if (uf) {
+    cidades.value = await dataService.cidades(uf)
+  } else {
+    cidades.value = []
+  }
+  await load()
+})
+
+watch(filtroCidade, () => load())
 </script>
 
 <style scoped>
