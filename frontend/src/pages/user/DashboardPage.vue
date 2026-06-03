@@ -1,129 +1,168 @@
 <template>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-    <h1 class="text-xl font-bold text-gray-900 mb-4">Dashboard</h1>
-
     <!-- Loading -->
     <div v-if="loading" class="text-center py-20">
       <div class="text-4xl mb-3 animate-pulse">📊</div>
-      <p class="text-gray-500">Carregando panorama...</p>
+      <p class="text-gray-500">Carregando radar...</p>
     </div>
 
     <template v-if="data && !loading">
-      <!-- Área 1 — Resumo geral -->
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 mb-6">
-        <div class="bg-white rounded-lg border border-gray-200 p-3 text-center">
-          <div class="text-lg font-bold text-gray-900">{{ data.resumo.total.toLocaleString() }}</div>
-          <div class="text-xs text-gray-500">Imóveis</div>
-        </div>
-        <div class="bg-white rounded-lg border border-gray-200 p-3 text-center">
-          <div class="text-lg font-bold text-green-600">{{ data.resumo.maiorDesconto.toFixed(1) }}%</div>
-          <div class="text-xs text-gray-500">Maior desconto</div>
-        </div>
-        <div class="bg-white rounded-lg border border-gray-200 p-3 text-center">
-          <div class="text-lg font-bold text-gray-900">{{ data.resumo.descontoMedio }}%</div>
-          <div class="text-xs text-gray-500">Desconto médio</div>
-        </div>
-        <div class="bg-white rounded-lg border border-gray-200 p-3 text-center">
-          <div class="text-lg font-bold text-blue-600">{{ data.resumo.financiaveis.toLocaleString() }}</div>
-          <div class="text-xs text-gray-500">Financiáveis</div>
-        </div>
-        <div class="bg-white rounded-lg border border-gray-200 p-3 text-center">
-          <div class="text-lg font-bold text-orange-500">{{ data.resumo.altosDescontos.toLocaleString() }}</div>
-          <div class="text-xs text-gray-500">>30% desconto</div>
-        </div>
-        <div class="bg-white rounded-lg border border-gray-200 p-3 text-center">
-          <div class="text-lg font-bold text-gray-900">R$ {{ (data.resumo.precoMedio / 1000).toFixed(0) }}k</div>
-          <div class="text-xs text-gray-500">Ticket médio</div>
-        </div>
-        <div class="bg-white rounded-lg border border-gray-200 p-3 text-center">
-          <div class="text-lg font-bold text-brand-600">{{ data.resumo.scoreMedio }}</div>
-          <div class="text-xs text-gray-500">Score médio</div>
-        </div>
+      <!-- Hero -->
+      <div class="text-center mb-6">
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900">Radar de Oportunidades</h1>
+        <p class="text-gray-500 mt-1 max-w-2xl mx-auto text-sm">Pare de procurar imóvel por imóvel. Comece pelos que têm maior potencial.</p>
+        <router-link to="/imoveis" class="mt-3 inline-block text-sm font-medium text-brand-500 hover:text-brand-600">Ver ranking completo →</router-link>
       </div>
 
-      <!-- Área 2 — Top Oportunidades -->
+      <!-- Cards principais (clicáveis) -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+        <router-link to="/imoveis" class="card-stat">
+          <div class="text-lg font-bold text-gray-900">{{ data.resumo.total.toLocaleString() }}</div>
+          <div class="text-xs text-gray-500">Imóveis</div>
+        </router-link>
+        <router-link to="/imoveis?descontoMin=30" class="card-stat">
+          <div class="text-lg font-bold text-orange-500">{{ data.resumo.altosDescontos.toLocaleString() }}</div>
+          <div class="text-xs text-gray-500">>30% desconto</div>
+        </router-link>
+        <router-link to="/imoveis?scoreMin=80" class="card-stat border-brand-200 bg-brand-50">
+          <div class="text-lg font-bold text-brand-600">{{ data.alertas.scoreAlto }}</div>
+          <div class="text-xs text-gray-500">Score acima de 80</div>
+        </router-link>
+        <router-link to="/imoveis?financiamento=Sim" class="card-stat">
+          <div class="text-lg font-bold text-blue-600">{{ data.resumo.financiaveis.toLocaleString() }}</div>
+          <div class="text-xs text-gray-500">Financiáveis</div>
+        </router-link>
+        <router-link to="/imoveis?precoMax=131000" class="card-stat">
+          <div class="text-lg font-bold text-gray-900">R$ {{ (data.resumo.precoMedio / 1000).toFixed(0) }}k</div>
+          <div class="text-xs text-gray-500">Ticket médio</div>
+        </router-link>
+        <router-link to="/imoveis?sort=percentualDesconto,desc" class="card-stat">
+          <div class="text-lg font-bold text-green-600">{{ data.resumo.maiorDesconto.toFixed(0) }}%</div>
+          <div class="text-xs text-gray-500">Maior desconto</div>
+        </router-link>
+      </div>
+
+      <!-- Top Oportunidades -->
       <div class="bg-white rounded-xl border border-gray-200 p-4 mb-6">
-        <h2 class="text-sm font-bold text-gray-900 mb-3">🔥 Top Oportunidades</h2>
-        <div class="space-y-2">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-sm font-bold text-gray-900">🔥 Melhores oportunidades agora</h2>
+          <router-link to="/imoveis?sort=percentualDesconto,desc" class="text-xs font-medium text-brand-500 hover:text-brand-600">Ver ranking completo →</router-link>
+        </div>
+        <div class="space-y-1">
           <router-link v-for="(im, i) in data.topOportunidades" :key="im.numeroImovel"
             :to="`/imoveis/${im.numeroImovel}?uf=${im.uf}`"
             class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
             <span class="text-xs font-bold text-gray-400 w-5">{{ i + 1 }}</span>
             <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2">
-                <span class="text-sm font-medium text-gray-900 truncate">{{ im.tipoImovel || 'Imóvel' }} em {{ im.cidade }}</span>
-                <span v-if="im.financiamento === 'Sim'" class="text-xs text-blue-500">🏦</span>
-              </div>
-              <p class="text-xs text-gray-400 truncate">{{ im.bairro }} — {{ im.uf }}</p>
+              <span class="text-sm font-medium text-gray-900 truncate block">{{ im.tipoImovel || 'Imóvel' }} em {{ im.cidade }}</span>
+              <span class="text-xs text-gray-400">{{ im.bairro }} — {{ im.uf }}</span>
             </div>
-            <div class="text-right shrink-0">
-              <div class="text-sm font-bold text-brand-600">{{ im.score }}</div>
-              <div class="text-xs text-gray-400">score</div>
-            </div>
-            <div class="text-right shrink-0 w-16">
-              <div class="text-sm font-bold text-green-600">-{{ (im.percentualDesconto ?? 0).toFixed(0) }}%</div>
-            </div>
-            <div class="text-right shrink-0">
-              <div class="text-xs font-medium text-gray-700">R$ {{ ((im.precoVenda ?? 0) / 1000).toFixed(0) }}k</div>
-            </div>
+            <span class="text-sm font-bold text-brand-600">{{ im.score }}</span>
+            <span class="text-sm font-bold text-green-600 w-12 text-right">-{{ (im.percentualDesconto ?? 0).toFixed(0) }}%</span>
+            <span class="text-xs font-medium text-gray-700 w-16 text-right">R$ {{ ((im.precoVenda ?? 0) / 1000).toFixed(0) }}k</span>
+            <span v-if="im.financiamento === 'Sim'" class="text-xs">🏦</span>
           </router-link>
         </div>
       </div>
 
-      <!-- Área 3 — Ranking por Estado -->
+      <!-- Radar + Ranking lado a lado -->
       <div class="grid sm:grid-cols-2 gap-4 mb-6">
+        <!-- Alertas do Radar -->
         <div class="bg-white rounded-xl border border-gray-200 p-4">
-          <h2 class="text-sm font-bold text-gray-900 mb-3">📍 Ranking por Estado (Score médio)</h2>
-          <div class="space-y-1.5">
-            <router-link v-for="e in data.rankingEstados" :key="e.uf" :to="`/imoveis?uf=${e.uf}`"
-              class="flex items-center justify-between p-1.5 rounded hover:bg-gray-50">
-              <span class="text-sm font-medium text-gray-700">{{ e.uf }}</span>
-              <div class="flex items-center gap-3">
-                <span class="text-xs text-gray-400">{{ e.total }} imóveis</span>
-                <span class="text-sm font-bold text-brand-600">{{ e.scoreMedio }}</span>
+          <h2 class="text-sm font-bold text-gray-900 mb-3">⚡ Alertas do radar</h2>
+          <div class="space-y-3">
+            <router-link to="/imoveis?descontoMin=30" class="block p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
+              <div class="flex items-start gap-2">
+                <span class="text-lg">🔥</span>
+                <div>
+                  <div class="text-sm font-medium text-gray-900">{{ data.alertas.scoreAlto }} imóveis com score acima de 80</div>
+                  <p class="text-xs text-gray-500">Oportunidades fortes para análise imediata</p>
+                </div>
+              </div>
+            </router-link>
+            <router-link to="/imoveis?descontoMin=30" class="block p-3 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition-colors">
+              <div class="flex items-start gap-2">
+                <span class="text-lg">⚠️</span>
+                <div>
+                  <div class="text-sm font-medium text-gray-900">{{ data.alertas.altosDescontosOcupados.toLocaleString() }} com alto desconto, mas ocupados</div>
+                  <p class="text-xs text-gray-500">Desconto atrativo porém com risco de ocupação</p>
+                </div>
+              </div>
+            </router-link>
+            <router-link to="/imoveis?financiamento=Sim" class="block p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+              <div class="flex items-start gap-2">
+                <span class="text-lg">🏦</span>
+                <div>
+                  <div class="text-sm font-medium text-gray-900">{{ data.resumo.financiaveis.toLocaleString() }} aceitam financiamento</div>
+                  <p class="text-xs text-gray-500">Ideal para quem precisa de crédito</p>
+                </div>
               </div>
             </router-link>
           </div>
         </div>
 
-        <!-- Área 4 — Alertas -->
+        <!-- Ranking por estado -->
         <div class="bg-white rounded-xl border border-gray-200 p-4">
-          <h2 class="text-sm font-bold text-gray-900 mb-3">⚡ Radar Imovue</h2>
-          <div class="space-y-3">
-            <div class="flex items-start gap-2 p-2 bg-green-50 rounded-lg">
-              <span class="text-lg">🔥</span>
-              <div>
-                <div class="text-sm font-medium text-gray-900">{{ data.alertas.scoreAlto }} imóveis com score acima de 80</div>
-                <p class="text-xs text-gray-500">Oportunidades fortes para análise imediata</p>
-              </div>
-            </div>
-            <div class="flex items-start gap-2 p-2 bg-yellow-50 rounded-lg">
-              <span class="text-lg">⚠️</span>
-              <div>
-                <div class="text-sm font-medium text-gray-900">{{ data.alertas.altosDescontosOcupados }} com alto desconto, mas ocupados</div>
-                <p class="text-xs text-gray-500">Desconto atrativo porém com risco de ocupação</p>
-              </div>
-            </div>
-            <div class="flex items-start gap-2 p-2 bg-blue-50 rounded-lg">
-              <span class="text-lg">🏦</span>
-              <div>
-                <div class="text-sm font-medium text-gray-900">{{ data.resumo.financiaveis }} aceitam financiamento</div>
-                <p class="text-xs text-gray-500">Ideal para quem precisa de crédito</p>
+          <h2 class="text-sm font-bold text-gray-900 mb-3">📍 Estados com melhor potencial</h2>
+          <div class="space-y-1">
+            <div v-for="e in data.rankingEstados" :key="e.uf"
+              class="flex items-center justify-between p-2 rounded hover:bg-gray-50 cursor-default">
+              <span class="text-sm font-medium text-gray-700">{{ e.uf }}</span>
+              <div class="flex items-center gap-3">
+                <span class="text-xs text-gray-400">{{ e.total }} imóveis</span>
+                <span class="text-sm font-bold text-brand-600">{{ e.scoreMedio }}</span>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Área 5 — Chamadas para listas -->
+      <!-- Explorar por objetivo -->
       <div class="bg-white rounded-xl border border-gray-200 p-4">
-        <h2 class="text-sm font-bold text-gray-900 mb-3">🔎 Explorar oportunidades</h2>
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
-          <router-link to="/imoveis?sort=percentualDesconto,desc" class="btn-outline text-center">💰 Maiores descontos</router-link>
-          <router-link to="/imoveis?financiamento=Sim" class="btn-outline text-center">🏦 Financiáveis</router-link>
-          <router-link to="/imoveis?precoMax=100000" class="btn-outline text-center">🎯 Até R$100 mil</router-link>
-          <router-link to="/imoveis?descontoMin=40" class="btn-outline text-center">🔥 Desconto >40%</router-link>
-          <router-link to="/imoveis?tipoImovel=Casa" class="btn-outline text-center">🏠 Casas</router-link>
+        <h2 class="text-sm font-bold text-gray-900 mb-3">🔎 Explorar por objetivo</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <router-link to="/imoveis?sort=percentualDesconto,desc" class="card-explore">
+            <span class="text-xl">💰</span>
+            <div>
+              <div class="text-sm font-medium text-gray-900">Maiores descontos</div>
+              <p class="text-xs text-gray-500">Imóveis ordenados pelo maior desconto</p>
+            </div>
+          </router-link>
+          <router-link to="/imoveis?financiamento=Sim" class="card-explore">
+            <span class="text-xl">🏦</span>
+            <div>
+              <div class="text-sm font-medium text-gray-900">Financiáveis</div>
+              <p class="text-xs text-gray-500">Imóveis que aceitam financiamento</p>
+            </div>
+          </router-link>
+          <router-link to="/imoveis?precoMax=100000" class="card-explore">
+            <span class="text-xl">🎯</span>
+            <div>
+              <div class="text-sm font-medium text-gray-900">Até R$ 100 mil</div>
+              <p class="text-xs text-gray-500">Oportunidades mais acessíveis</p>
+            </div>
+          </router-link>
+          <router-link to="/imoveis?descontoMin=40" class="card-explore">
+            <span class="text-xl">🔥</span>
+            <div>
+              <div class="text-sm font-medium text-gray-900">Desconto acima de 40%</div>
+              <p class="text-xs text-gray-500">Imóveis com desconto agressivo</p>
+            </div>
+          </router-link>
+          <router-link to="/imoveis?tipoImovel=Casa" class="card-explore">
+            <span class="text-xl">🏠</span>
+            <div>
+              <div class="text-sm font-medium text-gray-900">Casas</div>
+              <p class="text-xs text-gray-500">Filtrar apenas casas</p>
+            </div>
+          </router-link>
+          <router-link to="/imoveis?tipoImovel=Apartamento" class="card-explore">
+            <span class="text-xl">🏢</span>
+            <div>
+              <div class="text-sm font-medium text-gray-900">Apartamentos</div>
+              <p class="text-xs text-gray-500">Filtrar apenas apartamentos</p>
+            </div>
+          </router-link>
         </div>
       </div>
     </template>
@@ -152,7 +191,10 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.btn-outline {
-  @apply text-xs font-medium text-gray-600 border border-gray-200 rounded-lg px-3 py-2 hover:bg-brand-50 hover:text-brand-600 hover:border-brand-200 transition-colors;
+.card-stat {
+  @apply bg-white rounded-lg border border-gray-200 p-3 text-center cursor-pointer hover:border-brand-300 hover:shadow-sm transition-all;
+}
+.card-explore {
+  @apply flex items-start gap-3 p-3 rounded-lg border border-gray-100 hover:border-brand-200 hover:bg-brand-50 transition-all;
 }
 </style>
