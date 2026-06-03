@@ -9,6 +9,18 @@
     </section>
 
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <!-- Destaque: Riscos -->
+      <router-link to="/aprenda-leilao-imoveis" class="block mb-8 p-5 rounded-xl bg-gradient-to-r from-red-50 to-orange-50 border border-red-100 hover:shadow-md transition-all">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">⚠️</span>
+          <div>
+            <h3 class="font-bold text-gray-900">Principais riscos em leilão de imóveis</h3>
+            <p class="text-sm text-gray-500">Imóvel ocupado, débitos, edital, custos ocultos — leia antes de dar lance</p>
+          </div>
+          <span class="text-brand-500 font-medium text-sm ml-auto shrink-0">Ver guia →</span>
+        </div>
+      </router-link>
+
       <!-- Cards de navegação -->
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
         <router-link v-for="s in secoes" :key="s.id" :to="`/guia#${s.id}`" class="card p-6 group" @click="scrollTo(s.id)">
