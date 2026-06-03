@@ -134,7 +134,7 @@ export const dataService = {
     return Math.min(Math.round(score), 100)
   },
 
-  async dashboardGlobal(ufFilter?: string, cidadeFilter?: string) {
+  async dashboardGlobal(ufFilter?: string, cidadeFilter?: string, tipoFilter?: string) {
     const m = await loadManifest()
     let todos: Imovel[] = []
     const ufsToLoad = ufFilter ? [ufFilter] : m.map(e => e.uf)
@@ -144,6 +144,9 @@ export const dataService = {
     }
     if (cidadeFilter) {
       todos = todos.filter(i => i.cidade === cidadeFilter)
+    }
+    if (tipoFilter) {
+      todos = todos.filter(i => i.tipoImovel === tipoFilter)
     }
 
     const precos = todos.map(i => i.precoVenda).filter(Boolean) as number[]

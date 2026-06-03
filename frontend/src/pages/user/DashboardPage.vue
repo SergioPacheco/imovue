@@ -19,6 +19,10 @@
           <option value="">Todas as cidades</option>
           <option v-for="c in cidades" :key="c">{{ c }}</option>
         </select>
+        <select v-model="filtroTipo" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5">
+          <option value="">Todos os tipos</option>
+          <option v-for="t in tipos" :key="t">{{ t }}</option>
+        </select>
         <span class="text-xs text-gray-400">{{ data.resumo.total.toLocaleString() }} imóveis</span>
       </div>
 
@@ -196,22 +200,27 @@ const store = useCatalogoStore()
 const data = ref<DashboardData | null>(null)
 const loading = ref(true)
 const filtroCidade = ref('')
+const filtroTipo = ref('')
 const cidades = ref<string[]>([])
+const tipos = ref<string[]>([])
 const uf = ref(store.ufSelecionada)
 
 async function load() {
   loading.value = true
-  data.value = await dataService.dashboardGlobal(uf.value || undefined, filtroCidade.value || undefined) as DashboardData
+  data.value = await dataService.dashboardGlobal(uf.value || undefined, filtroCidade.value || undefined, filtroTipo.value || undefined) as DashboardData
   loading.value = false
 }
 
 onMounted(async () => {
   if (!uf.value) { router.push('/'); return }
-  cidades.value = await dataService.cidades(uf.value)
+  const all = await dataService.listar(uf.value, { size: 99999 })
+  cidades.value = [...new Set(all.content.map(i => i.cidade))].sort()
+  tipos.value = [...new Set(all.content.map(i => i.tipoImovel).filter(Boolean) as string[])].sort()
   await load()
 })
 
 watch(filtroCidade, () => load())
+watch(filtroTipo, () => load())
 </script>
 
 <style scoped>
