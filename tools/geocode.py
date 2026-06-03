@@ -64,18 +64,29 @@ def save_cache(cache: dict):
         json.dump(cache, f, ensure_ascii=False)
 
 
-def geocode_nominatim(endereco: str, cidade: str, uf: str) -> tuple[float, float] | None:
-    """Consulta Nominatim com endereço completo. Retorna (lat, lng) ou None."""
-    query = f"{endereco}, {cidade}, {uf}, Brasil"
-    try:
-        r = requests.get(NOMINATIM_URL, params={
-            'q': query, 'format': 'json', 'limit': 1, 'countrycodes': 'br'
-        }, headers={'User-Agent': USER_AGENT}, timeout=10)
-        if r.status_code == 200 and r.json():
-            result = r.json()[0]
-            return float(result['lat']), float(result['lon'])
-    except Exception:
-        pass
+def geocode_nominatim(endereco: str, bairro: str, cidade: str, uf: str) -> tuple[float, float] | None:
+    """Consulta Nominatim com cascata: endereço+bairro → bairro+cidade. Retorna (lat, lng) ou None."""
+    queries = []
+    if endereco:
+        queries.append(f"{endereco}, {bairro}, {cidade}, {uf}, Brasil")
+    if bairro:
+        queries.append(f"{bairro}, {cidade}, {uf}, Brasil")
+
+    for query in queries:
+        try:
+            r = requests.get(NOMINATIM_URL, params={
+                'q': query, 'format': 'json', 'limit': 1, 'countrycodes': 'br'
+            }, headers={'User-Agent': USER_AGENT}, timeout=10)
+            if r.status_code == 200 and r.json():
+                result = r.json()[0]
+                lat, lon = float(result['lat']), float(result['lon'])
+                # Verificar se não é centroide do estado/país (muito genérico)
+                if result.get('class') not in ('boundary',) or result.get('type') not in ('administrative',):
+                    return lat, lon
+        except Exception:
+            pass
+        time.sleep(1.1)
+
     return None
 
 
@@ -133,9 +144,10 @@ def run():
                 continue
 
             # 2. Consulta Nominatim (com throttle)
-            if endereco and cidade:
+            bairro_im = im.get('bairro', '')
+            if endereco or bairro_im:
                 time.sleep(1.1)  # Nominatim policy: max 1 req/s
-                coords = geocode_nominatim(endereco, cidade, uf)
+                coords = geocode_nominatim(endereco, bairro_im, cidade, uf)
                 requests_made += 1
 
                 if coords:
