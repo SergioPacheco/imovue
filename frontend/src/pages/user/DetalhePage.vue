@@ -161,7 +161,9 @@
 
             <!-- Aviso -->
             <div class="bg-blue-50 rounded-xl p-4 text-xs text-blue-700 leading-relaxed">
-              <strong>Atenção:</strong> As informações são extraídas de listas públicas da CAIXA.
+              <strong>Aviso legal:</strong> As informações são extraídas de listas públicas da CAIXA.
+              Os documentos oficiais (edital e matrícula) são disponibilizados pela Caixa Econômica Federal e podem conter dados pessoais de terceiros.
+              O Imovue não armazena, republica ou edita esses documentos; apenas direciona o usuário para a fonte oficial.
               Confirme os dados diretamente no site oficial antes de tomar qualquer decisão.
             </div>
           </div>

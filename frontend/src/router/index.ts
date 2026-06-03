@@ -11,6 +11,8 @@ const router = createRouter({
     { path: '/favoritos', component: () => import('@/pages/user/FavoritosPage.vue') },
     { path: '/guia', component: () => import('@/pages/guia/GuiaPage.vue') },
     { path: '/aprenda-leilao-imoveis', component: () => import('@/pages/guia/AprendaPage.vue') },
+    { path: '/termos', component: () => import('@/pages/legal/TermosPage.vue') },
+    { path: '/privacidade', component: () => import('@/pages/legal/PrivacidadePage.vue') },
     { path: '/admin', component: () => import('@/pages/admin/ImportacaoPage.vue') },
   ]
 })

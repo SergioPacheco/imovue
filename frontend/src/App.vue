@@ -38,8 +38,12 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-400">
           <span>Imovue — Catálogo de imóveis de leilão da CAIXA</span>
-          <span>Dados públicos. Não possui vínculo oficial com a CAIXA.</span>
+          <div class="flex items-center gap-4">
+            <router-link to="/termos" class="hover:text-gray-600">Termos de Uso</router-link>
+            <router-link to="/privacidade" class="hover:text-gray-600">Privacidade</router-link>
+          </div>
         </div>
+        <p class="text-xs text-gray-300 text-center mt-3">Dados públicos. Não possui vínculo oficial com a CAIXA.</p>
       </div>
     </footer>
 
