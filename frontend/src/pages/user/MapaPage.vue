@@ -3,7 +3,11 @@
     <!-- Header com filtros -->
     <div class="bg-white border-b border-gray-200 px-4 py-2 flex items-center gap-3 shrink-0 flex-wrap">
       <router-link to="/imoveis" class="text-xs text-brand-500 hover:text-brand-600">← Listagem</router-link>
-      <h1 class="text-sm font-bold text-gray-900">Mapa — {{ uf }}</h1>
+      <h1 class="text-sm font-bold text-gray-900">Mapa</h1>
+      <select v-model="ufSelecionada" class="text-xs border border-gray-200 rounded px-2 py-1 font-medium">
+        <option value="" disabled>UF</option>
+        <option v-for="u in ufsDisponiveis" :key="u">{{ u }}</option>
+      </select>
       <select v-model="filtroTipo" class="text-xs border border-gray-200 rounded px-2 py-1">
         <option value="">Todos os tipos</option>
         <option v-for="t in tipos" :key="t">{{ t }}</option>
@@ -24,7 +28,6 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
 import { useCatalogoStore } from '@/stores/catalogo'
 import { dataService } from '@/services/dataService'
 import type { Imovel } from '@/types'
@@ -34,9 +37,9 @@ import 'leaflet.markercluster'
 import 'leaflet.markercluster/dist/MarkerCluster.css'
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 
-const router = useRouter()
 const store = useCatalogoStore()
-const uf = store.ufSelecionada
+const ufSelecionada = ref(store.ufSelecionada || '')
+const ufsDisponiveis = ref<string[]>([])
 const imoveis = ref<Imovel[]>([])
 const mapContainer = ref<HTMLElement>()
 const tipos = ref<string[]>([])
@@ -115,13 +118,31 @@ function initMap() {
 
 watch(filtrados, () => { if (map) renderMarkers() })
 
-onMounted(async () => {
-  if (!uf) { router.push('/'); return }
+async function loadUfData(uf: string) {
+  if (!uf) return
   const all = await dataService.listar(uf, { size: 99999 })
   imoveis.value = all.content
   tipos.value = [...new Set(all.content.map(i => i.tipoImovel).filter(Boolean) as string[])].sort()
   cidades.value = [...new Set(all.content.map(i => i.cidade))].sort()
+  filtroTipo.value = ''
+  filtroCidade.value = ''
+  filtroPrecoMax.value = undefined
+  filtroDescontoMin.value = undefined
+  renderMarkers()
+}
+
+watch(ufSelecionada, (uf) => {
+  store.ufSelecionada = uf
+  loadUfData(uf)
+})
+
+onMounted(async () => {
+  ufsDisponiveis.value = (await dataService.ufsDisponiveis()).sort()
+  if (!ufSelecionada.value && ufsDisponiveis.value.length) {
+    ufSelecionada.value = ufsDisponiveis.value[0]
+  }
   initMap()
+  await loadUfData(ufSelecionada.value)
 })
 </script>
 
