@@ -7,7 +7,7 @@
       <div class="absolute inset-0 bg-gradient-to-br from-brand-900/85 via-brand-800/75 to-brand-700/70"></div>
       <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 text-center">
         <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight">
-          Encontre imóveis de leilão<br class="hidden sm:block" /> com até <span class="text-blue-300">70% de desconto</span>
+          Encontre imóveis da CAIXA<br class="hidden sm:block" /> com <span class="text-blue-300">grandes descontos</span>
         </h1>
         <p class="mt-4 text-lg text-blue-200 max-w-2xl mx-auto">
           Catálogo atualizado de imóveis da CAIXA. Selecione um estado para explorar oportunidades.
@@ -36,7 +36,7 @@
         </div>
         <div class="bg-brand-700/90 backdrop-blur rounded-xl px-5 py-3 shadow-lg">
           <div class="text-2xl font-extrabold">{{ maiorDesconto }}%</div>
-          <div class="text-xs text-blue-200">maior desconto</div>
+          <div class="text-xs text-blue-200">maior desconto encontrado</div>
         </div>
       </div>
     </section>
