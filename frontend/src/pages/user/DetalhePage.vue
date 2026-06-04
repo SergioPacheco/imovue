@@ -274,10 +274,12 @@ onMounted(async () => {
     const uf = store.ufSelecionada
     if (uf) {
       imovel.value = (await dataService.detalhe(uf, props.numero)) ?? null
-    } else {
-      // Busca em todas as UFs se não tem UF selecionada
+    }
+    if (!imovel.value) {
+      // Busca em todas as UFs se não achou na selecionada
       const ufs = await dataService.ufsDisponiveis()
       for (const u of ufs) {
+        if (u === uf) continue
         const found = await dataService.detalhe(u, props.numero)
         if (found) { imovel.value = found; store.ufSelecionada = u; break }
       }

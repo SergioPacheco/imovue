@@ -86,6 +86,10 @@ function applySort(imoveis: Imovel[], sort?: string): Imovel[] {
 }
 
 export const dataService = {
+  async getManifest() {
+    return loadManifest()
+  },
+
   async ufsDisponiveis(): Promise<string[]> {
     const m = await loadManifest()
     return m.map(e => e.uf)

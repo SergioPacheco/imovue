@@ -23,11 +23,32 @@
       </div>
     </section>
 
+    <!-- Indicadores -->
+    <section v-if="!loading" class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20">
+      <div class="flex justify-center gap-6 sm:gap-10 text-center text-white">
+        <div class="bg-brand-700/90 backdrop-blur rounded-xl px-5 py-3 shadow-lg">
+          <div class="text-2xl font-extrabold">{{ totalImoveis.toLocaleString('pt-BR') }}</div>
+          <div class="text-xs text-blue-200">imóveis monitorados</div>
+        </div>
+        <div class="bg-brand-700/90 backdrop-blur rounded-xl px-5 py-3 shadow-lg">
+          <div class="text-2xl font-extrabold">{{ ufs.length }}</div>
+          <div class="text-xs text-blue-200">estados cobertos</div>
+        </div>
+        <div class="bg-brand-700/90 backdrop-blur rounded-xl px-5 py-3 shadow-lg">
+          <div class="text-2xl font-extrabold">{{ maiorDesconto }}%</div>
+          <div class="text-xs text-blue-200">maior desconto</div>
+        </div>
+      </div>
+    </section>
+
     <!-- Seletor de Estado -->
-    <section v-reveal class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
+    <section v-reveal class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 relative z-10">
       <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 sm:p-8">
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
-          <h2 class="text-xl font-bold text-gray-900">Selecione o estado</h2>
+          <div>
+            <h2 class="text-xl font-bold text-gray-900">Escolha onde procurar</h2>
+            <p class="text-sm text-gray-500 mt-0.5">Selecione um estado para ver imóveis disponíveis na região.</p>
+          </div>
           <div class="relative w-full sm:w-64">
             <input v-model="busca" type="text" placeholder="Buscar estado..." class="input-field pl-9" />
             <svg class="absolute left-3 top-3 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -43,12 +64,12 @@
         <div v-else class="grid grid-cols-4 sm:grid-cols-7 gap-3">
           <button v-for="uf in ufsFiltradas" :key="uf" @click="selecionar(uf)"
             :disabled="carregando"
-            class="group relative h-14 rounded-xl border-2 border-gray-200 bg-white font-bold text-gray-700
-                   hover:border-brand-500 hover:bg-brand-50 hover:text-brand-600
-                   active:scale-95 transition-all duration-150 text-sm
-                   disabled:opacity-50 disabled:cursor-wait">
-            {{ uf }}
-            <span class="absolute -top-1 -right-1 w-2 h-2 bg-brand-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></span>
+            class="group relative h-16 rounded-xl border-2 border-gray-200 bg-white
+                   hover:border-brand-500 hover:bg-brand-50
+                   active:scale-95 transition-all duration-150
+                   disabled:opacity-50 disabled:cursor-wait flex flex-col items-center justify-center">
+            <span class="font-bold text-gray-700 group-hover:text-brand-600 text-sm">{{ uf }}</span>
+            <span class="text-[10px] text-gray-400 group-hover:text-brand-500">{{ manifestMap[uf]?.toLocaleString('pt-BR') || '' }}</span>
           </button>
         </div>
 
@@ -181,6 +202,9 @@ const loading = ref(true)
 const carregando = ref(false)
 const ufSelecionada = ref('')
 const busca = ref('')
+const manifestMap = ref<Record<string, number>>({})
+const totalImoveis = ref(0)
+const maiorDesconto = ref(0)
 
 const ufsFiltradas = computed(() => {
   if (!busca.value) return ufs.value
@@ -202,7 +226,11 @@ function onSmartSearch(result: SmartSearchResult) {
 }
 
 onMounted(async () => {
-  ufs.value = await dataService.ufsDisponiveis()
+  const m = await dataService.getManifest()
+  ufs.value = m.map(e => e.uf)
+  manifestMap.value = Object.fromEntries(m.map(e => [e.uf, e.total]))
+  totalImoveis.value = m.reduce((sum, e) => sum + e.total, 0)
+  maiorDesconto.value = Math.round(Math.max(...m.map((e: any) => e.maiorDesconto || 0)))
   loading.value = false
 })
 
