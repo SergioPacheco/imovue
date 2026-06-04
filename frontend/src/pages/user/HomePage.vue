@@ -24,7 +24,7 @@
     </section>
 
     <!-- Indicadores -->
-    <section v-if="!loading" class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20">
+    <section v-if="!loading" class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-20 mb-8">
       <div class="flex justify-center gap-6 sm:gap-10 text-center text-white">
         <div class="bg-brand-700/90 backdrop-blur rounded-xl px-5 py-3 shadow-lg">
           <div class="text-2xl font-extrabold">{{ totalImoveis.toLocaleString('pt-BR') }}</div>
@@ -42,7 +42,7 @@
     </section>
 
     <!-- Seletor de Estado -->
-    <section v-reveal class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 relative z-10">
+    <section v-reveal class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
       <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 sm:p-8">
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
           <div>
