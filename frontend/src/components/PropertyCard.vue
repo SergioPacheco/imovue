@@ -15,8 +15,9 @@
         <p class="text-xs font-medium text-gray-500 mb-0.5">{{ imovel.cidade }}</p>
         <h3 class="font-semibold text-gray-900 group-hover:text-brand-500 transition-colors truncate">{{ imovel.bairro }}</h3>
         <p class="text-xs text-gray-400 truncate mt-0.5">
-          <a :href="mapsLink" target="_blank" rel="noopener" @click.stop class="hover:text-brand-500 hover:underline">
-            📍 {{ imovel.endereco }}
+          <a :href="mapsLink" target="_blank" rel="noopener" @click.stop class="hover:text-brand-500 hover:underline inline-flex items-center gap-0.5">
+            <svg class="w-3.5 h-3.5 text-red-500 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
+            {{ imovel.endereco }}
           </a>
         </p>
 
