@@ -47,7 +47,7 @@
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
           <div>
             <h2 class="text-xl font-bold text-gray-900">Escolha onde procurar</h2>
-            <p class="text-sm text-gray-500 mt-0.5">Selecione um estado para ver imóveis disponíveis na região.</p>
+            <p class="text-sm text-gray-500 mt-0.5">Escolha um estado e descubra onde estão as melhores oportunidades da CAIXA.</p>
           </div>
           <div class="relative w-full sm:w-64">
             <input v-model="busca" type="text" placeholder="Buscar estado..." class="input-field pl-9" />
