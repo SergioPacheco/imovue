@@ -85,7 +85,7 @@ def geocode_nominatim(endereco: str, bairro: str, cidade: str, uf: str) -> tuple
                     return lat, lon
         except Exception:
             pass
-        time.sleep(1.1)
+        time.sleep(0.5)
 
     return None
 
@@ -146,7 +146,6 @@ def run():
             # 2. Consulta Nominatim (com throttle)
             bairro_im = im.get('bairro', '')
             if endereco or bairro_im:
-                time.sleep(1.1)  # Nominatim policy: max 1 req/s
                 coords = geocode_nominatim(endereco, bairro_im, cidade, uf)
                 requests_made += 1
 
