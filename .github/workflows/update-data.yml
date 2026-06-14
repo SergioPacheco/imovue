@@ -38,6 +38,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add frontend/public/data/ data/listas/
+          git add frontend/public/data/ data/listas/ tools/.geocode_cache.json
           git diff --staged --quiet || git commit -m "chore(data): atualizar imóveis $(date +%Y-%m-%d)"
           git push

@@ -20,6 +20,6 @@ __pycache__/
 *.pyc
 
 # Cache
-data/geocode_cache.json
+
+# Dados brutos (baixados pelo CI)
 data/listas/
-tools/.geocode_cache.json
