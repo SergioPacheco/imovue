@@ -65,8 +65,10 @@
 
 <script setup lang="ts">
 import { useFavoritos } from '@/composables/useFavoritos'
+import { useSeoHead } from '@/composables/useSeoHead'
 import PropertyImage from '@/components/PropertyImage.vue'
 
+useSeoHead({ title: 'Favoritos', description: 'Seus imóveis favoritos salvos localmente.', robots: 'noindex,follow' })
 const fav = useFavoritos()
 const fmt = (v: number | null) => v ? v.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '-'
 

@@ -2,25 +2,43 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
   history: createWebHistory(),
+  scrollBehavior() { return { top: 0 } },
   routes: [
+    // Main pages
     { path: '/', component: () => import('@/pages/user/HomePage.vue') },
     { path: '/imoveis', component: () => import('@/pages/user/ListagemPage.vue') },
     { path: '/imoveis/:numero', component: () => import('@/pages/user/DetalhePage.vue'), props: true },
-    { path: '/mapa', component: () => import('@/pages/user/MapaPage.vue') },
-    { path: '/dashboard', component: () => import('@/pages/user/DashboardPage.vue') },
-    { path: '/favoritos', component: () => import('@/pages/user/FavoritosPage.vue') },
-    { path: '/guia', component: () => import('@/pages/guia/AprendaPage.vue') },
-    { path: '/aprenda-leilao-imoveis', redirect: '/guia' },
-    { path: '/aprenda/imovel-ocupado', component: () => import('@/pages/guia/riscos/OcupadoPage.vue') },
-    { path: '/aprenda/debitos-condominio', component: () => import('@/pages/guia/riscos/CondominioPage.vue') },
-    { path: '/aprenda/debitos-iptu', component: () => import('@/pages/guia/riscos/IptuPage.vue') },
-    { path: '/aprenda/prazo-pagamento', component: () => import('@/pages/guia/riscos/PrazoPage.vue') },
-    { path: '/aprenda/sem-visita-interna', component: () => import('@/pages/guia/riscos/VisitaPage.vue') },
-    { path: '/aprenda/edital-regras', component: () => import('@/pages/guia/riscos/EditalPage.vue') },
-    { path: '/aprenda/custos-cartorio-itbi', component: () => import('@/pages/guia/riscos/CustosPage.vue') },
-    { path: '/aprenda/financiamento', component: () => import('@/pages/guia/riscos/FinanciamentoPage.vue') },
+    { path: '/mapa', component: () => import('@/pages/user/MapaPage.vue'), meta: { noindex: true, noAds: true } },
+    { path: '/dashboard', component: () => import('@/pages/user/DashboardPage.vue'), meta: { noindex: true } },
+    { path: '/favoritos', component: () => import('@/pages/user/FavoritosPage.vue'), meta: { noindex: true, noAds: true } },
+
+    // Guias (editorial)
+    { path: '/guias', component: () => import('@/pages/guia/GuiasIndexPage.vue') },
+    { path: '/guias/:slug', component: () => import('@/pages/guia/GuiaPage.vue'), props: true },
+    { path: '/guia', redirect: '/guias' },
+    { path: '/aprenda-leilao-imoveis', redirect: '/guias' },
+    { path: '/aprenda/imovel-ocupado', redirect: '/guias/riscos-imovel-ocupado' },
+    { path: '/aprenda/debitos-condominio', redirect: '/guias/debitos-condominio-iptu' },
+    { path: '/aprenda/debitos-iptu', redirect: '/guias/debitos-condominio-iptu' },
+    { path: '/aprenda/prazo-pagamento', redirect: '/guias/como-comprar-imoveis-caixa' },
+    { path: '/aprenda/sem-visita-interna', redirect: '/guias/como-analisar-edital' },
+    { path: '/aprenda/edital-regras', redirect: '/guias/como-analisar-edital' },
+    { path: '/aprenda/custos-cartorio-itbi', redirect: '/guias/como-calcular-itbi-escritura-registro' },
+    { path: '/aprenda/financiamento', redirect: '/guias/como-funciona-financiamento' },
+
+    // Institutional
+    { path: '/sobre', component: () => import('@/pages/institucional/SobrePage.vue') },
+    { path: '/contato', component: () => import('@/pages/institucional/ContatoPage.vue') },
+    { path: '/metodologia', component: () => import('@/pages/institucional/MetodologiaPage.vue') },
+    { path: '/fontes-dos-dados', component: () => import('@/pages/institucional/FontesPage.vue') },
+    { path: '/politica-editorial', component: () => import('@/pages/institucional/PoliticaEditorialPage.vue') },
+
+    // Legal
     { path: '/termos', component: () => import('@/pages/legal/TermosPage.vue') },
     { path: '/privacidade', component: () => import('@/pages/legal/PrivacidadePage.vue') },
+
+    // 404
+    { path: '/:pathMatch(.*)*', component: () => import('@/pages/NotFoundPage.vue'), meta: { noindex: true, noAds: true } },
   ]
 })
 

@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+# Block internal/functional pages
+Disallow: /favoritos
+Disallow: /mapa
+Disallow: /dashboard
+
+# Block filter variations
+Disallow: /*?*sort=
+Disallow: /*?*page=
+
+Sitemap: https://imovue.com.br/sitemap.xml

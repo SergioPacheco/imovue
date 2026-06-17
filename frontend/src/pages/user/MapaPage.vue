@@ -28,6 +28,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { useSeoHead } from '@/composables/useSeoHead'
 import { useCatalogoStore } from '@/stores/catalogo'
 import { dataService } from '@/services/dataService'
 import type { Imovel } from '@/types'
@@ -36,6 +37,8 @@ import 'leaflet/dist/leaflet.css'
 import 'leaflet.markercluster'
 import 'leaflet.markercluster/dist/MarkerCluster.css'
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
+
+useSeoHead({ title: 'Mapa de Imóveis', description: 'Visualize imóveis da Caixa no mapa interativo.', robots: 'noindex,follow' })
 
 const store = useCatalogoStore()
 const ufSelecionada = ref(store.ufSelecionada || '')

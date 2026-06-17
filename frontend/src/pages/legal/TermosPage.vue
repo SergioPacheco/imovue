@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-3xl mx-auto px-4 py-8 prose prose-sm prose-gray">
+  <article class="max-w-3xl mx-auto px-4 py-8 prose prose-sm prose-gray">
     <h1>Termos de Uso</h1>
     <p><em>Última atualização: 02 de junho de 2026</em></p>
 
@@ -42,5 +42,10 @@
 
     <h2>8. Contato</h2>
     <p>Dúvidas sobre estes termos: <strong>contato@imovue.com.br</strong></p>
-  </div>
+  </article>
 </template>
+
+<script setup lang="ts">
+import { useSeoHead } from '@/composables/useSeoHead'
+useSeoHead({ title: 'Termos de Uso', description: 'Termos de uso do Imovue: natureza do serviço, limitações, responsabilidades e uso aceitável.', robots: 'noindex,follow' })
+</script>

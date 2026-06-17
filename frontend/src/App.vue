@@ -14,7 +14,7 @@
             <router-link to="/imoveis" class="btn-ghost text-sm">Imóveis</router-link>
             <router-link to="/dashboard" class="btn-ghost text-sm">Radar</router-link>
             <router-link to="/mapa" class="btn-ghost text-sm">Mapa</router-link>
-            <router-link to="/guia" class="btn-ghost text-sm">Guia</router-link>
+            <router-link to="/guias" class="btn-ghost text-sm">Guia</router-link>
             <router-link to="/favoritos" class="btn-ghost text-sm relative p-2">
               <svg class="w-5 h-5" :fill="fav.count() > 0 ? '#ef4444' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
@@ -38,7 +38,7 @@
         <router-link to="/imoveis" class="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50" @click="menuOpen = false">Imóveis</router-link>
         <router-link to="/dashboard" class="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50" @click="menuOpen = false">Radar</router-link>
         <router-link to="/mapa" class="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50" @click="menuOpen = false">Mapa</router-link>
-        <router-link to="/guia" class="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50" @click="menuOpen = false">Guia</router-link>
+        <router-link to="/guias" class="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50" @click="menuOpen = false">Guia</router-link>
         <router-link to="/favoritos" class="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50" @click="menuOpen = false">
           Favoritos <span v-if="fav.count() > 0" class="text-red-500 font-bold">({{ fav.count() }})</span>
         </router-link>
@@ -56,15 +56,41 @@
 
     <!-- Footer -->
     <footer class="bg-white border-t border-gray-200 mt-auto">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-400">
-          <span>Imovue — Catálogo de imóveis de leilão da CAIXA</span>
-          <div class="flex items-center gap-4">
-            <router-link to="/termos" class="hover:text-gray-600">Termos de Uso</router-link>
-            <router-link to="/privacidade" class="hover:text-gray-600">Privacidade</router-link>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 text-sm mb-6">
+          <div>
+            <h3 class="font-semibold text-gray-900 mb-2">Imovue</h3>
+            <ul class="space-y-1.5 text-gray-500">
+              <li><router-link to="/sobre" class="hover:text-gray-700">Sobre</router-link></li>
+              <li><router-link to="/contato" class="hover:text-gray-700">Contato</router-link></li>
+              <li><router-link to="/metodologia" class="hover:text-gray-700">Metodologia</router-link></li>
+              <li><router-link to="/fontes-dos-dados" class="hover:text-gray-700">Fontes dos dados</router-link></li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="font-semibold text-gray-900 mb-2">Conteúdo</h3>
+            <ul class="space-y-1.5 text-gray-500">
+              <li><router-link to="/guias" class="hover:text-gray-700">Guias</router-link></li>
+              <li><router-link to="/imoveis" class="hover:text-gray-700">Imóveis</router-link></li>
+              <li><router-link to="/dashboard" class="hover:text-gray-700">Radar</router-link></li>
+              <li><router-link to="/politica-editorial" class="hover:text-gray-700">Política editorial</router-link></li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="font-semibold text-gray-900 mb-2">Legal</h3>
+            <ul class="space-y-1.5 text-gray-500">
+              <li><router-link to="/termos" class="hover:text-gray-700">Termos de Uso</router-link></li>
+              <li><router-link to="/privacidade" class="hover:text-gray-700">Privacidade</router-link></li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="font-semibold text-gray-900 mb-2">Contato</h3>
+            <p class="text-gray-500 text-xs">contato@imovue.com.br</p>
           </div>
         </div>
-        <p class="text-xs text-gray-300 text-center mt-3">Dados públicos. Não possui vínculo oficial com a CAIXA.</p>
+        <div class="border-t border-gray-100 pt-4 text-center">
+          <p class="text-xs text-gray-400">Imovue — Plataforma de pesquisa e análise de imóveis da Caixa. Dados públicos. Não possui vínculo oficial com a CAIXA.</p>
+        </div>
       </div>
     </footer>
 

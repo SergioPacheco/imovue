@@ -147,10 +147,13 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useSeoHead } from '@/composables/useSeoHead'
 import { dataService } from '@/services/dataService'
 import { useCatalogoStore } from '@/stores/catalogo'
 import { UF_NOMES } from '@/constants/uf'
 import type { Imovel } from '@/types'
+
+useSeoHead({ title: 'Radar de Oportunidades', description: 'Radar de imóveis da Caixa com score de oportunidade.', robots: 'noindex,follow' })
 
 interface DashboardData {
   resumo: { total: number; maiorDesconto: number; descontoMedio: number; financiaveis: number; altosDescontos: number; precoMedio: number; scoreMedio: number }

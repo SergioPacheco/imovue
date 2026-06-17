@@ -149,13 +149,22 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
+import { useSeoHead } from '@/composables/useSeoHead'
 import { dataService } from '@/services/dataService'
 import { useCatalogoStore } from '@/stores/catalogo'
 import type { Imovel } from '@/types'
 import { UF_NOMES } from '@/constants/uf'
 import PropertyCard from '@/components/PropertyCard.vue'
 import { AFFILIATE_CONFIG } from '@/config/affiliate'
+
+const route = useRoute()
+const hasFilters = Object.keys(route.query).length > 0
+useSeoHead({
+  title: 'Imóveis da Caixa com Desconto',
+  description: 'Encontre imóveis da Caixa Econômica Federal com desconto. Filtre por estado, cidade, preço, desconto e modalidade.',
+  robots: hasFilters ? 'noindex,follow' : 'index,follow',
+})
 
 const router = useRouter()
 const store = useCatalogoStore()

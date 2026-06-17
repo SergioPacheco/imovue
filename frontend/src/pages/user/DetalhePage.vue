@@ -97,6 +97,99 @@
             </div>
           </div>
 
+          <!-- Análise Imovue -->
+          <div class="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+            <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">🔎 Análise Imovue</h2>
+
+            <!-- Desconto e economia -->
+            <div v-if="imovel.percentualDesconto && imovel.valorAvaliacao && imovel.precoVenda" class="grid sm:grid-cols-3 gap-3">
+              <div class="bg-green-50 rounded-lg p-3 text-center">
+                <div class="text-lg font-bold text-green-700">{{ imovel.percentualDesconto.toFixed(1) }}%</div>
+                <div class="text-xs text-gray-500">Desconto sobre avaliação</div>
+              </div>
+              <div class="bg-green-50 rounded-lg p-3 text-center">
+                <div class="text-lg font-bold text-green-700">R$ {{ fmt(imovel.valorAvaliacao - imovel.precoVenda) }}</div>
+                <div class="text-xs text-gray-500">Economia vs. avaliação</div>
+              </div>
+              <div v-if="precoM2" class="bg-gray-50 rounded-lg p-3 text-center">
+                <div class="text-lg font-bold text-gray-900">R$ {{ precoM2.toLocaleString('pt-BR') }}</div>
+                <div class="text-xs text-gray-500">Preço por m²</div>
+              </div>
+            </div>
+
+            <!-- Custo estimado de aquisição -->
+            <div v-if="custoAquisicao" class="border border-gray-100 rounded-lg p-4">
+              <h3 class="text-sm font-semibold text-gray-900 mb-2">Custo estimado da aquisição</h3>
+              <dl class="space-y-1 text-sm">
+                <div class="flex justify-between"><dt class="text-gray-500">Valor do imóvel</dt><dd class="font-medium">R$ {{ fmt(imovel.precoVenda) }}</dd></div>
+                <div class="flex justify-between"><dt class="text-gray-500">ITBI estimado (3%)</dt><dd class="font-medium">R$ {{ fmt(custoAquisicao.itbi) }}</dd></div>
+                <div class="flex justify-between"><dt class="text-gray-500">Escritura e registro (~2%)</dt><dd class="font-medium">R$ {{ fmt(custoAquisicao.escritura) }}</dd></div>
+                <div class="flex justify-between border-t border-gray-100 pt-1 mt-1"><dt class="text-gray-700 font-semibold">Total estimado</dt><dd class="font-bold text-gray-900">R$ {{ fmt(custoAquisicao.total) }}</dd></div>
+              </dl>
+            </div>
+
+            <!-- Indicações -->
+            <div class="grid sm:grid-cols-2 gap-3 text-sm">
+              <div class="flex items-start gap-2 p-3 rounded-lg bg-gray-50">
+                <span>🏦</span>
+                <div>
+                  <div class="font-medium text-gray-900">Financiamento</div>
+                  <div class="text-gray-500">{{ imovel.financiamento === 'Sim' ? 'Aceita financiamento habitacional' : 'Não aceita financiamento — pagamento à vista ou conforme edital' }}</div>
+                </div>
+              </div>
+              <div class="flex items-start gap-2 p-3 rounded-lg bg-gray-50">
+                <span>💰</span>
+                <div>
+                  <div class="font-medium text-gray-900">Uso de FGTS</div>
+                  <div class="text-gray-500">{{ imovel.financiamento === 'Sim' ? 'Possível (consultar edital para condições)' : 'Não permitido nesta modalidade' }}</div>
+                </div>
+              </div>
+              <div class="flex items-start gap-2 p-3 rounded-lg bg-gray-50">
+                <span>📋</span>
+                <div>
+                  <div class="font-medium text-gray-900">Modalidade</div>
+                  <div class="text-gray-500">{{ modalidadeExplicacao }}</div>
+                </div>
+              </div>
+              <div class="flex items-start gap-2 p-3 rounded-lg bg-gray-50">
+                <span>🏠</span>
+                <div>
+                  <div class="font-medium text-gray-900">Ocupação</div>
+                  <div class="text-gray-500">{{ ocupacaoExplicacao }}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Score -->
+            <div v-if="score > 0" class="border border-gray-100 rounded-lg p-4">
+              <h3 class="text-sm font-semibold text-gray-900 mb-2">Score Imovue: {{ score }}/100</h3>
+              <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                <div class="h-2 rounded-full" :class="score >= 80 ? 'bg-green-500' : score >= 60 ? 'bg-blue-500' : score >= 40 ? 'bg-yellow-500' : 'bg-gray-400'" :style="{ width: score + '%' }"></div>
+              </div>
+              <p class="text-xs text-gray-500">O score considera desconto, financiamento, modalidade e características do imóvel. <router-link to="/metodologia" class="text-brand-500 hover:underline">Entenda a metodologia →</router-link></p>
+            </div>
+
+            <!-- Checklist -->
+            <div class="border border-gray-100 rounded-lg p-4">
+              <h3 class="text-sm font-semibold text-gray-900 mb-2">✅ Checklist antes da compra</h3>
+              <ul class="text-xs text-gray-600 space-y-1">
+                <li>☐ Ler o edital completo no site da Caixa</li>
+                <li>☐ Verificar matrícula atualizada no cartório</li>
+                <li>☐ Confirmar situação de ocupação</li>
+                <li>☐ Calcular custos totais (ITBI + cartório + eventuais débitos)</li>
+                <li>☐ Consultar débitos de IPTU e condomínio</li>
+                <li v-if="imovel.financiamento === 'Sim'">☐ Obter pré-aprovação de crédito</li>
+                <li>☐ Visitar o imóvel externamente</li>
+                <li>☐ Consultar profissional jurídico</li>
+              </ul>
+            </div>
+
+            <!-- Disclaimer -->
+            <p class="text-xs text-gray-400 leading-relaxed border-t border-gray-100 pt-3">
+              ⚠️ As estimativas acima são calculadas automaticamente com base nos dados disponíveis e não constituem recomendação jurídica, financeira ou de investimento. Valores de ITBI, escritura e registro variam por município e cartório. Consulte sempre o edital oficial e profissionais especializados antes de tomar qualquer decisão.
+            </p>
+          </div>
+
           <!-- Descrição -->
           <div class="bg-white rounded-xl border border-gray-200 p-5">
             <h2 class="font-semibold text-gray-900 mb-2">Descrição</h2>
@@ -218,6 +311,7 @@
 import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import PropertyImage from '@/components/PropertyImage.vue'
 import { useFavoritos } from '@/composables/useFavoritos'
+import { useSeoHead, breadcrumbJsonLd } from '@/composables/useSeoHead'
 import { useCatalogoStore } from '@/stores/catalogo'
 import { dataService } from '@/services/dataService'
 import type { Imovel } from '@/types'
@@ -269,6 +363,40 @@ const matriculaUrl = computed(() => {
   return `https://venda-imoveis.caixa.gov.br/editais/matricula/${imovel.value.uf}/${imovel.value.numeroImovel}.pdf`
 })
 
+// Análise Imovue computed
+const precoM2 = computed(() => {
+  if (!imovel.value?.precoVenda) return null
+  const area = imovel.value.areaPrivativa || imovel.value.areaTerreno || imovel.value.areaTotal
+  if (!area || area <= 0) return null
+  return Math.round(imovel.value.precoVenda / area)
+})
+
+const custoAquisicao = computed(() => {
+  if (!imovel.value?.precoVenda) return null
+  const preco = imovel.value.precoVenda
+  const itbi = preco * 0.03
+  const escritura = preco * 0.02
+  return { itbi, escritura, total: preco + itbi + escritura }
+})
+
+const score = ref(0)
+
+const modalidadeExplicacao = computed(() => {
+  const m = imovel.value?.modalidadeVenda || ''
+  if (m.includes('Direta')) return 'Venda Direta — proposta direta à Caixa, sem disputa de lances'
+  if (m.includes('Online')) return 'Venda Online — lances pela internet com prazo definido'
+  if (m.includes('Licitação')) return 'Licitação Aberta — concorrência pública com envelopes de proposta'
+  if (m.includes('Leilão')) return 'Leilão — arrematação pelo maior lance'
+  return m || 'Consultar edital para detalhes da modalidade'
+})
+
+const ocupacaoExplicacao = computed(() => {
+  const desc = imovel.value?.descricao?.toLowerCase() || ''
+  if (desc.includes('desocupad')) return 'Imóvel desocupado — posse imediata após registro'
+  if (desc.includes('ocupad')) return 'Imóvel ocupado — desocupação é responsabilidade do comprador (pode exigir ação judicial)'
+  return 'Situação não informada — verificar no edital oficial'
+})
+
 onMounted(async () => {
   try {
     const uf = store.ufSelecionada
@@ -287,6 +415,8 @@ onMounted(async () => {
   } finally { loading.value = false }
   if (imovel.value) {
     analise.value = await dataService.getAnalisePreco(imovel.value)
+    const stats = await dataService.estatisticas(imovel.value.uf)
+    score.value = dataService.calcScore(imovel.value, stats.precoMedio)
   }
 })
 

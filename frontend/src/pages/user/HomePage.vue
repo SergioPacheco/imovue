@@ -189,11 +189,19 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useSeoHead, websiteJsonLd } from '@/composables/useSeoHead'
 import { dataService } from '@/services/dataService'
 import { useCatalogoStore } from '@/stores/catalogo'
 import SmartSearchBar from '@/components/SmartSearchBar.vue'
 import { UF_NOMES } from '@/constants/uf'
 import type { SmartSearchResult } from '@/composables/useSmartSearch'
+
+useSeoHead({
+  title: 'Imóveis da Caixa com Desconto',
+  description: 'Encontre e analise imóveis da Caixa Econômica Federal com desconto de até 90%. Filtros avançados, score de oportunidade e guias educativos.',
+  canonical: 'https://imovue.com.br/',
+  jsonLd: websiteJsonLd(),
+})
 
 const router = useRouter()
 const store = useCatalogoStore()
