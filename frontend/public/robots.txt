@@ -6,6 +6,9 @@ Disallow: /favoritos
 Disallow: /mapa
 Disallow: /dashboard
 
+# Block individual property pages (auto-generated, thin content)
+Disallow: /imoveis/
+
 # Block filter variations
 Disallow: /*?*sort=
 Disallow: /*?*page=

@@ -7,7 +7,7 @@ const router = createRouter({
     // Main pages
     { path: '/', component: () => import('@/pages/user/HomePage.vue') },
     { path: '/imoveis', component: () => import('@/pages/user/ListagemPage.vue') },
-    { path: '/imoveis/:numero', component: () => import('@/pages/user/DetalhePage.vue'), props: true },
+    { path: '/imoveis/:numero', component: () => import('@/pages/user/DetalhePage.vue'), props: true, meta: { noindex: true, noAds: true } },
     { path: '/mapa', component: () => import('@/pages/user/MapaPage.vue'), meta: { noindex: true, noAds: true } },
     { path: '/dashboard', component: () => import('@/pages/user/DashboardPage.vue'), meta: { noindex: true } },
     { path: '/favoritos', component: () => import('@/pages/user/FavoritosPage.vue'), meta: { noindex: true, noAds: true } },
@@ -36,6 +36,7 @@ const router = createRouter({
     // Legal
     { path: '/termos', component: () => import('@/pages/legal/TermosPage.vue') },
     { path: '/privacidade', component: () => import('@/pages/legal/PrivacidadePage.vue') },
+    { path: '/aviso-legal', component: () => import('@/pages/legal/AvisoLegalPage.vue') },
 
     // 404
     { path: '/:pathMatch(.*)*', component: () => import('@/pages/NotFoundPage.vue'), meta: { noindex: true, noAds: true } },

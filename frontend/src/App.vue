@@ -81,6 +81,7 @@
             <ul class="space-y-1.5 text-gray-500">
               <li><router-link to="/termos" class="hover:text-gray-700">Termos de Uso</router-link></li>
               <li><router-link to="/privacidade" class="hover:text-gray-700">Privacidade</router-link></li>
+              <li><router-link to="/aviso-legal" class="hover:text-gray-700">Aviso Legal</router-link></li>
             </ul>
           </div>
           <div>
