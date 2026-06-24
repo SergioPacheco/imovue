@@ -20,10 +20,10 @@
               <rect x="22.5" y="32" width="1.8" height="1.8" fill="white" opacity="0.9"/>
               <!-- Lupa: cabo -->
               <line x1="15" y1="37" x2="9" y2="43" stroke="#2563eb" stroke-width="3.5" stroke-linecap="round"/>
-              <!-- Texto: Imo -->
-              <text x="46" y="32" font-family="system-ui, -apple-system, sans-serif" font-size="24" font-weight="800" fill="#1e3a5f">Imo</text>
-              <!-- Texto: vue -->
-              <text x="96" y="32" font-family="system-ui, -apple-system, sans-serif" font-size="24" font-weight="800" fill="#f59e0b">vue</text>
+              <!-- Texto: Imovue -->
+              <text x="46" y="32" font-family="system-ui, -apple-system, sans-serif" font-size="24" font-weight="800">
+                <tspan fill="#1e3a5f">Imo</tspan><tspan fill="#f59e0b">vue</tspan>
+              </text>
             </svg>
           </router-link>
 
