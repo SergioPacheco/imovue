@@ -5,7 +5,29 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-14">
           <router-link to="/" class="flex items-center gap-2 group">
-            <img src="/logo-128.png" alt="Imovue" class="h-8 w-auto group-hover:scale-110 transition-transform" />
+            <!-- Logo SVG inline -->
+            <svg class="h-9 w-auto" viewBox="0 0 180 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Casa com lupa -->
+              <g class="group-hover:scale-110 origin-center transition-transform">
+                <!-- Telhado -->
+                <path d="M6 18L18 8L30 18" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <!-- Corpo da casa -->
+                <rect x="9" y="18" width="18" height="14" rx="1" stroke="#1e40af" stroke-width="2"/>
+                <!-- Porta -->
+                <rect x="15" y="24" width="6" height="8" rx="1" fill="#2563eb" opacity="0.3"/>
+                <!-- Janela -->
+                <rect x="11" y="20" width="4" height="4" rx="0.5" fill="#60a5fa" opacity="0.5"/>
+                <!-- Lupa sobreposta -->
+                <circle cx="26" cy="14" r="4" stroke="#f59e0b" stroke-width="1.8" fill="none"/>
+                <line x1="29" y1="17" x2="32" y2="20" stroke="#f59e0b" stroke-width="1.8" stroke-linecap="round"/>
+              </g>
+              <!-- Texto Imovue -->
+              <text x="38" y="27" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="800" fill="#111827">
+                <tspan>Imo</tspan><tspan fill="#2563eb">vue</tspan>
+              </text>
+              <!-- Slogan -->
+              <text x="38" y="36" font-family="system-ui, sans-serif" font-size="7" fill="#6b7280" letter-spacing="0.3">IMÓVEIS DA CAIXA COM DESCONTO</text>
+            </svg>
           </router-link>
 
           <!-- Desktop nav -->
