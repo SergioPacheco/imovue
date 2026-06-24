@@ -6,7 +6,7 @@
         <div class="flex items-center justify-between h-14">
           <router-link to="/" class="flex items-center gap-2 group">
             <!-- Logo SVG inline -->
-            <svg class="h-9 w-auto" viewBox="0 0 180 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg class="h-12 w-auto" viewBox="0 0 180 40" fill="none" xmlns="http://www.w3.org/2000/svg">
               <!-- Casa com lupa -->
               <g class="group-hover:scale-110 origin-center transition-transform">
                 <!-- Telhado -->
