@@ -2,9 +2,15 @@
   <article v-if="article">
     <div class="bg-gradient-to-br from-blue-50 to-indigo-50 border-b border-gray-200">
       <div class="max-w-3xl mx-auto px-4 sm:px-6 py-10">
-        <router-link to="/guias" class="text-xs text-brand-500 hover:text-brand-600">← Todos os guias</router-link>
-        <span class="text-xs text-gray-400 ml-2">{{ article.category }}</span>
-        <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-3">{{ article.title }}</h1>
+        <!-- Breadcrumb visível -->
+        <nav class="text-xs text-gray-500 mb-3 flex items-center gap-1">
+          <router-link to="/" class="hover:text-brand-600">Início</router-link>
+          <span>›</span>
+          <router-link to="/guias" class="hover:text-brand-600">Guias</router-link>
+          <span>›</span>
+          <span class="text-gray-400">{{ article.category }}</span>
+        </nav>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900">{{ article.title }}</h1>
         <p class="text-gray-500 mt-2">{{ article.description }}</p>
         <div class="flex items-center gap-3 mt-3 text-xs text-gray-400">
           <span>Por {{ article.author }}</span>
@@ -18,9 +24,20 @@
       <component :is="contentComponent" />
     </div>
 
+    <!-- FAQ -->
+    <div v-if="article.faq?.length" class="max-w-3xl mx-auto px-4 sm:px-6 pb-8">
+      <h2 class="text-lg font-bold text-gray-900 mb-4">Perguntas frequentes</h2>
+      <dl class="space-y-4">
+        <div v-for="(item, i) in article.faq" :key="i" class="border-b border-gray-100 pb-3">
+          <dt class="font-medium text-sm text-gray-900">{{ item.question }}</dt>
+          <dd class="text-sm text-gray-600 mt-1">{{ item.answer }}</dd>
+        </div>
+      </dl>
+    </div>
+
     <!-- Related articles -->
     <div v-if="related.length" class="max-w-3xl mx-auto px-4 sm:px-6 pb-10">
-      <h2 class="text-sm font-bold text-gray-900 mb-3">Artigos relacionados</h2>
+      <h2 class="text-sm font-bold text-gray-900 mb-3">Continue aprendendo</h2>
       <div class="grid sm:grid-cols-2 gap-3">
         <router-link v-for="r in related" :key="r.slug" :to="`/guias/${r.slug}`"
           class="block p-3 rounded-lg border border-gray-100 hover:border-brand-200 transition-all">
@@ -28,6 +45,12 @@
           <div class="text-xs text-gray-500 mt-0.5">{{ r.category }}</div>
         </router-link>
       </div>
+    </div>
+
+    <!-- Editorial footer -->
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 pb-10 text-xs text-gray-400 border-t border-gray-100 pt-4">
+      <p>Publicado por Imovue Editorial • Atualizado em {{ formatDate(article.dateModified) }}</p>
+      <p class="mt-1">Fontes: Caixa Econômica Federal, editais públicos e dados oficiais consultados.</p>
     </div>
   </article>
 
@@ -40,17 +63,13 @@
 
 <script setup lang="ts">
 import { computed, defineAsyncComponent } from 'vue'
-import { getArticle, articles } from '@/data/articles'
-import { useSeoHead, articleJsonLd, breadcrumbJsonLd } from '@/composables/useSeoHead'
+import { getArticle, getRelated } from '@/data/articles'
+import { useSeoHead, articleJsonLd, breadcrumbJsonLd, faqJsonLd } from '@/composables/useSeoHead'
 
 const props = defineProps<{ slug: string }>()
 
 const article = computed(() => getArticle(props.slug))
-
-const related = computed(() => {
-  if (!article.value) return []
-  return articles.filter(a => a.slug !== props.slug && a.category === article.value!.category).slice(0, 4)
-})
+const related = computed(() => getRelated(props.slug))
 
 const contentComponent = computed(() => {
   if (!article.value) return null
@@ -62,24 +81,29 @@ function formatDate(d: string) {
 }
 
 if (article.value) {
+  const jsonLd: Record<string, unknown>[] = [
+    articleJsonLd({
+      title: article.value.title,
+      description: article.value.description,
+      url: `/guias/${props.slug}`,
+      datePublished: article.value.datePublished,
+      dateModified: article.value.dateModified,
+    }),
+    breadcrumbJsonLd([
+      { name: 'Início', url: '/' },
+      { name: 'Guias', url: '/guias' },
+      { name: article.value.title, url: `/guias/${props.slug}` },
+    ]),
+  ]
+  if (article.value.faq?.length) {
+    jsonLd.push(faqJsonLd(article.value.faq))
+  }
+
   useSeoHead({
     title: article.value.title,
     description: article.value.description,
     ogType: 'article',
-    jsonLd: [
-      articleJsonLd({
-        title: article.value.title,
-        description: article.value.description,
-        url: `/guias/${props.slug}`,
-        datePublished: article.value.datePublished,
-        dateModified: article.value.dateModified,
-      }),
-      breadcrumbJsonLd([
-        { name: 'Início', url: '/' },
-        { name: 'Guias', url: '/guias' },
-        { name: article.value.title, url: `/guias/${props.slug}` },
-      ]),
-    ],
+    jsonLd,
   })
 }
 </script>
