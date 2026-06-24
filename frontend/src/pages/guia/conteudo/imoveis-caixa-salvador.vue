@@ -1,57 +1,52 @@
 <template>
   <div>
-    <h2>Panorama: Bahia</h2>
-    <p>A Bahia tem <strong>812 imóveis</strong> da Caixa, com desconto médio de <strong>44%</strong> e preço médio de R$ 138 mil — um dos mais acessíveis entre os grandes estados. Salvador concentra quase metade da oferta.</p>
+    <div v-if="loading" class="text-center py-4 text-gray-400">Carregando dados...</div>
+    <template v-else-if="stats">
+      <h2>Panorama: Bahia</h2>
+      <p>A Bahia tem <strong>{{ stats.total.toLocaleString('pt-BR') }} imóveis</strong> com desconto médio de <strong>{{ stats.descontoMedio }}%</strong> e preço médio de R$ {{ Math.round(stats.precoMedio / 1000) }} mil — um dos mais acessíveis entre os grandes estados.</p>
 
-    <table>
-      <thead><tr><th>Indicador</th><th>Valor</th></tr></thead>
-      <tbody>
-        <tr><td>Total de imóveis</td><td>812</td></tr>
-        <tr><td>Preço médio</td><td>R$ 138 mil</td></tr>
-        <tr><td>Desconto médio</td><td>44%</td></tr>
-        <tr><td>Financiáveis</td><td>~77 (9%)</td></tr>
-      </tbody>
-    </table>
+      <table>
+        <thead><tr><th>Indicador</th><th>Valor</th></tr></thead>
+        <tbody>
+          <tr><td>Total de imóveis</td><td>{{ stats.total.toLocaleString('pt-BR') }}</td></tr>
+          <tr><td>Preço médio</td><td>R$ {{ Math.round(stats.precoMedio / 1000) }} mil</td></tr>
+          <tr><td>Desconto médio</td><td>{{ stats.descontoMedio }}%</td></tr>
+          <tr><td>Financiáveis</td><td>~{{ stats.financiaveis }} ({{ Math.round(stats.financiaveis * 100 / stats.total) }}%)</td></tr>
+        </tbody>
+      </table>
 
-    <h2>Onde estão os imóveis</h2>
-    <ol>
-      <li><strong>Salvador</strong> — 323 imóveis (40% do estado)</li>
-      <li><strong>Feira de Santana</strong> — 113 imóveis</li>
-      <li><strong>Camaçari</strong> — 86 imóveis</li>
-      <li><strong>Iaçu</strong> — 64 imóveis</li>
-      <li><strong>Lauro de Freitas</strong> — 59 imóveis</li>
-    </ol>
-
-    <h2>Características do mercado baiano</h2>
-    <ul>
-      <li><strong>Salvador tem demanda de aluguel forte</strong> — capital turística e econômica com população de 2,9 milhões</li>
-      <li><strong>Preços acessíveis</strong> — média de R$ 138 mil permite entrada com pouco capital</li>
-      <li><strong>Região metropolitana integrada</strong> — Camaçari e Lauro de Freitas funcionam como extensão de Salvador (polo industrial e classe média)</li>
-    </ul>
+      <h2>Onde estão os imóveis</h2>
+      <ol>
+        <li v-for="c in stats.topCidades" :key="c.cidade"><strong>{{ c.cidade }}</strong> — {{ c.count }} imóveis</li>
+      </ol>
+    </template>
 
     <h2>Oportunidades</h2>
     <ul>
-      <li><strong>Salvador (bairros populares)</strong> — Cajazeiras, Pau da Lima, São Marcos: alta demanda de aluguel, preços baixos, boa liquidez para imóveis de 2 quartos</li>
-      <li><strong>Lauro de Freitas</strong> — classe média em expansão, condomínios horizontais, perfil familiar</li>
-      <li><strong>Camaçari</strong> — polo industrial (Ford, Braskem) gera demanda por moradia de trabalhadores</li>
-      <li><strong>Feira de Santana</strong> — segunda cidade do estado, polo comercial, mercado de aluguel ativo</li>
+      <li><strong>Salvador (bairros populares)</strong> — Cajazeiras, Pau da Lima: alta demanda de aluguel, preços baixos</li>
+      <li><strong>Lauro de Freitas</strong> — classe média em expansão, condomínios horizontais</li>
+      <li><strong>Camaçari</strong> — polo industrial gera demanda por moradia</li>
+      <li><strong>Feira de Santana</strong> — segunda cidade do estado, polo comercial</li>
     </ul>
 
     <h2>Pontos de atenção</h2>
     <ul>
-      <li><strong>Muitos imóveis ocupados</strong> — a desocupação na Bahia pode ser mais lenta (vara cível sobrecarregada)</li>
-      <li><strong>Interior profundo tem liquidez quase zero</strong> — cidades como Iaçu (64 imóveis) podem não ter mercado para revenda</li>
-      <li><strong>Salinidade e maresia</strong> — imóveis próximos ao litoral exigem manutenção constante</li>
-      <li><strong>Documentação</strong> — verifique se o cartório de registro é ativo e se a matrícula está limpa</li>
+      <li><strong>Muitos imóveis ocupados</strong> — desocupação pode ser lenta</li>
+      <li><strong>Interior profundo tem liquidez quase zero</strong></li>
+      <li><strong>Salinidade e maresia</strong> — imóveis litorâneos exigem manutenção constante</li>
     </ul>
 
-    <h2>Dicas para quem busca na BA</h2>
+    <h2>Dicas</h2>
     <ol>
       <li>Salvador é o foco: volume bom, demanda de aluguel, liquidez razoável</li>
-      <li>Para moradia: priorize financiáveis em Lauro de Freitas ou bairros de Salvador com acesso a metrô/BRT</li>
-      <li>Para investimento: apartamentos 2 quartos em bairros populares de Salvador rendem 0,5-0,7% ao mês em aluguel</li>
+      <li>Para moradia: priorize financiáveis em Lauro de Freitas ou bairros com acesso a metrô/BRT</li>
+      <li>Para investimento: apartamentos 2 quartos em bairros populares de Salvador</li>
       <li>Evite imóveis no interior profundo a menos que conheça muito bem a região</li>
-      <li>Verifique condomínio com cuidado — prédios antigos de Salvador podem ter taxas desproporcionais ao valor do imóvel</li>
     </ol>
   </div>
 </template>
+
+<script setup>
+import { useUfStats } from '@/composables/useUfStats'
+const { stats, loading } = useUfStats('BA')
+</script>
