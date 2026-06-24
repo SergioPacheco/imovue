@@ -5,27 +5,25 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-14">
           <router-link to="/" class="flex items-center group">
-            <svg class="h-11 w-auto" viewBox="0 0 260 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg class="h-14 w-auto" viewBox="0 0 155 44" fill="none" xmlns="http://www.w3.org/2000/svg">
               <!-- Telhado da casa grande -->
-              <path d="M8 28L26 12L44 28" stroke="#2563eb" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+              <path d="M8 24L24 10L40 24" stroke="#2563eb" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
               <!-- Parede direita da casa -->
-              <path d="M38 25V42H26" stroke="#2563eb" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+              <path d="M35 21V36H24" stroke="#2563eb" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
               <!-- Lupa: círculo -->
-              <circle cx="24" cy="34" r="10" stroke="#2563eb" stroke-width="3" fill="none"/>
+              <circle cx="22" cy="30" r="9" stroke="#2563eb" stroke-width="3" fill="none"/>
               <!-- Lupa: preenchimento dourado -->
-              <circle cx="24" cy="34" r="7.5" fill="#f59e0b" opacity="0.85"/>
+              <circle cx="22" cy="30" r="6.5" fill="#f59e0b" opacity="0.85"/>
               <!-- Casinha dentro da lupa -->
-              <path d="M20 36.5V38.5H28V36.5L24 33Z" fill="white" stroke="white" stroke-width="0.5"/>
-              <rect x="21.5" y="36.5" width="2" height="2" fill="white" opacity="0.9"/>
-              <rect x="24.5" y="36.5" width="2" height="2" fill="white" opacity="0.9"/>
+              <path d="M18.5 32V34H25.5V32L22 29Z" fill="white" stroke="white" stroke-width="0.5"/>
+              <rect x="19.5" y="32" width="1.8" height="1.8" fill="white" opacity="0.9"/>
+              <rect x="22.5" y="32" width="1.8" height="1.8" fill="white" opacity="0.9"/>
               <!-- Lupa: cabo -->
-              <line x1="16" y1="42" x2="10" y2="50" stroke="#2563eb" stroke-width="3.5" stroke-linecap="round"/>
+              <line x1="15" y1="37" x2="9" y2="43" stroke="#2563eb" stroke-width="3.5" stroke-linecap="round"/>
               <!-- Texto: Imo -->
-              <text x="50" y="38" font-family="system-ui, -apple-system, sans-serif" font-size="26" font-weight="800" fill="#1e3a5f">Imo</text>
+              <text x="46" y="32" font-family="system-ui, -apple-system, sans-serif" font-size="24" font-weight="800" fill="#1e3a5f">Imo</text>
               <!-- Texto: vue -->
-              <text x="105" y="38" font-family="system-ui, -apple-system, sans-serif" font-size="26" font-weight="800" fill="#f59e0b">vue</text>
-              <!-- Slogan -->
-              <text x="50" y="52" font-family="system-ui, sans-serif" font-size="8.5" font-weight="600" fill="#1e3a5f" letter-spacing="1.2">IMÓVEIS DA CAIXA COM DESCONTO</text>
+              <text x="96" y="32" font-family="system-ui, -apple-system, sans-serif" font-size="24" font-weight="800" fill="#f59e0b">vue</text>
             </svg>
           </router-link>
 
