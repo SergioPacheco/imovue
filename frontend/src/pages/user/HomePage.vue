@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Hero -->
-    <section class="relative bg-brand-900 text-white overflow-hidden">
+    <section class="relative bg-brand-900 text-white">
       <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1600&q=80"
            alt="" class="absolute inset-0 w-full h-full object-cover" />
       <div class="absolute inset-0 bg-gradient-to-br from-brand-900/85 via-brand-800/75 to-brand-700/70"></div>
@@ -14,7 +14,7 @@
         </p>
 
         <!-- Smart Search -->
-        <div class="mt-8 max-w-2xl mx-auto">
+        <div class="mt-8 max-w-2xl mx-auto relative z-30">
           <SmartSearchBar
             placeholder="Ex: apartamento em SP até 200 mil com 2 quartos..."
             @search="onSmartSearch"
