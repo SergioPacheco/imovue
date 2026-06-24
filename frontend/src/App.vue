@@ -5,7 +5,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-14">
           <router-link to="/" class="flex items-center gap-2 group">
-            <img src="/logo.svg" alt="Imovue" class="w-8 h-8 group-hover:scale-110 transition-transform" />
+            <img src="/logo-64.png" alt="Imovue" class="w-8 h-8 group-hover:scale-110 transition-transform" width="32" height="32" />
             <span class="text-lg font-bold text-gray-900 group-hover:text-brand-500 transition-colors">Imovue</span>
           </router-link>
 

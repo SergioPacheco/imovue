@@ -12,7 +12,7 @@ export interface SeoHeadOptions {
 
 const SITE_NAME = 'Imovue'
 const SITE_URL = 'https://imovue.com.br'
-const DEFAULT_IMAGE = `${SITE_URL}/logo.svg`
+const DEFAULT_IMAGE = `${SITE_URL}/og-logo.png`
 
 function setMeta(name: string, content: string, attr = 'name') {
   let el = document.querySelector(`meta[${attr}="${name}"]`) as HTMLMetaElement | null
