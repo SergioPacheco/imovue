@@ -251,9 +251,15 @@ async function selecionar(uf: string) {
 }
 
 function onSmartSearch(result: SmartSearchResult) {
-  const uf = result.uf || 'SP'
-  store.ufSelecionada = uf
-  router.push({ path: '/imoveis', query: result.filtros as any })
+  const uf = result.uf || store.ufSelecionada || ''
+  if (uf) {
+    store.ufSelecionada = uf
+    router.push({ path: '/imoveis', query: result.filtros as any })
+  } else {
+    // Sem estado detectado — rola até o seletor de estados
+    const section = document.querySelector('.uf-section')
+    if (section) section.scrollIntoView({ behavior: 'smooth' })
+  }
 }
 
 onMounted(async () => {

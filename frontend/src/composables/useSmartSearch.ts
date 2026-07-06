@@ -19,6 +19,27 @@ const UF_MAP: Record<string, string> = {
   'se': 'SE', 'sp': 'SP', 'to': 'TO',
 }
 
+// Mapa de cidades principais → UF (para detectar estado a partir de cidade na busca)
+const CIDADE_UF_MAP: Record<string, string> = {
+  'goiania': 'GO', 'anapolis': 'GO', 'aparecida de goiania': 'GO',
+  'curitiba': 'PR', 'londrina': 'PR', 'maringa': 'PR', 'cascavel': 'PR', 'foz do iguacu': 'PR',
+  'belo horizonte': 'MG', 'uberlandia': 'MG', 'contagem': 'MG', 'juiz de fora': 'MG', 'betim': 'MG',
+  'salvador': 'BA', 'feira de santana': 'BA', 'vitoria da conquista': 'BA',
+  'fortaleza': 'CE', 'caucaia': 'CE', 'juazeiro do norte': 'CE',
+  'recife': 'PE', 'jaboatao dos guararapes': 'PE', 'olinda': 'PE', 'caruaru': 'PE',
+  'porto alegre': 'RS', 'caxias do sul': 'RS', 'pelotas': 'RS', 'canoas': 'RS',
+  'manaus': 'AM', 'belem': 'PA', 'macapa': 'AP',
+  'sao luis': 'MA', 'natal': 'RN', 'joao pessoa': 'PB', 'maceio': 'AL', 'aracaju': 'SE',
+  'teresina': 'PI', 'campo grande': 'MS', 'cuiaba': 'MT', 'porto velho': 'RO',
+  'rio branco': 'AC', 'boa vista': 'RR', 'palmas': 'TO', 'macae': 'RJ',
+  'florianopolis': 'SC', 'joinville': 'SC', 'blumenau': 'SC', 'chapeco': 'SC',
+  'vitoria': 'ES', 'vila velha': 'ES', 'serra': 'ES', 'cariacica': 'ES',
+  'niteroi': 'RJ', 'duque de caxias': 'RJ', 'nova iguacu': 'RJ', 'sao goncalo': 'RJ', 'campos dos goytacazes': 'RJ',
+  'campinas': 'SP', 'guarulhos': 'SP', 'osasco': 'SP', 'santos': 'SP', 'santo andre': 'SP',
+  'sao bernardo do campo': 'SP', 'ribeirao preto': 'SP', 'sorocaba': 'SP', 'bauru': 'SP',
+  'sao jose dos campos': 'SP', 'piracicaba': 'SP', 'jundiai': 'SP', 'mogi das cruzes': 'SP',
+}
+
 const TIPO_MAP: Record<string, string> = {
   'apartamento': 'Apartamento', 'apto': 'Apartamento', 'ap': 'Apartamento',
   'casa': 'Casa', 'sobrado': 'Sobrado',
@@ -56,6 +77,21 @@ export function parseSmartSearch(text: string, cidadesDisponiveis: string[]): Sm
       uf = val
       partes.push(`UF: ${val}`)
       break
+    }
+  }
+
+  // --- UF por cidade (fallback se não achou estado direto) ---
+  if (!uf) {
+    for (const [cidade, val] of Object.entries(CIDADE_UF_MAP)) {
+      if (t.includes(cidade)) {
+        uf = val
+        // Capitalizar nome da cidade para usar como filtro
+        const cidadeCapitalizada = cidade.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+        filtros.cidade = cidadeCapitalizada
+        partes.push(`Cidade: ${cidadeCapitalizada}`)
+        partes.push(`UF: ${val}`)
+        break
+      }
     }
   }
 
@@ -113,7 +149,7 @@ export function parseSmartSearch(text: string, cidadesDisponiveis: string[]): Sm
   }
 
   // --- Cidade (match dinâmico contra dados carregados) ---
-  if (cidadesDisponiveis.length > 0) {
+  if (!filtros.cidade && cidadesDisponiveis.length > 0) {
     const tNorm = t.replace(/[^a-z\s]/g, '')
     for (const cidade of cidadesDisponiveis) {
       const cidadeNorm = cidade.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
