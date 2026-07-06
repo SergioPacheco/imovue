@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen flex flex-col">
     <!-- Header -->
-    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <header class="header-glass sticky top-0 z-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-14">
           <router-link to="/" class="flex items-center group">
@@ -29,11 +29,11 @@
 
           <!-- Desktop nav -->
           <nav class="hidden sm:flex items-center gap-1">
-            <router-link to="/imoveis" class="btn-ghost text-sm">Imóveis</router-link>
-            <router-link to="/dashboard" class="btn-ghost text-sm">Radar</router-link>
-            <router-link to="/mapa" class="btn-ghost text-sm">Mapa</router-link>
-            <router-link to="/guias" class="btn-ghost text-sm">Guia</router-link>
-            <router-link to="/favoritos" class="btn-ghost text-sm relative p-2">
+            <router-link to="/imoveis" class="nav-link">Imóveis</router-link>
+            <router-link to="/dashboard" class="nav-link">Radar</router-link>
+            <router-link to="/mapa" class="nav-link">Mapa</router-link>
+            <router-link to="/guias" class="nav-link">Guia</router-link>
+            <router-link to="/favoritos" class="nav-link relative p-2">
               <svg class="w-5 h-5" :fill="fav.count() > 0 ? '#ef4444' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
               </svg>

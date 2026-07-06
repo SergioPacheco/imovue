@@ -26,15 +26,15 @@
     <!-- Indicadores -->
     <section v-if="!loading" class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-20 mb-8">
       <div class="flex justify-center gap-6 sm:gap-10 text-center text-white">
-        <div class="bg-brand-700/90 backdrop-blur rounded-xl px-5 py-3 shadow-lg">
+        <div class="stat-card">
           <div class="text-2xl font-extrabold">{{ totalImoveis.toLocaleString('pt-BR') }}</div>
           <div class="text-xs text-blue-200">imóveis monitorados</div>
         </div>
-        <div class="bg-brand-700/90 backdrop-blur rounded-xl px-5 py-3 shadow-lg">
+        <div class="stat-card">
           <div class="text-2xl font-extrabold">{{ ufs.length }}</div>
           <div class="text-xs text-blue-200">estados cobertos</div>
         </div>
-        <div class="bg-brand-700/90 backdrop-blur rounded-xl px-5 py-3 shadow-lg">
+        <div class="stat-card">
           <div class="text-2xl font-extrabold">{{ maiorDesconto }}%</div>
           <div class="text-xs text-blue-200">maior desconto encontrado</div>
         </div>
@@ -61,13 +61,10 @@
           <div v-for="i in 27" :key="i" class="skeleton h-14 rounded-xl"></div>
         </div>
 
-        <div v-else class="grid grid-cols-4 sm:grid-cols-7 gap-3">
+        <div v-else class="grid grid-cols-4 sm:grid-cols-7 gap-3 stagger-children">
           <button v-for="uf in ufsFiltradas" :key="uf" @click="selecionar(uf)"
             :disabled="carregando"
-            class="group relative h-16 rounded-xl border-2 border-gray-200 bg-white
-                   hover:border-brand-500 hover:bg-brand-50
-                   active:scale-95 transition-all duration-150
-                   disabled:opacity-50 disabled:cursor-wait flex flex-col items-center justify-center">
+            class="uf-btn group">
             <span class="font-bold text-gray-700 group-hover:text-brand-600 text-sm">{{ uf }}</span>
             <span class="text-[10px] text-gray-400 group-hover:text-brand-500">{{ manifestMap[uf]?.toLocaleString('pt-BR') || '' }}</span>
           </button>
@@ -86,22 +83,22 @@
     <!-- Info -->
     <section v-reveal="200" class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <div class="grid sm:grid-cols-3 gap-8 text-center">
-        <div>
-          <div class="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center mx-auto mb-3">
+        <div class="info-card">
+          <div class="icon-box bg-brand-50">
             <span class="text-2xl">🏠</span>
           </div>
           <h3 class="font-semibold text-gray-900">Dados públicos</h3>
           <p class="text-sm text-gray-500 mt-1">Informações extraídas das listas oficiais da CAIXA</p>
         </div>
-        <div>
-          <div class="w-12 h-12 bg-success-50 rounded-xl flex items-center justify-center mx-auto mb-3">
+        <div class="info-card">
+          <div class="icon-box bg-success-50">
             <span class="text-2xl">💰</span>
           </div>
           <h3 class="font-semibold text-gray-900">Descontos reais</h3>
           <p class="text-sm text-gray-500 mt-1">Imóveis com até 70% abaixo do valor de avaliação</p>
         </div>
-        <div>
-          <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-3">
+        <div class="info-card">
+          <div class="icon-box bg-blue-50">
             <span class="text-2xl">🔍</span>
           </div>
           <h3 class="font-semibold text-gray-900">Filtros avançados</h3>
