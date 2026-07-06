@@ -6,9 +6,12 @@
         <p :class="descClass">{{ description }}</p>
       </div>
       <div :class="actionsClass">
-        <a :href="affiliateUrl" target="_blank" rel="nofollow sponsored noopener" :class="btnClass">
-          <span class="relative z-10">{{ buttonText }}</span>
-          <span class="shimmer"></span>
+        <a :href="affiliateUrl" target="_blank" rel="nofollow sponsored noopener" class="affiliate-btn" :class="btnSizeClass">
+          <span class="relative z-10 flex items-center gap-2">
+            <span>{{ buttonText }}</span>
+          </span>
+          <span class="affiliate-btn-shimmer"></span>
+          <span class="affiliate-btn-glow"></span>
         </a>
         <p class="text-[10px] text-gray-400 mt-2 leading-tight">{{ AFFILIATE_CONFIG.disclosure }}</p>
       </div>
@@ -28,8 +31,8 @@ const props = withDefaults(defineProps<{
   affiliateUrl?: string
 }>(), {
   variant: 'top',
-  title: 'Antes de dar seu primeiro lance, aprenda a analisar os riscos',
-  description: 'Imóveis da Caixa podem ter desconto, mas também podem envolver edital, ocupação, débitos, financiamento, comissão e prazos. Veja um treinamento recomendado para entender o processo antes de fazer proposta.',
+  title: 'Encontrou um imóvel interessante?',
+  description: 'Antes de fazer uma proposta, entenda os principais riscos: edital, ocupação, débitos, financiamento, prazos e custo real da compra.',
   buttonText: 'Aprender antes de dar lance →',
   affiliateUrl: AFFILIATE_CONFIG.courseUrl,
 })
@@ -61,28 +64,71 @@ const actionsClass = computed(() => {
   return 'shrink-0 sm:text-right'
 })
 
-const btnClass = computed(() => {
-  const base = 'relative overflow-hidden inline-block font-semibold rounded-lg transition-all duration-200 hover:-translate-y-0.5'
-  if (props.variant === 'compact') return `${base} bg-brand-500 text-white text-xs px-4 py-2 hover:shadow-[0_8px_20px_-6px_rgba(30,86,160,0.5)]`
-  return `${base} bg-brand-500 text-white text-sm px-5 py-2.5 hover:shadow-[0_8px_24px_-6px_rgba(30,86,160,0.5)]`
+const btnSizeClass = computed(() => {
+  if (props.variant === 'compact') return 'text-xs px-4 py-2.5'
+  return 'text-sm px-6 py-3'
 })
 </script>
 
 <style scoped>
-.shimmer {
+.affiliate-btn {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: white;
+  background: linear-gradient(135deg, #1e56a0 0%, #2563eb 50%, #1e56a0 100%);
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 16px -4px rgba(30, 86, 160, 0.5), inset 0 1px 0 rgba(255,255,255,0.15);
+}
+
+.affiliate-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px -4px rgba(30, 86, 160, 0.65), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+
+.affiliate-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px -2px rgba(30, 86, 160, 0.4);
+}
+
+/* Shimmer que percorre o botão */
+.affiliate-btn-shimmer {
   position: absolute;
   top: 0;
   left: -130%;
   width: 60%;
   height: 100%;
-  background: linear-gradient(100deg, transparent, rgba(255,255,255,0.3), transparent);
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,0.4), transparent);
   transform: skewX(-18deg);
-  animation: btnShimmer 4s ease-in-out infinite;
+  animation: affiliateShimmer 3.5s ease-in-out infinite;
   pointer-events: none;
 }
 
-@keyframes btnShimmer {
+@keyframes affiliateShimmer {
   0%, 100% { left: -130%; }
-  55% { left: 130%; }
+  50% { left: 130%; }
+}
+
+/* Glow pulse sutil ao redor */
+.affiliate-btn-glow {
+  position: absolute;
+  inset: -2px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.3), rgba(30, 86, 160, 0.3));
+  filter: blur(8px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.affiliate-btn:hover .affiliate-btn-glow {
+  opacity: 1;
 }
 </style>

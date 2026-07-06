@@ -122,16 +122,8 @@
     </div>
 
     <!-- Bloco educativo final -->
-    <div v-if="resultado && resultado.content.length > 0" class="mt-10 rounded-xl border border-gray-200 bg-white p-6 sm:p-8 text-center">
-      <h3 class="text-lg font-bold text-gray-900">Encontrou um imóvel interessante?</h3>
-      <p class="mt-2 text-sm text-gray-500 max-w-lg mx-auto">
-        Antes de fazer uma proposta, entenda os principais riscos: edital, ocupação, débitos, financiamento, prazos e custo real da compra.
-      </p>
-      <a v-if="AFFILIATE_CONFIG.courseUrl" :href="AFFILIATE_CONFIG.courseUrl" target="_blank" rel="nofollow sponsored noopener"
-        class="mt-4 inline-block text-sm font-medium text-brand-500 border border-brand-200 px-5 py-2 rounded-lg hover:bg-brand-50 transition-colors">
-        Aprender antes de dar lance
-      </a>
-      <p class="mt-3 text-[10px] text-gray-400">{{ AFFILIATE_CONFIG.disclosure }}</p>
+    <div v-if="resultado && resultado.content.length > 0" class="mt-10">
+      <AffiliateCourseCard variant="afterList" />
     </div>
 
     <!-- Paginação -->
@@ -156,6 +148,7 @@ import { useCatalogoStore } from '@/stores/catalogo'
 import type { Imovel } from '@/types'
 import { UF_NOMES } from '@/constants/uf'
 import PropertyCard from '@/components/PropertyCard.vue'
+import AffiliateCourseCard from '@/components/AffiliateCourseCard.vue'
 import { AFFILIATE_CONFIG } from '@/config/affiliate'
 
 const route = useRoute()

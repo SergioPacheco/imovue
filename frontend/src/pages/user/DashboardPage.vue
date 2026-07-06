@@ -144,7 +144,7 @@
 
     <!-- Afiliado -->
     <div class="mt-8">
-      <AffiliateCourseCard variant="compact" />
+      <AffiliateCourseCard variant="afterList" />
     </div>
   </div>
 </template>
