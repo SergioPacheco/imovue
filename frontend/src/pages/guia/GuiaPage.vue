@@ -47,6 +47,11 @@
       </div>
     </div>
 
+    <!-- Afiliado -->
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 pb-8">
+      <AffiliateCourseCard variant="afterList" />
+    </div>
+
     <!-- Editorial footer -->
     <div class="max-w-3xl mx-auto px-4 sm:px-6 pb-10 text-xs text-gray-400 border-t border-gray-100 pt-4">
       <p>Publicado por Imovue Editorial • Atualizado em {{ formatDate(article.dateModified) }}</p>
@@ -65,6 +70,7 @@
 import { computed, defineAsyncComponent } from 'vue'
 import { getArticle, getRelated } from '@/data/articles'
 import { useSeoHead, articleJsonLd, breadcrumbJsonLd, faqJsonLd } from '@/composables/useSeoHead'
+import AffiliateCourseCard from '@/components/AffiliateCourseCard.vue'
 
 const props = defineProps<{ slug: string }>()
 
