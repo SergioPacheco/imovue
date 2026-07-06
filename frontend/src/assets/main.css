@@ -57,7 +57,7 @@
   .badge { @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold; }
   .badge-discount { @apply bg-success-50 text-success-600; }
   .badge-type { @apply bg-brand-50 text-brand-600; }
-  .badge-hot { @apply bg-orange-50 text-orange-600; animation: hotPulse 2s ease-in-out infinite; }
+  .badge-hot { @apply bg-orange-50 text-orange-600 font-bold; animation: hotGlowGlobal 2s ease-in-out infinite; }
 
   /* === CARDS COM GLASS & GLOW === */
   .card {
@@ -299,6 +299,28 @@
 .page-leave-active { transition: opacity 0.15s ease; }
 .page-enter-from { opacity: 0; transform: translateY(12px); }
 .page-leave-to { opacity: 0; }
+
+/* === FOOTER === */
+.footer-gradient {
+  background: linear-gradient(180deg, #f9fafb 0%, #f1f5f9 100%);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.footer-link {
+  transition: all 0.2s ease;
+  display: inline-block;
+}
+
+.footer-link:hover {
+  color: #1e56a0;
+  transform: translateX(3px);
+}
+
+/* === BADGE HOT MELHORADO === */
+@keyframes hotGlowGlobal {
+  0%, 100% { box-shadow: 0 0 4px rgba(234, 88, 12, 0.15); }
+  50% { box-shadow: 0 0 12px rgba(234, 88, 12, 0.35), 0 0 4px rgba(234, 88, 12, 0.2); }
+}
 
 /* === SCROLLBAR ESTILIZADA === */
 ::-webkit-scrollbar { width: 6px; }

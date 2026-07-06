@@ -73,33 +73,33 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200 mt-auto">
+    <footer class="footer-gradient mt-auto">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 text-sm mb-6">
           <div>
             <h3 class="font-semibold text-gray-900 mb-2">Imovue</h3>
             <ul class="space-y-1.5 text-gray-500">
-              <li><router-link to="/sobre" class="hover:text-gray-700">Sobre</router-link></li>
-              <li><router-link to="/contato" class="hover:text-gray-700">Contato</router-link></li>
-              <li><router-link to="/metodologia" class="hover:text-gray-700">Metodologia</router-link></li>
-              <li><router-link to="/fontes-dos-dados" class="hover:text-gray-700">Fontes dos dados</router-link></li>
+              <li><router-link to="/sobre" class="footer-link">Sobre</router-link></li>
+              <li><router-link to="/contato" class="footer-link">Contato</router-link></li>
+              <li><router-link to="/metodologia" class="footer-link">Metodologia</router-link></li>
+              <li><router-link to="/fontes-dos-dados" class="footer-link">Fontes dos dados</router-link></li>
             </ul>
           </div>
           <div>
             <h3 class="font-semibold text-gray-900 mb-2">Conteúdo</h3>
             <ul class="space-y-1.5 text-gray-500">
-              <li><router-link to="/guias" class="hover:text-gray-700">Guias</router-link></li>
-              <li><router-link to="/imoveis" class="hover:text-gray-700">Imóveis</router-link></li>
-              <li><router-link to="/dashboard" class="hover:text-gray-700">Radar</router-link></li>
-              <li><router-link to="/politica-editorial" class="hover:text-gray-700">Política editorial</router-link></li>
+              <li><router-link to="/guias" class="footer-link">Guias</router-link></li>
+              <li><router-link to="/imoveis" class="footer-link">Imóveis</router-link></li>
+              <li><router-link to="/dashboard" class="footer-link">Radar</router-link></li>
+              <li><router-link to="/politica-editorial" class="footer-link">Política editorial</router-link></li>
             </ul>
           </div>
           <div>
             <h3 class="font-semibold text-gray-900 mb-2">Legal</h3>
             <ul class="space-y-1.5 text-gray-500">
-              <li><router-link to="/termos" class="hover:text-gray-700">Termos de Uso</router-link></li>
-              <li><router-link to="/privacidade" class="hover:text-gray-700">Privacidade</router-link></li>
-              <li><router-link to="/aviso-legal" class="hover:text-gray-700">Aviso Legal</router-link></li>
+              <li><router-link to="/termos" class="footer-link">Termos de Uso</router-link></li>
+              <li><router-link to="/privacidade" class="footer-link">Privacidade</router-link></li>
+              <li><router-link to="/aviso-legal" class="footer-link">Aviso Legal</router-link></li>
             </ul>
           </div>
           <div>
@@ -107,7 +107,7 @@
             <p class="text-gray-500 text-xs">contato@imovue.com.br</p>
           </div>
         </div>
-        <div class="border-t border-gray-100 pt-4 text-center">
+        <div class="border-t border-gray-200/60 pt-4 text-center">
           <p class="text-xs text-gray-400">Imovue — Plataforma de pesquisa e análise de imóveis da Caixa. Dados públicos. Não possui vínculo oficial com a CAIXA.</p>
         </div>
       </div>

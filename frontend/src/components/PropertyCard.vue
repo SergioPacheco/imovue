@@ -1,13 +1,13 @@
 <template>
-  <div class="card overflow-hidden group relative">
+  <div class="property-card group relative">
     <router-link :to="`/imoveis/${imovel.numeroImovel}`" class="block">
       <PropertyImage :tipo="imovel.tipoImovel" :numero="imovel.numeroImovel">
         <div class="absolute top-3 left-3 flex gap-1.5">
           <span v-if="imovel.tipoImovel" class="badge badge-type">{{ imovel.tipoImovel }}</span>
-          <span v-if="descontoValido && imovel.percentualDesconto! > 40" class="badge badge-hot">🔥 Oportunidade</span>
+          <span v-if="descontoValido && imovel.percentualDesconto! > 40" class="badge-oportunidade">🔥 Oportunidade</span>
         </div>
         <div v-if="descontoValido" class="absolute top-3 right-3">
-          <span class="badge badge-discount text-sm font-bold">-{{ imovel.percentualDesconto!.toFixed(1) }}%</span>
+          <span class="badge-desconto">-{{ imovel.percentualDesconto!.toFixed(0) }}%</span>
         </div>
       </PropertyImage>
 
@@ -64,10 +64,10 @@
     <!-- Rodapé -->
     <div class="px-4 pb-4 pt-0">
       <div class="pt-3 border-t border-gray-100 flex items-center justify-between">
-        <button @click="fav.toggle(imovel)"
-          class="flex items-center gap-1 text-xs font-medium transition-colors"
+        <button @click="toggleFav"
+          class="fav-btn flex items-center gap-1 text-xs font-medium transition-colors"
           :class="fav.isFav(imovel.numeroImovel) ? 'text-red-500' : 'text-gray-400 hover:text-red-500'">
-          <svg class="w-4 h-4" :fill="fav.isFav(imovel.numeroImovel) ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-4 h-4" :class="{ 'animate-heart-bounce': justFaved }" :fill="fav.isFav(imovel.numeroImovel) ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
           </svg>
           {{ fav.isFav(imovel.numeroImovel) ? 'Favoritado' : 'Favoritar' }}
@@ -79,7 +79,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import type { Imovel } from '@/types'
 import { formatCurrency } from '@/utils/format'
 import { useFavoritos } from '@/composables/useFavoritos'
@@ -91,6 +91,7 @@ const props = defineProps<{
 }>()
 
 const fav = useFavoritos()
+const justFaved = ref(false)
 
 const descontoValido = computed(() =>
   !!props.imovel.percentualDesconto && props.imovel.percentualDesconto > 0 && props.imovel.percentualDesconto <= 100
@@ -99,4 +100,78 @@ const descontoValido = computed(() =>
 const mapsLink = computed(() =>
   `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${props.imovel.endereco}, ${props.imovel.bairro}, ${props.imovel.cidade} - ${props.imovel.uf}`)}`
 )
+
+function toggleFav() {
+  const wasFav = fav.isFav(props.imovel.numeroImovel)
+  fav.toggle(props.imovel)
+  if (!wasFav) {
+    justFaved.value = true
+    setTimeout(() => { justFaved.value = false }, 500)
+  }
+}
 </script>
+
+<style scoped>
+.property-card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.property-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(30, 86, 160, 0.2);
+  box-shadow:
+    0 16px 40px -10px rgba(30, 86, 160, 0.15),
+    0 0 0 1px rgba(30, 86, 160, 0.05);
+}
+
+/* Badge desconto com glow */
+.badge-desconto {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #166534;
+  background: #dcfce7;
+  box-shadow: 0 0 10px rgba(22, 163, 74, 0.25);
+}
+
+/* Badge oportunidade com pulse glow */
+.badge-oportunidade {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #c2410c;
+  background: #fff7ed;
+  animation: hotGlow 2s ease-in-out infinite;
+}
+
+@keyframes hotGlow {
+  0%, 100% {
+    box-shadow: 0 0 4px rgba(234, 88, 12, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 14px rgba(234, 88, 12, 0.4);
+  }
+}
+
+/* Heart bounce */
+.animate-heart-bounce {
+  animation: heartBounce 0.4s ease-out;
+}
+
+@keyframes heartBounce {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.4); }
+  50% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+</style>
