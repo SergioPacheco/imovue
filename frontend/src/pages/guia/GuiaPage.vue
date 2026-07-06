@@ -48,7 +48,7 @@
     </div>
 
     <!-- Afiliado -->
-    <div class="max-w-3xl mx-auto px-4 sm:px-6 pb-8">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 pb-8 not-prose">
       <AffiliateCourseCard variant="afterList" />
     </div>
 
