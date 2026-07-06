@@ -43,40 +43,60 @@
 
     <!-- Seletor de Estado -->
     <section v-reveal class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-      <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 sm:p-8">
-        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
-          <div>
-            <h2 class="text-xl font-bold text-gray-900">Escolha onde procurar</h2>
-            <p class="text-sm text-gray-500 mt-0.5">Escolha um estado e descubra onde estão as melhores oportunidades da CAIXA.</p>
+      <div class="uf-section">
+        <!-- Decoração de fundo -->
+        <div class="uf-section-pattern"></div>
+
+        <div class="relative z-10">
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+            <div>
+              <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <span class="text-2xl">📍</span> Escolha onde procurar
+              </h2>
+              <p class="text-sm text-gray-500 mt-0.5">Selecione um estado e descubra as melhores oportunidades da CAIXA.</p>
+            </div>
+            <div class="relative w-full sm:w-64">
+              <input v-model="busca" type="text" placeholder="Buscar estado..." class="input-field pl-9" />
+              <svg class="absolute left-3 top-3 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+            </div>
           </div>
-          <div class="relative w-full sm:w-64">
-            <input v-model="busca" type="text" placeholder="Buscar estado..." class="input-field pl-9" />
-            <svg class="absolute left-3 top-3 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-            </svg>
+
+          <div v-if="loading" class="grid grid-cols-4 sm:grid-cols-7 gap-3">
+            <div v-for="i in 27" :key="i" class="skeleton h-16 rounded-xl"></div>
+          </div>
+
+          <div v-else class="grid grid-cols-4 sm:grid-cols-7 gap-3 stagger-children">
+            <button v-for="uf in ufsFiltradas" :key="uf" @click="selecionar(uf)"
+              :disabled="carregando"
+              class="uf-btn group"
+              :class="{ 'uf-btn-hot': (manifestMap[uf] || 0) >= 1000 }">
+              <span class="font-bold text-sm group-hover:text-brand-600 transition-colors"
+                :class="(manifestMap[uf] || 0) >= 1000 ? 'text-brand-600' : 'text-gray-700'">{{ uf }}</span>
+              <span class="text-[10px] transition-colors"
+                :class="(manifestMap[uf] || 0) >= 1000 ? 'text-brand-400 font-medium' : 'text-gray-400 group-hover:text-brand-500'">
+                {{ manifestMap[uf]?.toLocaleString('pt-BR') || '' }}
+              </span>
+              <span v-if="(manifestMap[uf] || 0) >= 3000" class="uf-hot-dot"></span>
+            </button>
+          </div>
+
+          <p v-if="!loading && ufsFiltradas.length === 0" class="text-center text-gray-400 py-8">
+            Nenhum estado encontrado para "{{ busca }}"
+          </p>
+
+          <p v-if="carregando" class="text-center text-brand-500 font-medium mt-6 animate-pulse">
+            Carregando imóveis de {{ ufSelecionada }}...
+          </p>
+
+          <!-- Legenda -->
+          <div v-if="!loading" class="flex items-center justify-center gap-4 mt-5 text-[10px] text-gray-400">
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-brand-500"></span> +3.000 imóveis</span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-brand-200"></span> +1.000 imóveis</span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-gray-300"></span> Demais</span>
           </div>
         </div>
-
-        <div v-if="loading" class="grid grid-cols-4 sm:grid-cols-7 gap-3">
-          <div v-for="i in 27" :key="i" class="skeleton h-14 rounded-xl"></div>
-        </div>
-
-        <div v-else class="grid grid-cols-4 sm:grid-cols-7 gap-3 stagger-children">
-          <button v-for="uf in ufsFiltradas" :key="uf" @click="selecionar(uf)"
-            :disabled="carregando"
-            class="uf-btn group">
-            <span class="font-bold text-gray-700 group-hover:text-brand-600 text-sm">{{ uf }}</span>
-            <span class="text-[10px] text-gray-400 group-hover:text-brand-500">{{ manifestMap[uf]?.toLocaleString('pt-BR') || '' }}</span>
-          </button>
-        </div>
-
-        <p v-if="!loading && ufsFiltradas.length === 0" class="text-center text-gray-400 py-8">
-          Nenhum estado encontrado para "{{ busca }}"
-        </p>
-
-        <p v-if="carregando" class="text-center text-brand-500 font-medium mt-6 animate-pulse">
-          Carregando imóveis de {{ ufSelecionada }}...
-        </p>
       </div>
     </section>
 
