@@ -141,6 +141,11 @@
         </div>
       </div>
     </template>
+
+    <!-- Afiliado -->
+    <div class="mt-8">
+      <AffiliateCourseCard variant="compact" />
+    </div>
   </div>
 </template>
 
@@ -148,6 +153,7 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSeoHead } from '@/composables/useSeoHead'
+import AffiliateCourseCard from '@/components/AffiliateCourseCard.vue'
 import { dataService } from '@/services/dataService'
 import { useCatalogoStore } from '@/stores/catalogo'
 import { UF_NOMES } from '@/constants/uf'

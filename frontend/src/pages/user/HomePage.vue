@@ -178,6 +178,11 @@
             ⚠️ Ver guia completo de riscos em leilão →
           </router-link>
         </div>
+
+        <!-- Afiliado -->
+        <div class="mt-10">
+          <AffiliateCourseCard variant="afterList" />
+        </div>
       </div>
     </section>
   </div>
@@ -190,6 +195,7 @@ import { useSeoHead, websiteJsonLd } from '@/composables/useSeoHead'
 import { dataService } from '@/services/dataService'
 import { useCatalogoStore } from '@/stores/catalogo'
 import SmartSearchBar from '@/components/SmartSearchBar.vue'
+import AffiliateCourseCard from '@/components/AffiliateCourseCard.vue'
 import { UF_NOMES } from '@/constants/uf'
 import type { SmartSearchResult } from '@/composables/useSmartSearch'
 

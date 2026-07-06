@@ -287,6 +287,9 @@
               O Imovue não armazena, republica ou edita esses documentos; apenas direciona o usuário para a fonte oficial.
               Confirme os dados diretamente no site oficial antes de tomar qualquer decisão.
             </div>
+
+            <!-- Afiliado -->
+            <AffiliateCourseCard variant="compact" />
           </div>
         </div>
       </div>
@@ -310,6 +313,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import PropertyImage from '@/components/PropertyImage.vue'
+import AffiliateCourseCard from '@/components/AffiliateCourseCard.vue'
 import { useFavoritos } from '@/composables/useFavoritos'
 import { useSeoHead, breadcrumbJsonLd } from '@/composables/useSeoHead'
 import { useCatalogoStore } from '@/stores/catalogo'

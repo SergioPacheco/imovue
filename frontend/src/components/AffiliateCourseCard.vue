@@ -1,5 +1,5 @@
 <template>
-  <div :class="containerClass">
+  <div v-if="affiliateUrl" :class="containerClass">
     <div :class="innerClass">
       <div class="flex-1">
         <h3 :class="titleClass">{{ title }}</h3>
@@ -7,7 +7,8 @@
       </div>
       <div :class="actionsClass">
         <a :href="affiliateUrl" target="_blank" rel="nofollow sponsored noopener" :class="btnClass">
-          {{ buttonText }}
+          <span class="relative z-10">{{ buttonText }}</span>
+          <span class="shimmer"></span>
         </a>
         <p class="text-[10px] text-gray-400 mt-2 leading-tight">{{ AFFILIATE_CONFIG.disclosure }}</p>
       </div>
@@ -29,7 +30,7 @@ const props = withDefaults(defineProps<{
   variant: 'top',
   title: 'Antes de dar seu primeiro lance, aprenda a analisar os riscos',
   description: 'Imóveis da Caixa podem ter desconto, mas também podem envolver edital, ocupação, débitos, financiamento, comissão e prazos. Veja um treinamento recomendado para entender o processo antes de fazer proposta.',
-  buttonText: 'Aprender antes de dar lance',
+  buttonText: 'Aprender antes de dar lance →',
   affiliateUrl: AFFILIATE_CONFIG.courseUrl,
 })
 
@@ -61,8 +62,27 @@ const actionsClass = computed(() => {
 })
 
 const btnClass = computed(() => {
-  const base = 'inline-block font-semibold rounded-lg transition-all hover:shadow-md hover:-translate-y-0.5'
-  if (props.variant === 'compact') return `${base} bg-brand-500 text-white text-xs px-4 py-2`
-  return `${base} bg-brand-500 text-white text-sm px-5 py-2.5`
+  const base = 'relative overflow-hidden inline-block font-semibold rounded-lg transition-all duration-200 hover:-translate-y-0.5'
+  if (props.variant === 'compact') return `${base} bg-brand-500 text-white text-xs px-4 py-2 hover:shadow-[0_8px_20px_-6px_rgba(30,86,160,0.5)]`
+  return `${base} bg-brand-500 text-white text-sm px-5 py-2.5 hover:shadow-[0_8px_24px_-6px_rgba(30,86,160,0.5)]`
 })
 </script>
+
+<style scoped>
+.shimmer {
+  position: absolute;
+  top: 0;
+  left: -130%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,0.3), transparent);
+  transform: skewX(-18deg);
+  animation: btnShimmer 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes btnShimmer {
+  0%, 100% { left: -130%; }
+  55% { left: 130%; }
+}
+</style>
