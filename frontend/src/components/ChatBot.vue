@@ -1,11 +1,11 @@
 <template>
-  <!-- Botão flutuante com pulse ring -->
+  <!-- Botão flutuante com avatar -->
   <div v-if="!aberto" class="fixed bottom-6 right-6 z-50">
     <div class="chat-pulse-ring"></div>
     <button @click="aberto = true" class="chat-fab">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
-      </svg>
+      <img src="/avatar-ana.webp" alt="Ana" class="w-full h-full rounded-full object-cover" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+      <span class="w-full h-full rounded-full bg-gradient-to-br from-brand-500 to-brand-700 items-center justify-center text-white text-lg font-bold hidden">A</span>
+      <span class="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-green-400 rounded-full border-2 border-white"></span>
     </button>
   </div>
 
@@ -17,11 +17,18 @@
 
       <!-- Header -->
       <div class="chat-header shrink-0">
-        <div class="flex items-center gap-2">
-          <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-sm">🏠</div>
+        <div class="flex items-center gap-3">
+          <div class="relative">
+            <img src="/avatar-ana.webp" alt="Ana" class="w-9 h-9 rounded-full object-cover border-2 border-white/30" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+            <div class="w-9 h-9 rounded-full bg-white/20 items-center justify-center text-sm hidden">🏠</div>
+            <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-brand-800"></span>
+          </div>
           <div>
-            <div class="font-semibold text-sm">Assistente Imovue</div>
-            <div class="text-xs text-blue-200">{{ dados.length > 0 ? `${dados.length.toLocaleString()} imóveis` : 'Selecione um estado' }}</div>
+            <div class="font-semibold text-sm">Ana · Imovue</div>
+            <div class="text-xs text-blue-200 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 bg-green-400 rounded-full"></span>
+              Online · {{ dados.length > 0 ? `${dados.length.toLocaleString()} imóveis` : 'Pronta para ajudar' }}
+            </div>
           </div>
         </div>
         <button @click="aberto = false" class="text-white/80 hover:text-white p-1 transition-colors">
@@ -34,10 +41,12 @@
       <!-- Mensagens -->
       <div ref="messagesRef" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
         <div v-for="(msg, i) in mensagens" :key="i"
-          :class="msg.role === 'user' ? 'flex justify-end' : 'flex justify-start'">
+          :class="msg.role === 'user' ? 'flex justify-end' : 'flex justify-start gap-2'">
+          <!-- Avatar do bot -->
+          <img v-if="msg.role === 'bot'" src="/avatar-ana.webp" alt="Ana" class="w-7 h-7 rounded-full object-cover shrink-0 mt-1 border border-gray-200" onerror="this.style.display='none'" />
           <div :class="msg.role === 'user'
             ? 'bg-brand-500 text-white rounded-2xl rounded-br-md px-4 py-2.5 max-w-[85%]'
-            : 'bg-white text-gray-800 rounded-2xl rounded-bl-md px-4 py-2.5 max-w-[85%] shadow-sm border border-gray-100'">
+            : 'bg-white text-gray-800 rounded-2xl rounded-bl-md px-4 py-2.5 max-w-[80%] shadow-sm border border-gray-100'">
             <div class="text-sm whitespace-pre-line" v-html="renderMarkdown(msg.text)"></div>
             <!-- Imóveis inline -->
             <div v-if="msg.imoveis && msg.imoveis.length > 0" class="mt-2 space-y-1.5">
@@ -99,7 +108,7 @@ const dados = ref<Imovel[]>([])
 const cidades = ref<string[]>([])
 
 const mensagens = ref<ChatMessage[]>([
-  { role: 'bot', text: '👋 Olá! Sou o assistente do Imovue.\n\nSelecione um estado na página e me pergunte sobre os imóveis!\n\nEx: "melhores descontos", "apartamentos até 200 mil"' }
+  { role: 'bot', text: 'Oi! 😊 Sou a Ana, sua consultora virtual de imóveis.\n\nPosso te ajudar a encontrar oportunidades, comparar preços e tirar dúvidas sobre leilão da Caixa.\n\nSelecione um estado na página e me pergunte, por exemplo:\n• "apartamentos até 200 mil"\n• "melhores descontos em Goiânia"\n• "imóveis financiáveis"' }
 ])
 
 const fmt = (v: number | null) => v ? v.toLocaleString('pt-BR', { minimumFractionDigits: 0 }) : '-'
