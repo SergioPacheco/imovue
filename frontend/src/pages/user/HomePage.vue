@@ -88,10 +88,6 @@
             Nenhum estado encontrado para "{{ busca }}"
           </p>
 
-          <p v-if="carregando" class="text-center text-brand-500 font-medium mt-6 animate-pulse">
-            Carregando imóveis de {{ ufSelecionada }}...
-          </p>
-
           <!-- Legenda -->
           <div v-if="!loading" class="flex items-center justify-center gap-4 mt-5 text-[10px] text-gray-400">
             <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-brand-500"></span> +3.000 imóveis</span>
@@ -232,8 +228,6 @@ const router = useRouter()
 const store = useCatalogoStore()
 const ufs = ref<string[]>([])
 const loading = ref(true)
-const carregando = ref(false)
-const ufSelecionada = ref('')
 const busca = ref('')
 const manifestMap = ref<Record<string, number>>({})
 const totalImoveis = ref(0)
@@ -246,10 +240,8 @@ const ufsFiltradas = computed(() => {
 })
 
 async function selecionar(uf: string) {
-  carregando.value = true
-  ufSelecionada.value = uf
   store.ufSelecionada = uf
-  router.push('/imoveis')
+  router.push(`/estado/${uf.toLowerCase()}`)
 }
 
 function onSmartSearch(result: SmartSearchResult) {
