@@ -132,7 +132,6 @@ const ufUpper = computed(() => uf.value.toUpperCase())
 const nomeEstado = computed(() => UF_NOMES[ufUpper.value] || ufUpper.value)
 
 const loading = ref(true)
-const imoveis = ref<any[]>([])
 const stats = ref({ total: 0, maiorDesconto: 0, precoMedio: 0, descontoMedio: 0, financiaveis: 0 })
 
 interface CidadeContagem { nome: string; slug: string; count: number }
@@ -165,8 +164,7 @@ onMounted(async () => {
     financiaveis: entry?.financiaveis || 0,
   }
 
-  // Load cities
-  const cidades = await dataService.cidades(ufUpper.value)
+  // Load cities from full data
   const allData = await dataService.listar(ufUpper.value, { size: 99999 })
   const cidadeCount = new Map<string, number>()
   const tipoCount = new Map<string, number>()

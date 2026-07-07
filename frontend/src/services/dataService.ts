@@ -1,6 +1,6 @@
 import type { Imovel, FiltrosImovel, PageResponse } from '@/types'
 
-interface ManifestEntry { uf: string; total: number }
+interface ManifestEntry { uf: string; total: number; precoMedio: number; descontoMedio: number; maiorDesconto: number; financiaveis: number; altosDescontos: number }
 
 interface BairroStats { medianaM2: number; total: number }
 type EstatisticasBairros = Record<string, Record<string, Record<string, BairroStats>>>
