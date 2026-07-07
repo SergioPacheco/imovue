@@ -2,8 +2,10 @@
   <div>
     <!-- Hero -->
     <section class="relative bg-brand-900 text-white">
-      <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1600&q=80"
-           alt="" class="absolute inset-0 w-full h-full object-cover" />
+      <picture>
+        <source srcset="/hero.webp" type="image/webp" />
+        <img src="/hero.jpg" alt="" class="absolute inset-0 w-full h-full object-cover" />
+      </picture>
       <div class="absolute inset-0 bg-gradient-to-br from-brand-900/85 via-brand-800/75 to-brand-700/70"></div>
       <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 text-center">
         <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight">
