@@ -5,7 +5,7 @@
     <div class="banner-glow"></div>
 
     <!-- Conteúdo -->
-    <div class="relative z-10 flex flex-col sm:flex-row items-center gap-5 sm:gap-8">
+    <div class="relative z-10" :class="variant === 'compact' ? 'flex flex-col items-center gap-4 text-center' : 'flex flex-col sm:flex-row items-center gap-5 sm:gap-8'">
       <!-- Ícone/badge lateral -->
       <div class="banner-icon-box">
         <span class="text-3xl">🎓</span>
@@ -13,13 +13,13 @@
       </div>
 
       <!-- Texto -->
-      <div class="flex-1 text-center sm:text-left">
+      <div class="flex-1" :class="variant === 'compact' ? 'text-center' : 'text-center sm:text-left'">
         <h3 class="banner-title">{{ title }}</h3>
-        <p class="banner-desc">{{ description }}</p>
+        <p class="banner-desc" :class="variant === 'compact' ? 'mx-auto' : ''">{{ description }}</p>
       </div>
 
       <!-- CTA -->
-      <div class="shrink-0 flex flex-col items-center sm:items-end">
+      <div class="shrink-0 flex flex-col items-center" :class="variant === 'compact' ? '' : 'sm:items-end'">
         <a :href="affiliateUrl" target="_blank" rel="nofollow sponsored noopener" class="banner-cta">
           <span class="relative z-10">{{ buttonText }}</span>
           <span class="cta-shimmer"></span>
