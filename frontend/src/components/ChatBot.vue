@@ -4,7 +4,6 @@
     <div class="chat-pulse-ring"></div>
     <button @click="aberto = true" class="chat-fab group">
       <img src="/avatar-ana.webp?v=2" alt="Ana" class="absolute -top-3 -left-1 w-16 h-16 rounded-full object-cover drop-shadow-lg group-hover:scale-110 transition-transform duration-200 border-2 border-white" />
-      <span class="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-green-400 rounded-full border-2 border-white z-10"></span>
     </button>
   </div>
 
@@ -19,7 +18,6 @@
         <div class="flex items-center gap-3">
           <div class="relative -mb-6">
             <img src="/avatar-ana.webp?v=2" alt="Ana" class="w-14 h-14 rounded-full object-cover drop-shadow-md -mt-4 border-2 border-white/30" />
-            <span class="absolute bottom-1 right-0 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-brand-800"></span>
           </div>
           <div>
             <div class="font-semibold text-sm">Ana · Imovue</div>
