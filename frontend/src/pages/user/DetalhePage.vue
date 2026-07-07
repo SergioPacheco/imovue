@@ -321,7 +321,7 @@
     </div>
 
     <!-- Barra fixa mobile -->
-    <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 flex gap-2 z-50 shadow-lg">
+    <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 flex gap-2 z-40 shadow-lg">
       <button @click="fav.toggle(imovel)"
         class="px-4 py-2.5 rounded-lg border font-semibold text-sm transition-all"
         :class="fav.isFav(imovel.numeroImovel) ? 'bg-red-50 border-red-300 text-red-600' : 'border-gray-300 text-gray-600'">
@@ -331,7 +331,7 @@
         Ver no site oficial ↗
       </a>
     </div>
-    <div class="lg:hidden h-16"></div>
+    <div class="lg:hidden h-20"></div>
   </div>
 </template>
 

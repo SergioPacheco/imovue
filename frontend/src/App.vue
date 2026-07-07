@@ -73,7 +73,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="footer-gradient mt-auto">
+    <footer class="footer-gradient mt-auto relative z-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 text-sm mb-6">
           <div>
