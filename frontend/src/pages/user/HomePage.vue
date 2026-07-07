@@ -16,7 +16,7 @@
         </p>
 
         <!-- Smart Search -->
-        <div class="mt-8 max-w-2xl mx-auto relative z-30">
+        <div class="mt-8 max-w-2xl mx-auto relative z-10">
           <SmartSearchBar
             placeholder="Ex: apartamento em SP até 200 mil com 2 quartos..."
             @search="onSmartSearch"
@@ -26,7 +26,7 @@
     </section>
 
     <!-- Indicadores -->
-    <section v-if="!loading" class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-20 mb-8">
+    <section v-if="!loading" class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-[5] mb-8">
       <div class="flex justify-center gap-6 sm:gap-10 text-center text-white">
         <div class="stat-card">
           <div class="text-2xl font-extrabold">{{ totalImoveis.toLocaleString('pt-BR') }}</div>
@@ -44,7 +44,7 @@
     </section>
 
     <!-- Seletor de Estado -->
-    <section v-reveal class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <section v-reveal class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-[1]">
       <div class="uf-section">
         <!-- Decoração de fundo -->
         <div class="uf-section-pattern"></div>
