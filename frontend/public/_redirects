@@ -1,3 +1,0 @@
-# Cloudflare Pages SPA fallback
-# Todas as rotas que não são arquivos estáticos redirecionam para index.html
-/*  /index.html  200
