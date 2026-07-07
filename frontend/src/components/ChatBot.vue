@@ -3,7 +3,7 @@
   <div v-if="!aberto" class="fixed bottom-6 right-6 z-50">
     <div class="chat-pulse-ring"></div>
     <button @click="aberto = true" class="chat-fab group">
-      <img src="/avatar-ana.webp?v=2" alt="Ana" class="absolute -top-3 -left-1 w-16 h-16 rounded-full object-cover drop-shadow-lg group-hover:scale-110 transition-transform duration-200 border-2 border-white" />
+      <img src="/avatar-ana.webp?v=2" alt="Ana" class="w-14 h-14 rounded-full object-cover group-hover:scale-110 transition-transform duration-200 border-2 border-white" />
     </button>
   </div>
 
