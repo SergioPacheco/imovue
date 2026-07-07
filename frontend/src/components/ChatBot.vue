@@ -3,7 +3,7 @@
   <div v-if="!aberto" class="fixed bottom-6 right-6 z-50">
     <div class="chat-pulse-ring"></div>
     <button @click="aberto = true" class="chat-fab">
-      <img src="/avatar-ana.webp" alt="Ana" class="w-full h-full rounded-full object-cover" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+      <img src="/avatar-ana.svg" alt="Ana" class="w-full h-full rounded-full object-cover" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
       <span class="w-full h-full rounded-full bg-gradient-to-br from-brand-500 to-brand-700 items-center justify-center text-white text-lg font-bold hidden">A</span>
       <span class="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-green-400 rounded-full border-2 border-white"></span>
     </button>
@@ -19,7 +19,7 @@
       <div class="chat-header shrink-0">
         <div class="flex items-center gap-3">
           <div class="relative">
-            <img src="/avatar-ana.webp" alt="Ana" class="w-9 h-9 rounded-full object-cover border-2 border-white/30" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+            <img src="/avatar-ana.svg" alt="Ana" class="w-9 h-9 rounded-full object-cover border-2 border-white/30" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
             <div class="w-9 h-9 rounded-full bg-white/20 items-center justify-center text-sm hidden">🏠</div>
             <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-brand-800"></span>
           </div>
@@ -43,7 +43,7 @@
         <div v-for="(msg, i) in mensagens" :key="i"
           :class="msg.role === 'user' ? 'flex justify-end' : 'flex justify-start gap-2'">
           <!-- Avatar do bot -->
-          <img v-if="msg.role === 'bot'" src="/avatar-ana.webp" alt="Ana" class="w-7 h-7 rounded-full object-cover shrink-0 mt-1 border border-gray-200" onerror="this.style.display='none'" />
+          <img v-if="msg.role === 'bot'" src="/avatar-ana.svg" alt="Ana" class="w-7 h-7 rounded-full object-cover shrink-0 mt-1 border border-gray-200" onerror="this.style.display='none'" />
           <div :class="msg.role === 'user'
             ? 'bg-brand-500 text-white rounded-2xl rounded-br-md px-4 py-2.5 max-w-[85%]'
             : 'bg-white text-gray-800 rounded-2xl rounded-bl-md px-4 py-2.5 max-w-[80%] shadow-sm border border-gray-100'">
