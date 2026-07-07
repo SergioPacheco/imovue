@@ -8,6 +8,40 @@
   <meta name="robots" content="index,follow" />
   <link rel="canonical" href="https://imovue.com.br/" />
   <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="preload" as="image" type="image/webp" href="/hero.webp" />
+
+  <!-- JSON-LD base (Organization + WebSite com SearchAction) -->
+  <script type="application/ld+json">
+  [
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Imovue",
+      "url": "https://imovue.com.br",
+      "logo": "https://imovue.com.br/og-logo.png",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "contato@imovue.com.br",
+        "contactType": "customer service"
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Imovue",
+      "url": "https://imovue.com.br",
+      "description": "Plataforma de pesquisa e análise de imóveis da Caixa Econômica Federal com desconto.",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://imovue.com.br/imoveis?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+  ]
+  </script>
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />

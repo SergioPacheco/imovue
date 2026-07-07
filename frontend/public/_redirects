@@ -1,4 +1,3 @@
-/ads.txt /ads.txt 200
-/robots.txt /robots.txt 200
-/sitemap.xml /sitemap.xml 200
-/* /index.html 200
+# Cloudflare Pages SPA fallback
+# Todas as rotas que não são arquivos estáticos redirecionam para index.html
+/*  /index.html  200

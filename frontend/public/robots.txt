@@ -1,16 +1,19 @@
 User-agent: *
 Allow: /
 
-# Block internal/functional pages
+# Páginas de funcionalidade interna (sem valor SEO)
 Disallow: /favoritos
 Disallow: /mapa
 Disallow: /dashboard
 
-# Block individual property pages (auto-generated, thin content)
-Disallow: /imoveis/
-
-# Block filter variations
+# Bloquear variações de filtro/paginação (evitar rastreamento infinito)
 Disallow: /*?*sort=
 Disallow: /*?*page=
+Disallow: /*?*precoMin=
+Disallow: /*?*precoMax=
+Disallow: /*?*descontoMin=
+
+# Arquivos de dados (JSON)
+Disallow: /data/
 
 Sitemap: https://imovue.com.br/sitemap.xml

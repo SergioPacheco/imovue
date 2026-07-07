@@ -70,8 +70,8 @@
           </div>
 
           <div v-else class="grid grid-cols-4 sm:grid-cols-7 gap-3 stagger-children">
-            <button v-for="uf in ufsFiltradas" :key="uf" @click="selecionar(uf)"
-              :disabled="carregando"
+            <a v-for="uf in ufsFiltradas" :key="uf" :href="`/estado/${uf.toLowerCase()}`"
+              @click.prevent="selecionar(uf)"
               class="uf-btn group"
               :class="{ 'uf-btn-hot': (manifestMap[uf] || 0) >= 1000 }">
               <span class="font-bold text-sm group-hover:text-brand-600 transition-colors"
@@ -81,7 +81,7 @@
                 {{ manifestMap[uf]?.toLocaleString('pt-BR') || '' }}
               </span>
               <span v-if="(manifestMap[uf] || 0) >= 3000" class="uf-hot-dot"></span>
-            </button>
+            </a>
           </div>
 
           <p v-if="!loading && ufsFiltradas.length === 0" class="text-center text-gray-400 py-8">
