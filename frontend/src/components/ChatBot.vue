@@ -3,7 +3,7 @@
   <div v-if="!aberto" class="fixed bottom-6 right-6 z-50">
     <div class="chat-pulse-ring"></div>
     <button @click="aberto = true" class="chat-fab group">
-      <img src="/avatar-ana.webp" alt="Ana" class="absolute -top-3 -left-1 w-16 h-16 object-cover drop-shadow-lg group-hover:scale-110 transition-transform duration-200" />
+      <img src="/avatar-ana.webp?v=2" alt="Ana" class="absolute -top-3 -left-1 w-16 h-16 object-cover drop-shadow-lg group-hover:scale-110 transition-transform duration-200" />
       <span class="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-green-400 rounded-full border-2 border-white z-10"></span>
     </button>
   </div>
@@ -18,7 +18,7 @@
       <div class="chat-header shrink-0">
         <div class="flex items-center gap-3">
           <div class="relative -mb-6">
-            <img src="/avatar-ana.webp" alt="Ana" class="w-14 h-14 object-cover drop-shadow-md -mt-4" />
+            <img src="/avatar-ana.webp?v=2" alt="Ana" class="w-14 h-14 object-cover drop-shadow-md -mt-4" />
             <span class="absolute bottom-1 right-0 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-brand-800"></span>
           </div>
           <div>
@@ -41,7 +41,7 @@
         <div v-for="(msg, i) in mensagens" :key="i"
           :class="msg.role === 'user' ? 'flex justify-end' : 'flex justify-start gap-2'">
           <!-- Avatar do bot -->
-          <img v-if="msg.role === 'bot'" src="/avatar-ana.webp" alt="Ana" class="w-7 h-7 rounded-full object-cover shrink-0 mt-1 border border-gray-200" onerror="this.style.display='none'" />
+          <img v-if="msg.role === 'bot'" src="/avatar-ana.webp?v=2" alt="Ana" class="w-7 h-7 rounded-full object-cover shrink-0 mt-1 border border-gray-200" onerror="this.style.display='none'" />
           <div :class="msg.role === 'user'
             ? 'bg-brand-500 text-white rounded-2xl rounded-br-md px-4 py-2.5 max-w-[85%]'
             : 'bg-white text-gray-800 rounded-2xl rounded-bl-md px-4 py-2.5 max-w-[80%] shadow-sm border border-gray-100'">
