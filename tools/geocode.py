@@ -1,7 +1,10 @@
 """
-Geocodifica imóveis usando Nominatim (OpenStreetMap) por endereço completo.
+Geocodifica imóveis usando Nominatim (OpenStreetMap) por BAIRRO (não endereço individual).
 Fallback: centroide da cidade via tabela IBGE.
 Cache local em tools/.geocode_cache.json para evitar re-requests.
+
+OTIMIZAÇÃO: Geocodifica por bairro+cidade (1 request por bairro) em vez de por endereço
+individual (1 request por imóvel). Reduz ~28k requests para ~3k.
 
 Uso:
   python tools/geocode.py          # todas as UFs
@@ -21,6 +24,9 @@ CACHE_FILE = os.path.join(os.path.dirname(__file__), ".geocode_cache.json")
 MUNICIPIOS_URL = "https://raw.githubusercontent.com/kelvins/Municipios-Brasileiros/main/csv/municipios.csv"
 NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
 USER_AGENT = "Imovue/1.0 (https://imovue.com.br)"
+
+# Nominatim rate limit: max 1 req/s
+NOMINATIM_DELAY = 1.1
 
 UF_CODES = {
     '11': 'RO', '12': 'AC', '13': 'AM', '14': 'RR', '15': 'PA', '16': 'AP', '17': 'TO',
@@ -64,29 +70,18 @@ def save_cache(cache: dict):
         json.dump(cache, f, ensure_ascii=False)
 
 
-def geocode_nominatim(endereco: str, bairro: str, cidade: str, uf: str) -> tuple[float, float] | None:
-    """Consulta Nominatim com cascata: endereço+bairro → bairro+cidade. Retorna (lat, lng) ou None."""
-    queries = []
-    if endereco:
-        queries.append(f"{endereco}, {bairro}, {cidade}, {uf}, Brasil")
-    if bairro:
-        queries.append(f"{bairro}, {cidade}, {uf}, Brasil")
-
-    for query in queries:
-        try:
-            r = requests.get(NOMINATIM_URL, params={
-                'q': query, 'format': 'json', 'limit': 1, 'countrycodes': 'br'
-            }, headers={'User-Agent': USER_AGENT}, timeout=10)
-            if r.status_code == 200 and r.json():
-                result = r.json()[0]
-                lat, lon = float(result['lat']), float(result['lon'])
-                # Verificar se não é centroide do estado/país (muito genérico)
-                if result.get('class') not in ('boundary',) or result.get('type') not in ('administrative',):
-                    return lat, lon
-        except Exception:
-            pass
-        time.sleep(0.5)
-
+def geocode_bairro(bairro: str, cidade: str, uf: str) -> tuple[float, float] | None:
+    """Consulta Nominatim por bairro+cidade. Retorna (lat, lng) ou None."""
+    query = f"{bairro}, {cidade}, {uf}, Brasil"
+    try:
+        r = requests.get(NOMINATIM_URL, params={
+            'q': query, 'format': 'json', 'limit': 1, 'countrycodes': 'br'
+        }, headers={'User-Agent': USER_AGENT}, timeout=10)
+        if r.status_code == 200 and r.json():
+            result = r.json()[0]
+            return float(result['lat']), float(result['lon'])
+    except Exception:
+        pass
     return None
 
 
@@ -97,12 +92,12 @@ def run():
         if arg != '--force' and len(arg) == 2:
             uf_filter = arg.upper()
 
-    print("🗺️  Geocodificando imóveis (Nominatim + fallback IBGE)...")
+    print("🗺️  Geocodificando imóveis (por BAIRRO — otimizado)")
     city_lookup = load_city_lookup()
     print(f"   {len(city_lookup)} cidades no fallback IBGE")
 
     cache = {} if force else load_cache()
-    print(f"   {len(cache)} endereços em cache")
+    print(f"   {len(cache)} bairros em cache")
 
     manifest_path = os.path.join(DATA_DIR, "manifest.json")
     with open(manifest_path) as f:
@@ -112,7 +107,7 @@ def run():
     if uf_filter:
         ufs = [u for u in ufs if u == uf_filter]
 
-    stats = {'nominatim': 0, 'cache_hit': 0, 'fallback_city': 0, 'failed': 0, 'total': 0}
+    stats = {'nominatim': 0, 'cache_hit': 0, 'fallback_city': 0, 'already_geocoded': 0, 'failed': 0, 'total': 0}
     requests_made = 0
 
     for uf in ufs:
@@ -120,78 +115,84 @@ def run():
         with open(path) as f:
             data = json.load(f)
 
+        # Agrupar imóveis por bairro+cidade (1 lookup por grupo)
+        bairro_groups: dict[str, list] = {}
         for im in data:
             stats['total'] += 1
-            endereco = im.get('endereco', '')
-            cidade = im.get('cidade', '')
-            cache_key = f"{endereco}|{cidade}|{uf}"
 
-            # 1. Tenta cache
-            if cache_key in cache:
-                coords = cache[cache_key]
-                if coords:
-                    im['lat'], im['lng'] = coords
-                    stats['cache_hit'] += 1
-                else:
-                    # Cache negativo: usar fallback cidade
-                    city_key = f"{normalizar(cidade)}|{uf}"
-                    if city_key in city_lookup:
-                        im['lat'], im['lng'] = city_lookup[city_key]
-                        stats['fallback_city'] += 1
-                    else:
-                        im['lat'] = im['lng'] = None
-                        stats['failed'] += 1
+            # Skip se já tem coordenada válida
+            if im.get('lat') and im.get('lng'):
+                stats['already_geocoded'] += 1
                 continue
 
-            # 2. Consulta Nominatim (com throttle)
-            bairro_im = im.get('bairro', '')
-            if endereco or bairro_im:
-                coords = geocode_nominatim(endereco, bairro_im, cidade, uf)
-                requests_made += 1
+            bairro = im.get('bairro', '') or ''
+            cidade = im.get('cidade', '') or ''
+            key = f"{bairro}|{cidade}|{uf}"
+
+            if key not in bairro_groups:
+                bairro_groups[key] = []
+            bairro_groups[key].append(im)
+
+        # Geocodificar por bairro (não por endereço individual)
+        for key, imoveis in bairro_groups.items():
+            bairro, cidade, uf_code = key.split('|', 2)
+            cache_key = key  # cache por bairro+cidade+uf
+
+            coords = None
+
+            # 1. Cache
+            if cache_key in cache:
+                coords = cache[cache_key]
+                stats['cache_hit'] += len(imoveis)
+            else:
+                # 2. Nominatim (por bairro)
+                if bairro:
+                    coords = geocode_bairro(bairro, cidade, uf_code)
+                    requests_made += 1
+                    time.sleep(NOMINATIM_DELAY)
+
+                    if requests_made % 50 == 0:
+                        save_cache(cache)
+                        print(f"   ... {requests_made} requests feitos")
+
+                # Cachear resultado (positivo ou negativo)
+                cache[cache_key] = coords if coords else None
 
                 if coords:
-                    im['lat'], im['lng'] = coords
-                    cache[cache_key] = coords
-                    stats['nominatim'] += 1
+                    stats['nominatim'] += len(imoveis)
                 else:
-                    # Fallback: centroide da cidade
-                    cache[cache_key] = None  # cache negativo
-                    city_key = f"{normalizar(cidade)}|{uf}"
+                    # 3. Fallback: centroide cidade (IBGE)
+                    city_key = f"{normalizar(cidade)}|{uf_code}"
                     if city_key in city_lookup:
-                        im['lat'], im['lng'] = city_lookup[city_key]
-                        stats['fallback_city'] += 1
+                        coords = city_lookup[city_key]
+                        stats['fallback_city'] += len(imoveis)
                     else:
-                        im['lat'] = im['lng'] = None
-                        stats['failed'] += 1
-            else:
-                city_key = f"{normalizar(cidade)}|{uf}"
-                if city_key in city_lookup:
-                    im['lat'], im['lng'] = city_lookup[city_key]
-                    stats['fallback_city'] += 1
-                else:
-                    im['lat'] = im['lng'] = None
-                    stats['failed'] += 1
+                        stats['failed'] += len(imoveis)
 
-            # Salvar cache a cada 50 requests
-            if requests_made > 0 and requests_made % 50 == 0:
-                save_cache(cache)
-                print(f"   ... {requests_made} requests, {stats['nominatim']} resolvidos por endereço")
+            # Aplicar coordenadas a todos os imóveis do grupo
+            if coords:
+                for im in imoveis:
+                    im['lat'], im['lng'] = coords
+            else:
+                for im in imoveis:
+                    im['lat'] = im['lng'] = None
 
         with open(path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False)
 
-        nominatim_uf = sum(1 for i in data if i.get('lat'))
-        print(f"   {uf}: {nominatim_uf}/{len(data)} geocodificados")
+        geocoded = sum(1 for i in data if i.get('lat'))
+        print(f"   {uf}: {geocoded}/{len(data)} geocodificados ({len(bairro_groups)} bairros processados)")
 
     save_cache(cache)
 
     print(f"\n✅ Resultado:")
-    print(f"   Nominatim (endereço): {stats['nominatim']}")
+    print(f"   Já geocodificados:    {stats['already_geocoded']}")
+    print(f"   Nominatim (bairro):   {stats['nominatim']}")
     print(f"   Cache hit:            {stats['cache_hit']}")
     print(f"   Fallback (cidade):    {stats['fallback_city']}")
     print(f"   Sem coordenada:       {stats['failed']}")
     print(f"   Total:                {stats['total']}")
-    print(f"   Requests feitos:      {requests_made}")
+    print(f"   Requests Nominatim:   {requests_made}")
 
 
 if __name__ == "__main__":
