@@ -2,8 +2,8 @@
   <!-- Botão flutuante com avatar -->
   <div v-if="!aberto" class="fixed bottom-6 right-6 z-50">
     <div class="chat-pulse-ring"></div>
-    <button @click="aberto = true" class="chat-fab group">
-      <img src="/avatar-ana.webp?v=2" alt="Ana" class="w-14 h-14 rounded-full object-cover group-hover:scale-110 transition-transform duration-200 border-2 border-white" />
+    <button @click="aberto = true" class="chat-fab-avatar group">
+      <img src="/avatar-ana.webp?v=3" alt="Ana" class="w-full h-full rounded-full object-cover group-hover:scale-105 transition-transform duration-200" />
     </button>
   </div>
 
@@ -17,7 +17,7 @@
       <div class="chat-header shrink-0">
         <div class="flex items-center gap-3">
           <div class="relative -mb-6">
-            <img src="/avatar-ana.webp?v=2" alt="Ana" class="w-14 h-14 rounded-full object-cover drop-shadow-md -mt-4 border-2 border-white/30" />
+            <img src="/avatar-ana.webp?v=3" alt="Ana" class="w-14 h-14 rounded-full object-cover drop-shadow-md -mt-4 border-2 border-white/30" />
           </div>
           <div>
             <div class="font-semibold text-sm">Ana · Imovue</div>
@@ -166,26 +166,24 @@ onMounted(() => {
 
 <style scoped>
 /* Botão flutuante */
-.chat-fab {
+.chat-fab-avatar {
   position: relative;
   z-index: 2;
-  width: 56px;
-  height: 56px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  background: linear-gradient(135deg, #1e56a0, #2563eb);
-  box-shadow: 0 6px 20px -4px rgba(30, 86, 160, 0.5);
+  background: transparent;
+  box-shadow: 0 6px 24px -4px rgba(0, 0, 0, 0.3);
   transition: all 0.2s ease;
 }
 
-.chat-fab:hover {
-  transform: scale(1.1);
-  box-shadow: 0 8px 28px -4px rgba(30, 86, 160, 0.65);
+.chat-fab-avatar:hover {
+  box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.4);
 }
 
 /* Pulse ring */
