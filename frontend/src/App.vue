@@ -64,7 +64,7 @@
     </header>
 
     <!-- Content -->
-    <main class="flex-1">
+    <main class="flex-1 relative z-0">
       <router-view v-slot="{ Component }">
         <transition name="page" mode="out-in">
           <component :is="Component" />
