@@ -71,10 +71,11 @@
       <section v-if="bairros.length > 1" class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h2 class="text-xl font-bold text-gray-900 mb-4">Bairros em {{ cidadeNome }}</h2>
         <div class="flex flex-wrap gap-2">
-          <span v-for="b in bairros" :key="b.nome"
-                class="px-3 py-1.5 bg-gray-100 text-sm rounded-full text-gray-700">
+          <router-link v-for="b in bairros" :key="b.nome"
+                :to="`/imoveis?uf=${ufUpper}&cidade=${encodeURIComponent(cidadeNome)}&bairro=${encodeURIComponent(b.nome)}`"
+                class="px-3 py-1.5 bg-gray-100 hover:bg-brand-50 hover:text-brand-600 text-sm rounded-full text-gray-700 transition-colors cursor-pointer">
             {{ b.nome }} ({{ b.count }})
-          </span>
+          </router-link>
         </div>
       </section>
 
