@@ -14,7 +14,7 @@
       <nav class="bg-white border-b border-gray-200" aria-label="Breadcrumb">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <ol class="flex items-center gap-2 text-sm text-gray-400">
-            <li><a href="/" class="hover:text-brand-500">Início</a></li>
+            <li><router-link to="/" class="hover:text-brand-500">Início</router-link></li>
             <li><span>/</span></li>
             <li class="text-gray-700 font-medium">{{ nomeEstado }}</li>
           </ol>
@@ -62,12 +62,12 @@
           Cidades com imóveis da CAIXA em {{ nomeEstado }}
         </h2>
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-          <a v-for="c in cidadesComContagem" :key="c.nome"
-             :href="`/estado/${uf}/${c.slug}`"
+          <router-link v-for="c in cidadesComContagem" :key="c.nome"
+             :to="`/estado/${uf}/${c.slug}`"
              class="bg-white border border-gray-200 rounded-lg p-3 hover:border-brand-300 hover:shadow-sm transition-all group">
             <div class="font-medium text-gray-900 group-hover:text-brand-600 text-sm">{{ c.nome }}</div>
             <div class="text-xs text-gray-400">{{ c.count }} imóveis</div>
-          </a>
+          </router-link>
         </div>
       </section>
 
@@ -88,9 +88,9 @@
         <div class="bg-brand-50 rounded-xl p-6 text-center">
           <h2 class="text-lg font-bold text-brand-900">Explorar todos os imóveis</h2>
           <p class="text-sm text-brand-700 mt-1">Use os filtros avançados para encontrar a oportunidade ideal.</p>
-          <a :href="`/imoveis?uf=${ufUpper}`" class="btn-primary mt-4 inline-block">
+          <router-link :to="`/imoveis?uf=${ufUpper}`" class="btn-primary mt-4 inline-block">
             Ver {{ stats.total.toLocaleString('pt-BR') }} imóveis em {{ ufUpper }} →
-          </a>
+          </router-link>
         </div>
       </section>
 

@@ -13,7 +13,7 @@
       <div class="text-center py-20">
         <div class="text-5xl mb-4">🔍</div>
         <h3 class="text-lg font-semibold text-gray-700">Cidade não encontrada</h3>
-        <a :href="`/estado/${uf}`" class="btn-primary mt-4 inline-block">Voltar para {{ nomeEstado }}</a>
+        <router-link :to="`/estado/${uf}`" class="btn-primary mt-4 inline-block">Voltar para {{ nomeEstado }}</router-link>
       </div>
     </div>
 
@@ -22,9 +22,9 @@
       <nav class="bg-white border-b border-gray-200" aria-label="Breadcrumb">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <ol class="flex items-center gap-2 text-sm text-gray-400">
-            <li><a href="/" class="hover:text-brand-500">Início</a></li>
+            <li><router-link to="/" class="hover:text-brand-500">Início</router-link></li>
             <li><span>/</span></li>
-            <li><a :href="`/estado/${uf}`" class="hover:text-brand-500">{{ nomeEstado }}</a></li>
+            <li><router-link :to="`/estado/${uf}`" class="hover:text-brand-500">{{ nomeEstado }}</router-link></li>
             <li><span>/</span></li>
             <li class="text-gray-700 font-medium">{{ cidadeNome }}</li>
           </ol>
@@ -84,8 +84,8 @@
           Melhores oportunidades em {{ cidadeNome }}
         </h2>
         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <a v-for="im in topImoveis" :key="im.numeroImovel"
-             :href="`/imovel/${im.numeroImovel}`"
+          <router-link v-for="im in topImoveis" :key="im.numeroImovel"
+             :to="`/imovel/${im.numeroImovel}`"
              class="bg-white border border-gray-200 rounded-xl p-4 hover:border-brand-300 hover:shadow-md transition-all group">
             <div class="flex justify-between items-start mb-2">
               <span class="text-xs font-medium text-brand-600 bg-brand-50 px-2 py-0.5 rounded">{{ im.tipoImovel || 'Imóvel' }}</span>
@@ -101,7 +101,7 @@
               <span v-if="im.quartos">{{ im.quartos }} qto{{ im.quartos > 1 ? 's' : '' }}</span>
               <span v-if="im.vagas">{{ im.vagas }} vaga{{ im.vagas > 1 ? 's' : '' }}</span>
             </div>
-          </a>
+          </router-link>
         </div>
       </section>
 
@@ -110,9 +110,9 @@
         <div class="bg-brand-50 rounded-xl p-6 text-center">
           <h2 class="text-lg font-bold text-brand-900">Ver todos os imóveis em {{ cidadeNome }}</h2>
           <p class="text-sm text-brand-700 mt-1">Use filtros avançados de preço, desconto, tipo e mais.</p>
-          <a :href="`/imoveis?uf=${ufUpper}&cidade=${encodeURIComponent(cidadeNome)}`" class="btn-primary mt-4 inline-block">
+          <router-link :to="`/imoveis?uf=${ufUpper}&cidade=${encodeURIComponent(cidadeNome)}`" class="btn-primary mt-4 inline-block">
             Ver {{ imoveisCidade.length }} imóveis →
-          </a>
+          </router-link>
         </div>
       </section>
 
