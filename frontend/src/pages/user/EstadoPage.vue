@@ -178,7 +178,7 @@ onMounted(async () => {
 
   cidadesComContagem.value = [...cidadeCount.entries()]
     .map(([nome, count]) => ({ nome, slug: slugify(nome), count }))
-    .sort((a, b) => b.count - a.count)
+    .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'))
 
   tiposDisponiveis.value = [...tipoCount.entries()]
     .map(([nome, count]) => ({ nome, count }))

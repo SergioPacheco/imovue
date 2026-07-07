@@ -182,7 +182,7 @@ const financiaveis = computed(() => imoveisCidade.value.filter(i => i.financiame
 const bairros = computed(() => {
   const count = new Map<string, number>()
   imoveisCidade.value.forEach(i => count.set(i.bairro, (count.get(i.bairro) || 0) + 1))
-  return [...count.entries()].map(([nome, count]) => ({ nome, count })).sort((a, b) => b.count - a.count)
+  return [...count.entries()].map(([nome, count]) => ({ nome, count })).sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'))
 })
 
 const tiposCidade = computed(() => [...new Set(imoveisCidade.value.map(i => i.tipoImovel).filter(Boolean))])
