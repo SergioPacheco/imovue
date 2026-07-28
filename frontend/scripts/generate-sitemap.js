@@ -9,13 +9,14 @@
  * Executar: node scripts/generate-sitemap.js
  */
 
-import { readFileSync, writeFileSync, readdirSync } from 'fs'
+import { readFileSync, writeFileSync, readdirSync, mkdirSync } from 'fs'
 import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DATA_DIR = resolve(__dirname, '../public/data')
 const OUTPUT_DIR = resolve(__dirname, '../dist')
+mkdirSync(OUTPUT_DIR, { recursive: true })
 const SITE_URL = 'https://imovue.com.br'
 const TODAY = new Date().toISOString().split('T')[0]
 const MAX_URLS_PER_SITEMAP = 5000
