@@ -8,7 +8,7 @@ Plataforma para buscar e filtrar imóveis de leilão da CAIXA. Frontend 100% est
 
 ```
 tools/download_caixa.py  →  tools/csv_to_json.py  →  tools/geocode.py  →  frontend/public/data/
-     (Playwright)              (normaliza)              (lat/lng IBGE)        (JSONs estáticos)
+     (Playwright)              (normaliza)            (lat/lng IBGE)       (JSONs estáticos)
 ```
 
 O frontend consome JSONs estáticos. Toda lógica de filtros, paginação e sort é client-side.
@@ -22,12 +22,16 @@ npm install
 npm run dev
 
 # Atualizar dados (requer CSVs em data/listas/)
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 playwright install chromium
 python tools/download_caixa.py
 python tools/csv_to_json.py
 python tools/geocode.py
 ```
+
+**Nota:** Em sistemas com Python gerenciado pelo SO (externally-managed-environment), use o virtual environment acima. Não use `sudo pip install`.
 
 ## Scripts (tools/)
 
