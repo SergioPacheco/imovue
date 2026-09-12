@@ -30,9 +30,13 @@ O sistema não afirma que um imóvel está abaixo do mercado. A mediana é apena
 
 Edite `social/facebook_pages.json` apenas com nomes, IDs e habilitação. Não coloque tokens nesse arquivo. Os tokens ficam no Secret do GitHub:
 
+Para a primeira página, use um secret individual:
+
 ```text
-META_PAGE_TOKENS_JSON={"SC":"PAGE_ACCESS_TOKEN"}
+META_PAGE_TOKEN_BR=PAGE_ACCESS_TOKEN
 ```
+
+O código também aceita `META_PAGE_TOKENS_JSON` para compatibilidade e para uma futura configuração centralizada, mas secrets individuais são preferíveis para reduzir o risco de exposição acidental em logs.
 
 O token nunca é impresso no log. A versão da Graph API pode ser definida em `META_GRAPH_VERSION`; o código usa `v23.0` como padrão. A publicação usa `/{page_id}/photos`, enviando o card gerado e o texto como legenda.
 

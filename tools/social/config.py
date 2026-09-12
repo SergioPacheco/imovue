@@ -37,16 +37,25 @@ def load_pages() -> dict[str, dict]:
 
 
 def load_page_tokens() -> dict[str, str]:
+    # Prefere um secret separado por página; o JSON permanece compatível para
+    # facilitar a expansão para as futuras páginas estaduais.
+    individual = {
+        key.removeprefix("META_PAGE_TOKEN_").upper(): value
+        for key, value in os.environ.items()
+        if key.startswith("META_PAGE_TOKEN_") and value.strip()
+    }
     raw = os.environ.get("META_PAGE_TOKENS_JSON", "{}").strip()
     if not raw:
-        return {}
+        return individual
     try:
         parsed = json.loads(raw)
     except json.JSONDecodeError as exc:
         raise ValueError("META_PAGE_TOKENS_JSON não contém JSON válido") from exc
     if not isinstance(parsed, dict):
         raise ValueError("META_PAGE_TOKENS_JSON deve ser um objeto UF → token")
-    return {str(uf).upper(): str(token) for uf, token in parsed.items() if token}
+    tokens = {str(uf).upper(): str(token) for uf, token in parsed.items() if token}
+    tokens.update(individual)
+    return tokens
 
 
 def graph_version() -> str:

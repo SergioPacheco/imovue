@@ -28,7 +28,7 @@ jobs:
 
       - name: Publicar oportunidades
         env:
-          META_PAGE_TOKENS_JSON: ${{ secrets.META_PAGE_TOKENS_JSON }}
+          META_PAGE_TOKEN_BR: ${{ secrets.META_PAGE_TOKEN_BR }}
           META_GRAPH_VERSION: ${{ vars.META_GRAPH_VERSION }}
         # Página nacional piloto. Trocar para --all quando as páginas estaduais forem habilitadas.
         run: python tools/social/post_daily.py --uf BR --publish
