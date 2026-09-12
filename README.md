@@ -11,6 +11,8 @@ tools/download_caixa.py  →  tools/csv_to_json.py  →  tools/geocode.py  →  
      (Playwright)              (normaliza)            (lat/lng IBGE)       (JSONs estáticos)
 ```
 
+O publicador social usa os JSONs atuais para selecionar oportunidades e gerar cards por UF. Consulte [`docs/SOCIAL_PUBLISHER.md`](docs/SOCIAL_PUBLISHER.md) para os modos manual, dry-run e publicação no Facebook.
+
 O frontend consome JSONs estáticos. Toda lógica de filtros, paginação e sort é client-side.
 
 ## Setup local
@@ -41,6 +43,7 @@ python tools/geocode.py
 | `csv_to_json.py` | Converte CSVs → JSONs (normaliza endereços, calcula desconto) |
 | `geocode.py` | Adiciona lat/lng usando tabela de municípios IBGE |
 | `validate_data.py` | Valida JSONs antes de commit (evita dados corrompidos) |
+| `social/post_daily.py` | Seleciona imóveis, gera posts/cards e publica páginas configuradas |
 
 ## Deploy
 

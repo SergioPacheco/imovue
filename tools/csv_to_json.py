@@ -9,6 +9,7 @@ import os
 import re
 import statistics
 import sys
+from datetime import datetime, timezone
 
 INPUT_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "listas")
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "..", "frontend", "public", "data")
@@ -292,6 +293,14 @@ def run():
     manifest_path = os.path.join(OUTPUT_DIR, "manifest.json")
     with open(manifest_path, "w", encoding="utf-8") as f:
         json.dump(manifest, f, ensure_ascii=False)
+
+    meta_path = os.path.join(OUTPUT_DIR, "meta.json")
+    with open(meta_path, "w", encoding="utf-8") as f:
+        json.dump({
+            "generatedAt": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+            "total": total_geral,
+            "ufs": len(manifest),
+        }, f, ensure_ascii=False, indent=2)
 
     print(f"\n✅ Total: {total_geral} imóveis em {len(manifest)} UFs")
     print(f"📁 Output: {os.path.abspath(OUTPUT_DIR)}/")
