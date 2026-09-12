@@ -247,7 +247,7 @@
             </div>
 
             <!-- Ações -->
-            <a :href="imovel.urlOficial" target="_blank" rel="noopener"
+            <a :href="imovel.urlOficial" target="_blank" rel="noopener" @click="trackOfficialClick"
               class="btn-primary w-full text-center block">
               Ver no site oficial ↗
             </a>
@@ -327,7 +327,7 @@
         :class="fav.isFav(imovel.numeroImovel) ? 'bg-red-50 border-red-300 text-red-600' : 'border-gray-300 text-gray-600'">
         {{ fav.isFav(imovel.numeroImovel) ? '❤️' : '🤍' }}
       </button>
-      <a :href="imovel.urlOficial" target="_blank" rel="noopener" class="btn-primary flex-1 text-center text-sm">
+      <a :href="imovel.urlOficial" target="_blank" rel="noopener" @click="trackOfficialClick" class="btn-primary flex-1 text-center text-sm">
         Ver no site oficial ↗
       </a>
     </div>
@@ -344,6 +344,7 @@ import { useSeoHead, getImovelSeo, getNotFoundSeo } from '@/composables/useSeoHe
 import { useCatalogoStore } from '@/stores/catalogo'
 import { dataService } from '@/services/dataService'
 import type { Imovel } from '@/types'
+import { trackEvent } from '@/services/analytics'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
@@ -448,11 +449,32 @@ onMounted(async () => {
     }
   } finally { loading.value = false }
   if (imovel.value) {
+    trackEvent('imovue_property_view', {
+      property_id: imovel.value.numeroImovel,
+      property_uf: imovel.value.uf,
+      property_city: imovel.value.cidade,
+      property_type: imovel.value.tipoImovel,
+      property_discount: imovel.value.percentualDesconto,
+      property_price: imovel.value.precoVenda,
+      property_sale_type: imovel.value.modalidadeVenda,
+      property_financing: imovel.value.financiamento,
+    })
     analise.value = await dataService.getAnalisePreco(imovel.value)
     const stats = await dataService.estatisticas(imovel.value.uf)
     score.value = dataService.calcScore(imovel.value, stats.precoMedio)
   }
 })
+
+function trackOfficialClick() {
+  if (!imovel.value) return
+  trackEvent('imovue_official_click', {
+    property_id: imovel.value.numeroImovel,
+    property_uf: imovel.value.uf,
+    property_city: imovel.value.cidade,
+    property_type: imovel.value.tipoImovel,
+    destination: 'caixa',
+  })
+}
 
 useSeoHead(() => loading.value ? null : imovel.value ? getImovelSeo(imovel.value) : getNotFoundSeo(`/imovel/${props.numero}`))
 

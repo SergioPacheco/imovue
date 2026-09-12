@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { trackEvent } from '@/services/analytics'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -48,6 +49,24 @@ const router = createRouter({
     // 404
     { path: '/:pathMatch(.*)*', component: () => import('@/pages/NotFoundPage.vue'), meta: { noindex: true, noAds: true } },
   ]
+})
+
+let firstNavigation = true
+router.afterEach((to, from) => {
+  // O Google tag já envia o page_view inicial. Estes eventos complementam
+  // apenas as mudanças internas da SPA, evitando pageviews duplicados.
+  if (firstNavigation) {
+    firstNavigation = false
+    return
+  }
+  window.setTimeout(() => {
+    trackEvent('imovue_virtual_page_view', {
+      page_path: to.fullPath,
+      page_location: `${window.location.origin}${to.fullPath}`,
+      page_title: document.title,
+      page_referrer: `${window.location.origin}${from.fullPath}`,
+    })
+  }, 0)
 })
 
 export default router

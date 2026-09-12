@@ -150,6 +150,7 @@ import { UF_NOMES } from '@/constants/uf'
 import PropertyCard from '@/components/PropertyCard.vue'
 import AffiliateCourseCard from '@/components/AffiliateCourseCard.vue'
 import { AFFILIATE_CONFIG } from '@/config/affiliate'
+import { trackEvent } from '@/services/analytics'
 
 const route = useRoute()
 useSeoHead(() => getListagemSeo({ hasFilters: Object.keys(route.query).length > 0 }))
@@ -167,6 +168,7 @@ const resultado = ref<{ content: Imovel[]; totalElements: number; totalPages: nu
 const loading = ref(true)
 const analises = ref<Map<string, { classificacao: 'sub' | 'normal' | 'sobre'; ratio: number }>>(new Map())
 let skipNextFilterWatch = false
+let analyticsReady = false
 
 const filtros = reactive({
   cidade: '', bairro: '', tipoImovel: '', modalidade: '',
@@ -197,18 +199,39 @@ async function buscar() {
 }
 
 let debounceTimer: ReturnType<typeof setTimeout>
+function currentFilterParams() {
+  return {
+    filter_uf: estado.value.uf,
+    filter_city: filtros.cidade || undefined,
+    filter_neighborhood: filtros.bairro || undefined,
+    filter_property_type: filtros.tipoImovel || undefined,
+    filter_sale_type: filtros.modalidade || undefined,
+    filter_financing: (filtros as any).financiamento || undefined,
+    filter_price_min: filtros.precoMin,
+    filter_price_max: filtros.precoMax,
+    filter_discount_min: filtros.descontoMin,
+    filter_bedrooms_min: filtros.quartosMin,
+    filter_parking_min: filtros.vagasMin,
+    filter_sort: filtros.sort,
+  }
+}
+
 watch(() => [filtros.cidade, filtros.bairro, filtros.tipoImovel, filtros.modalidade,
   filtros.precoMin, filtros.precoMax, filtros.descontoMin, filtros.quartosMin,
   filtros.vagasMin, filtros.sort], () => {
   if (skipNextFilterWatch) { skipNextFilterWatch = false; return }
   clearTimeout(debounceTimer)
-  debounceTimer = setTimeout(buscar, 300)
+  debounceTimer = setTimeout(() => {
+    if (analyticsReady) trackEvent('imovue_filter', currentFilterParams())
+    buscar()
+  }, 300)
 })
 
 watch(() => filtros.cidade, () => { filtros.bairro = '' })
 
 watch(() => estado.value.uf, (novaUf) => {
   store.ufSelecionada = novaUf
+  if (analyticsReady) trackEvent('imovue_state_change', { filter_uf: novaUf })
   skipNextFilterWatch = true
   filtros.cidade = ''
   filtros.bairro = ''
@@ -219,10 +242,12 @@ function limpar() {
   filtros.cidade = ''; filtros.bairro = ''; filtros.tipoImovel = ''; filtros.modalidade = ''
   filtros.precoMin = undefined; filtros.precoMax = undefined
   filtros.descontoMin = undefined; filtros.quartosMin = undefined; filtros.vagasMin = undefined
+  if (analyticsReady) trackEvent('imovue_filter_reset', { filter_uf: estado.value.uf })
 }
 
 function paginar(dir: number) {
   filtros.page += dir
+  if (analyticsReady) trackEvent('imovue_pagination', { page: filtros.page, direction: dir > 0 ? 'next' : 'previous', filter_uf: estado.value.uf })
   loading.value = true
   dataService.listar(estado.value.uf, filtros as any).then(r => { resultado.value = r; loading.value = false })
 }
@@ -244,5 +269,6 @@ onMounted(async () => {
   if (q.sort) filtros.sort = q.sort as string
   if (q.financiamento) (filtros as any).financiamento = q.financiamento as string
   await buscar()
+  analyticsReady = true
 })
 </script>

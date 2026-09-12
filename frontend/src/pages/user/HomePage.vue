@@ -216,6 +216,7 @@ import SmartSearchBar from '@/components/SmartSearchBar.vue'
 import AffiliateCourseCard from '@/components/AffiliateCourseCard.vue'
 import { UF_NOMES } from '@/constants/uf'
 import type { SmartSearchResult } from '@/composables/useSmartSearch'
+import { trackEvent } from '@/services/analytics'
 
 useSeoHead(getHomeSeo)
 
@@ -239,7 +240,17 @@ async function selecionar(uf: string) {
   router.push(`/estado/${uf.toLowerCase()}`)
 }
 
-function onSmartSearch(result: SmartSearchResult) {
+function onSmartSearch(result: SmartSearchResult, query: string) {
+  trackEvent('imovue_search', {
+    search_term: query,
+    search_description: result.descricao,
+    search_uf: result.uf,
+    search_city: result.filtros.cidade,
+    search_property_type: result.filtros.tipoImovel,
+    search_price_max: result.filtros.precoMax,
+    search_discount_min: result.filtros.descontoMin,
+    search_bedrooms_min: result.filtros.quartosMin,
+  })
   const uf = result.uf || store.ufSelecionada || ''
   if (uf) {
     store.ufSelecionada = uf

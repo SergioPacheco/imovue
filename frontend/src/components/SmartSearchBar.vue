@@ -64,7 +64,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  search: [result: SmartSearchResult]
+  search: [result: SmartSearchResult, query: string]
 }>()
 
 const query = ref('')
@@ -87,7 +87,7 @@ const preview = computed(() => {
 function executar() {
   if (!query.value.trim()) return
   const result = parseSmartSearch(query.value, props.cidades ?? [])
-  emit('search', result)
+  emit('search', result, query.value.trim())
   showSugestoes.value = false
 }
 
