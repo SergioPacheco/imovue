@@ -45,9 +45,6 @@
 </template>
 
 <script setup lang="ts">
-import { useSeoHead } from '@/composables/useSeoHead'
-useSeoHead({
-  title: 'Fontes dos Dados',
-  description: 'Saiba de onde vêm os dados do Imovue, como são atualizados, quais informações são calculadas e quais limitações existem.',
-})
+import { useSeoHead, getInstitutionalSeo } from '@/composables/useSeoHead'
+useSeoHead(() => getInstitutionalSeo('/fontes-dos-dados'))
 </script>

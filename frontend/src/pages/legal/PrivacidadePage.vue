@@ -84,10 +84,6 @@
 </template>
 
 <script setup lang="ts">
-import { useSeoHead } from '@/composables/useSeoHead'
-useSeoHead({
-  title: 'Política de Privacidade',
-  description: 'Política de privacidade do Imovue: dados coletados, cookies, Google Analytics, AdSense, seus direitos pela LGPD e como gerenciar preferências.',
-  robots: 'noindex,follow',
-})
+import { useSeoHead, getInstitutionalSeo } from '@/composables/useSeoHead'
+useSeoHead(() => getInstitutionalSeo('/privacidade'))
 </script>

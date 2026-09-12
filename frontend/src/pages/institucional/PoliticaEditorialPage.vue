@@ -48,9 +48,6 @@
 </template>
 
 <script setup lang="ts">
-import { useSeoHead } from '@/composables/useSeoHead'
-useSeoHead({
-  title: 'Política Editorial',
-  description: 'Como o Imovue produz conteúdo, revisa dados, corrige erros e mantém independência editorial.',
-})
+import { useSeoHead, getInstitutionalSeo } from '@/composables/useSeoHead'
+useSeoHead(() => getInstitutionalSeo('/politica-editorial'))
 </script>

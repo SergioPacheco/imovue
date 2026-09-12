@@ -36,10 +36,6 @@
 </template>
 
 <script setup lang="ts">
-import { useSeoHead, organizationJsonLd } from '@/composables/useSeoHead'
-useSeoHead({
-  title: 'Sobre o Imovue',
-  description: 'Conheça o Imovue: plataforma independente de pesquisa e análise de imóveis da Caixa com desconto. Saiba como funciona e como podemos ajudar.',
-  jsonLd: organizationJsonLd(),
-})
+import { useSeoHead, getInstitutionalSeo } from '@/composables/useSeoHead'
+useSeoHead(() => getInstitutionalSeo('/sobre'))
 </script>

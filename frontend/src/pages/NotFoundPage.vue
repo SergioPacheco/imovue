@@ -11,6 +11,6 @@
 </template>
 
 <script setup lang="ts">
-import { useSeoHead } from '@/composables/useSeoHead'
-useSeoHead({ title: 'Página não encontrada', description: 'A página que você procura não existe.', robots: 'noindex,follow' })
+import { useSeoHead, getNotFoundSeo } from '@/composables/useSeoHead'
+useSeoHead(() => getNotFoundSeo(window.location.pathname))
 </script>

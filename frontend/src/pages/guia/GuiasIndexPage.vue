@@ -56,20 +56,10 @@
 
 <script setup lang="ts">
 import { articles, getCategories } from '@/data/articles'
-import { useSeoHead, breadcrumbJsonLd, websiteJsonLd } from '@/composables/useSeoHead'
+import { useSeoHead, getGuidesIndexSeo } from '@/composables/useSeoHead'
 
 const categories = getCategories()
 const byCategory = (cat: string) => articles.filter(a => a.category === cat)
 
-useSeoHead({
-  title: 'Guias sobre imóveis da Caixa: compra, riscos, documentação e descontos',
-  description: 'Central de aprendizado sobre imóveis da Caixa com desconto. Guias completos sobre leilão, venda direta, financiamento, FGTS, custos, documentação, riscos e análise de oportunidades.',
-  jsonLd: [
-    breadcrumbJsonLd([
-      { name: 'Início', url: '/' },
-      { name: 'Guias', url: '/guias' },
-    ]),
-    websiteJsonLd(),
-  ],
-})
+useSeoHead(getGuidesIndexSeo)
 </script>

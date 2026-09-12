@@ -67,14 +67,6 @@
 </template>
 
 <script setup lang="ts">
-import { useSeoHead, faqJsonLd } from '@/composables/useSeoHead'
-useSeoHead({
-  title: 'Metodologia — Como funciona o Score e o Radar Imovue',
-  description: 'Entenda como o Imovue calcula o score de oportunidade, quais critérios são usados no radar e as limitações da análise automatizada.',
-  jsonLd: faqJsonLd([
-    { question: 'Como funciona o Score Imovue?', answer: 'O Score é um indicador de 0 a 100 baseado em desconto, financiamento, modalidade, preço e características do imóvel. Não é recomendação de compra.' },
-    { question: 'De onde vêm os dados?', answer: 'Dados extraídos semanalmente das listas públicas de venda de imóveis da Caixa Econômica Federal.' },
-    { question: 'Com que frequência os dados são atualizados?', answer: 'Coleta semanal automatizada. Pode haver defasagem de até 7 dias.' },
-  ]),
-})
+import { useSeoHead, getInstitutionalSeo } from '@/composables/useSeoHead'
+useSeoHead(() => getInstitutionalSeo('/metodologia'))
 </script>

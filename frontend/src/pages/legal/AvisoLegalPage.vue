@@ -51,3 +51,7 @@
     <p>Para dúvidas, correções ou solicitações: <a href="mailto:contato@imovue.com.br">contato@imovue.com.br</a></p>
   </article>
 </template>
+<script setup lang="ts">
+import { useSeoHead, getInstitutionalSeo } from '@/composables/useSeoHead'
+useSeoHead(() => getInstitutionalSeo('/aviso-legal'))
+</script>

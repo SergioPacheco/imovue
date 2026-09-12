@@ -46,6 +46,6 @@
 </template>
 
 <script setup lang="ts">
-import { useSeoHead } from '@/composables/useSeoHead'
-useSeoHead({ title: 'Termos de Uso', description: 'Termos de uso do Imovue: natureza do serviço, limitações, responsabilidades e uso aceitável.', robots: 'noindex,follow' })
+import { useSeoHead, getInstitutionalSeo } from '@/composables/useSeoHead'
+useSeoHead(() => getInstitutionalSeo('/termos'))
 </script>

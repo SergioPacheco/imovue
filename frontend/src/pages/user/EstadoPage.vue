@@ -25,7 +25,7 @@
       <section class="bg-gradient-to-br from-brand-50 to-blue-50 py-12">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900">
-            Imóveis de Leilão da CAIXA em {{ nomeEstado }}
+            Imóveis da CAIXA em {{ nomeEstado }}
           </h1>
           <p class="mt-3 text-lg text-gray-600 max-w-3xl">
             {{ stats.total.toLocaleString('pt-BR') }} imóveis disponíveis no estado de {{ nomeEstado }} ({{ ufUpper }})
@@ -121,7 +121,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useSeoHead, breadcrumbJsonLd } from '@/composables/useSeoHead'
+import { useSeoHead, getEstadoSeo } from '@/composables/useSeoHead'
 import { dataService } from '@/services/dataService'
 import { UF_NOMES } from '@/constants/uf'
 
@@ -186,22 +186,10 @@ onMounted(async () => {
 })
 
 // SEO
-useSeoHead({
-  title: `Imóveis de Leilão da CAIXA em ${nomeEstado.value} (${ufUpper.value})`,
-  description: `Encontre ${stats.value.total || ''} imóveis da CAIXA com desconto em ${nomeEstado.value}. Descontos de até ${stats.value.maiorDesconto || 90}%. Apartamentos, casas e terrenos disponíveis.`,
-  canonical: `https://imovue.com.br/estado/${uf.value}`,
-  jsonLd: [
-    breadcrumbJsonLd([
-      { name: 'Início', url: '/' },
-      { name: nomeEstado.value, url: `/estado/${uf.value}` },
-    ]),
-    {
-      '@context': 'https://schema.org',
-      '@type': 'CollectionPage',
-      name: `Imóveis de Leilão da CAIXA em ${nomeEstado.value}`,
-      description: `Catálogo de imóveis retomados pela CAIXA disponíveis para compra em ${nomeEstado.value}.`,
-      url: `https://imovue.com.br/estado/${uf.value}`,
-    }
-  ],
-})
+useSeoHead(() => stats.value.total ? getEstadoSeo({
+  uf: uf.value,
+  name: nomeEstado.value,
+  cityCount: cidadesComContagem.value.length,
+  stats: { total: stats.value.total, maxDiscount: stats.value.maiorDesconto },
+}) : null)
 </script>

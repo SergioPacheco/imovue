@@ -340,7 +340,7 @@ import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import PropertyImage from '@/components/PropertyImage.vue'
 import AffiliateCourseCard from '@/components/AffiliateCourseCard.vue'
 import { useFavoritos } from '@/composables/useFavoritos'
-import { breadcrumbJsonLd } from '@/composables/useSeoHead'
+import { useSeoHead, getImovelSeo, getNotFoundSeo } from '@/composables/useSeoHead'
 import { useCatalogoStore } from '@/stores/catalogo'
 import { dataService } from '@/services/dataService'
 import type { Imovel } from '@/types'
@@ -454,74 +454,7 @@ onMounted(async () => {
   }
 })
 
-// SEO: atualizar meta tags e JSON-LD quando o imóvel carregar
-watch(imovel, (im) => {
-  if (!im) return
-  const desconto = im.percentualDesconto ? `${Math.round(im.percentualDesconto)}% de desconto` : ''
-  const titulo = `${im.tipoImovel || 'Imóvel'} em ${im.cidade}/${im.uf}${desconto ? ` com ${desconto}` : ''}`
-  const desc = `${im.tipoImovel || 'Imóvel'} em ${im.bairro}, ${im.cidade}/${im.uf}. ${im.precoVenda ? `R$ ${im.precoVenda.toLocaleString('pt-BR')}` : ''}${desconto ? ` (${desconto})` : ''}. ${im.modalidadeVenda}.`
-
-  document.title = `${titulo} | Imovue`
-  const setMeta = (attr: string, key: string, val: string) => {
-    let el = document.querySelector(`meta[${attr}="${key}"]`) as HTMLMetaElement | null
-    if (!el) { el = document.createElement('meta'); el.setAttribute(attr, key); document.head.appendChild(el) }
-    el.setAttribute('content', val)
-  }
-  setMeta('name', 'description', desc)
-  setMeta('property', 'og:title', `${titulo} | Imovue`)
-  setMeta('property', 'og:description', desc)
-  setMeta('property', 'og:url', `https://imovue.com.br/imovel/${im.numeroImovel}`)
-  setMeta('property', 'og:type', 'website')
-  setMeta('name', 'twitter:title', `${titulo} | Imovue`)
-  setMeta('name', 'twitter:description', desc)
-
-  // Canonical
-  let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null
-  if (!canonical) { canonical = document.createElement('link'); canonical.rel = 'canonical'; document.head.appendChild(canonical) }
-  canonical.href = `https://imovue.com.br/imovel/${im.numeroImovel}`
-
-  // JSON-LD
-  const existing = document.querySelector('script[data-seo-jsonld]')
-  existing?.remove()
-  const jsonLd: any[] = [
-    breadcrumbJsonLd([
-      { name: 'Início', url: '/' },
-      { name: im.uf, url: `/estado/${im.uf.toLowerCase()}` },
-      { name: im.cidade, url: `/estado/${im.uf.toLowerCase()}/${im.cidade.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}` },
-      { name: `${im.tipoImovel || 'Imóvel'} - ${im.bairro}`, url: `/imovel/${im.numeroImovel}` },
-    ]),
-    {
-      '@context': 'https://schema.org',
-      '@type': 'RealEstateListing',
-      name: titulo,
-      description: im.descricao || desc,
-      url: `https://imovue.com.br/imovel/${im.numeroImovel}`,
-      ...(im.precoVenda && {
-        offers: {
-          '@type': 'Offer',
-          price: im.precoVenda,
-          priceCurrency: 'BRL',
-          availability: 'https://schema.org/InStock',
-        }
-      }),
-      address: {
-        '@type': 'PostalAddress',
-        streetAddress: im.endereco,
-        addressLocality: im.cidade,
-        addressRegion: im.uf,
-        addressCountry: 'BR',
-      },
-      ...(im.lat && im.lng && {
-        geo: { '@type': 'GeoCoordinates', latitude: im.lat, longitude: im.lng }
-      }),
-    }
-  ]
-  const script = document.createElement('script')
-  script.type = 'application/ld+json'
-  script.setAttribute('data-seo-jsonld', '')
-  script.textContent = JSON.stringify(jsonLd)
-  document.head.appendChild(script)
-}, { immediate: true })
+useSeoHead(() => loading.value ? null : imovel.value ? getImovelSeo(imovel.value) : getNotFoundSeo(`/imovel/${props.numero}`))
 
 watch(imovel, async (im) => {
   if (!im?.lat || !im?.lng) return

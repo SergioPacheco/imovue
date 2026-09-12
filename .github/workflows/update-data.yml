@@ -43,18 +43,10 @@ jobs:
       - name: Validar dados
         run: python tools/validate_data.py
 
-      - name: Gerar sitemap
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - run: node frontend/scripts/generate-sitemap.js
-        working-directory: .
-
       - name: Commit e push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add frontend/public/data/ data/listas/ tools/.geocode_cache.json frontend/dist/sitemap*.xml
+          git add frontend/public/data/ data/listas/ tools/.geocode_cache.json
           git diff --staged --quiet || git commit -m "chore(data): atualizar imóveis $(date +%Y-%m-%d)"
           git push

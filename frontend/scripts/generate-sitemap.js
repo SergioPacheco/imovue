@@ -1,203 +1,105 @@
-/**
- * Gerador de sitemap dinâmico para ImoVue
- * Lê os JSONs de dados e gera sitemap-index com divisões:
- * - sitemap-static.xml (páginas institucionais + guias)
- * - sitemap-estados.xml (27 estados)
- * - sitemap-cidades.xml (todas as cidades com imóveis)
- * - sitemap-imoveis-{n}.xml (imóveis em lotes de 5000)
- *
- * Executar: node scripts/generate-sitemap.js
- */
-
-import { readFileSync, writeFileSync, readdirSync, mkdirSync } from 'fs'
-import { resolve, dirname } from 'path'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
+import { dirname, resolve } from 'path'
+import { runInNewContext } from 'vm'
 import { fileURLToPath } from 'url'
+import { slugify } from '../src/seo/seo.js'
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const DATA_DIR = resolve(__dirname, '../public/data')
-const OUTPUT_DIR = resolve(__dirname, '../dist')
-mkdirSync(OUTPUT_DIR, { recursive: true })
+const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url))
+const FRONTEND_DIR = resolve(SCRIPT_DIR, '..')
+const DATA_DIR = resolve(FRONTEND_DIR, 'public/data')
+const OUTPUT_DIR = resolve(FRONTEND_DIR, 'dist')
 const SITE_URL = 'https://imovue.com.br'
-const TODAY = new Date().toISOString().split('T')[0]
 const MAX_URLS_PER_SITEMAP = 5000
+// A coleta de dados altera as páginas de estados, cidades e imóveis. O valor
+// pode ser fixado pelo ambiente do deploy; no build normal, a data do build é
+// uma aproximação válida porque o conteúdo estático foi regenerado junto.
+const DATA_LASTMOD = process.env.SEO_LASTMOD || new Date().toISOString().slice(0, 10)
 
-// --- Helpers ---
+mkdirSync(OUTPUT_DIR, { recursive: true })
 
-function xmlEscape(str) {
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+function xmlEscape(value) {
+  return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;')
 }
 
-function slugify(text) {
-  return text
-    .toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
+function urlEntry(loc, { lastmod, priority } = {}) {
+  return `  <url>\n    <loc>${xmlEscape(loc)}</loc>${lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : ''}${priority ? `\n    <priority>${priority}</priority>` : ''}\n  </url>`
 }
 
-function wrapUrlset(urls) {
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.join('\n')}
-</urlset>`
+function urlset(entries) {
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join('\n')}\n</urlset>\n`
 }
 
-function urlEntry(loc, opts = {}) {
-  const parts = [`  <url>\n    <loc>${xmlEscape(loc)}</loc>`]
-  if (opts.lastmod) parts.push(`    <lastmod>${opts.lastmod}</lastmod>`)
-  if (opts.changefreq) parts.push(`    <changefreq>${opts.changefreq}</changefreq>`)
-  if (opts.priority) parts.push(`    <priority>${opts.priority}</priority>`)
-  parts.push(`  </url>`)
-  return parts.join('\n')
+function sitemapIndex(files) {
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${files.map(file => `  <sitemap>\n    <loc>${SITE_URL}/${file}</loc>\n  </sitemap>`).join('\n')}\n</sitemapindex>\n`
 }
 
-function wrapSitemapIndex(sitemaps) {
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${sitemaps.map(s => `  <sitemap>\n    <loc>${SITE_URL}/${s.file}</loc>\n    <lastmod>${s.lastmod}</lastmod>\n  </sitemap>`).join('\n')}
-</sitemapindex>`
+function loadArticles() {
+  const source = readFileSync(resolve(FRONTEND_DIR, 'src/data/articles.ts'), 'utf8')
+  const match = source.match(/export const articles:\s*Article\[\]\s*=\s*(\[[\s\S]*?\])\s*\n\n\/\/ Ordem/)
+  if (!match) throw new Error('Não foi possível ler os metadados dos guias.')
+  return runInNewContext(`(${match[1]})`)
 }
 
-// --- Load data ---
+function loadCatalog() {
+  const manifest = JSON.parse(readFileSync(resolve(DATA_DIR, 'manifest.json'), 'utf8'))
+  const states = []
+  const cities = new Map()
+  const properties = new Map()
 
-const manifest = JSON.parse(readFileSync(resolve(DATA_DIR, 'manifest.json'), 'utf-8'))
-
-// Collect all cities and imoveis
-const allCidades = new Map() // key: "uf/cidade-slug" -> { uf, cidade, count }
-const allImoveis = [] // { uf, cidade, numero }
-
-for (const entry of manifest) {
-  const filePath = resolve(DATA_DIR, `${entry.uf}.json`)
-  try {
-    const imoveis = JSON.parse(readFileSync(filePath, 'utf-8'))
-    const cidadesMap = new Map()
-
-    for (const im of imoveis) {
-      const cidadeSlug = slugify(im.cidade)
-      const key = `${im.uf.toLowerCase()}/${cidadeSlug}`
-
-      if (!cidadesMap.has(key)) {
-        cidadesMap.set(key, { uf: im.uf, cidade: im.cidade, slug: cidadeSlug, count: 0 })
-      }
-      cidadesMap.get(key).count++
-
-      allImoveis.push({ uf: im.uf, cidade: im.cidade, numero: im.numeroImovel })
+  for (const entry of manifest) {
+    const file = resolve(DATA_DIR, `${entry.uf}.json`)
+    if (!existsSync(file)) continue
+    const items = JSON.parse(readFileSync(file, 'utf8'))
+    states.push(entry.uf)
+    for (const item of items) {
+      const uf = String(item.uf || entry.uf).toLowerCase()
+      const city = item.cidade || ''
+      const key = `${uf}/${slugify(city)}`
+      if (!cities.has(key)) cities.set(key, { uf, city, count: 0 })
+      cities.get(key).count++
+      if (item.numeroImovel) properties.set(String(item.numeroImovel), item)
     }
-
-    for (const [key, val] of cidadesMap) {
-      allCidades.set(key, val)
-    }
-  } catch (e) {
-    console.warn(`Skipping ${entry.uf}: ${e.message}`)
   }
+  return { states, cities, properties }
 }
 
-console.log(`📊 ${manifest.length} estados, ${allCidades.size} cidades, ${allImoveis.length} imóveis`)
+function main() {
+  const catalog = loadCatalog()
+  const articles = loadArticles()
+  const staticEntries = [
+    urlEntry(`${SITE_URL}/`, { lastmod: DATA_LASTMOD, priority: '1.0' }),
+    urlEntry(`${SITE_URL}/imoveis`, { lastmod: DATA_LASTMOD, priority: '0.9' }),
+    urlEntry(`${SITE_URL}/sobre`, { priority: '0.6' }),
+    urlEntry(`${SITE_URL}/contato`, { priority: '0.4' }),
+    urlEntry(`${SITE_URL}/metodologia`, { priority: '0.6' }),
+    urlEntry(`${SITE_URL}/fontes-dos-dados`, { priority: '0.5' }),
+    urlEntry(`${SITE_URL}/politica-editorial`, { priority: '0.4' }),
+    urlEntry(`${SITE_URL}/aviso-legal`, { priority: '0.3' }),
+    urlEntry(`${SITE_URL}/guias`, { priority: '0.9' }),
+    ...articles.map(article => urlEntry(`${SITE_URL}/guias/${article.slug}`, { lastmod: article.dateModified, priority: '0.7' })),
+  ]
+  writeFileSync(resolve(OUTPUT_DIR, 'sitemap-static.xml'), urlset(staticEntries))
 
-// --- 1. sitemap-static.xml ---
+  const stateEntries = catalog.states.map(uf => urlEntry(`${SITE_URL}/estado/${uf.toLowerCase()}`, { lastmod: DATA_LASTMOD, priority: '0.8' }))
+  writeFileSync(resolve(OUTPUT_DIR, 'sitemap-estados.xml'), urlset(stateEntries))
 
-const staticUrls = [
-  urlEntry(`${SITE_URL}/`, { lastmod: TODAY, changefreq: 'daily', priority: '1.0' }),
-  urlEntry(`${SITE_URL}/imoveis`, { lastmod: TODAY, changefreq: 'daily', priority: '0.9' }),
-  urlEntry(`${SITE_URL}/sobre`, { changefreq: 'monthly', priority: '0.6' }),
-  urlEntry(`${SITE_URL}/contato`, { changefreq: 'monthly', priority: '0.4' }),
-  urlEntry(`${SITE_URL}/metodologia`, { changefreq: 'monthly', priority: '0.6' }),
-  urlEntry(`${SITE_URL}/fontes-dos-dados`, { changefreq: 'monthly', priority: '0.5' }),
-  urlEntry(`${SITE_URL}/politica-editorial`, { changefreq: 'monthly', priority: '0.4' }),
-  urlEntry(`${SITE_URL}/guias`, { lastmod: TODAY, changefreq: 'weekly', priority: '0.9' }),
-  urlEntry(`${SITE_URL}/termos`, { changefreq: 'monthly', priority: '0.3' }),
-  urlEntry(`${SITE_URL}/privacidade`, { changefreq: 'monthly', priority: '0.3' }),
-  urlEntry(`${SITE_URL}/aviso-legal`, { changefreq: 'monthly', priority: '0.3' }),
-]
+  const cityEntries = [...catalog.cities.values()]
+    .filter(city => city.count >= 3)
+    .map(city => urlEntry(`${SITE_URL}/estado/${city.uf}/${slugify(city.city)}`, { lastmod: DATA_LASTMOD, priority: '0.7' }))
+  writeFileSync(resolve(OUTPUT_DIR, 'sitemap-cidades.xml'), urlset(cityEntries))
 
-// Add guia pages from filesystem
-const guiasDir = resolve(__dirname, '../src/pages/guia/conteudo')
-try {
-  const guiaFiles = readdirSync(guiasDir).filter(f => f.endsWith('.vue'))
-  for (const file of guiaFiles) {
-    const slug = file.replace('.vue', '').replace(/([A-Z])/g, '-$1').toLowerCase().replace(/^-/, '')
-    // Use slug from router instead - just add known guia slugs
+  const propertyFiles = []
+  const properties = [...catalog.properties.values()]
+  for (let start = 0; start < properties.length; start += MAX_URLS_PER_SITEMAP) {
+    const fileName = `sitemap-imoveis-${propertyFiles.length + 1}.xml`
+    const entries = properties.slice(start, start + MAX_URLS_PER_SITEMAP).map(item => urlEntry(`${SITE_URL}/imovel/${encodeURIComponent(item.numeroImovel)}`, { lastmod: DATA_LASTMOD, priority: '0.5' }))
+    writeFileSync(resolve(OUTPUT_DIR, fileName), urlset(entries))
+    propertyFiles.push(fileName)
   }
-} catch (e) { /* ignore */ }
 
-// Known guia slugs from sitemap
-const guiaSlugs = [
-  'como-comprar-imoveis-caixa', 'diferenca-leilao-licitacao-venda-online',
-  'riscos-imovel-ocupado', 'como-analisar-edital', 'como-consultar-matricula',
-  'debitos-condominio-iptu', 'como-funciona-financiamento', 'como-utilizar-fgts',
-  'como-calcular-itbi-escritura-registro', 'custo-total-compra',
-  'preco-por-metro-quadrado', 'rentabilidade-aluguel', 'documentos-necessarios',
-  'erros-comuns-iniciantes', 'checklist-antes-de-comprar',
-  'vale-a-pena-comprar-imovel-caixa', 'quando-desconto-50-nao-compensa',
-  'como-avaliar-liquidez-imovel', 'score-oportunidade-como-interpretamos',
-  'imoveis-caixa-sao-paulo', 'imoveis-caixa-rio-de-janeiro',
-  'imoveis-caixa-belo-horizonte', 'imoveis-caixa-curitiba',
-  'imoveis-caixa-salvador', 'imoveis-caixa-goiania',
-  'imoveis-caixa-recife', 'imoveis-caixa-fortaleza',
-  'imoveis-caixa-porto-alegre', 'imoveis-caixa-florianopolis', 'imoveis-caixa-brasilia',
-]
-for (const slug of guiaSlugs) {
-  staticUrls.push(urlEntry(`${SITE_URL}/guias/${slug}`, { changefreq: 'monthly', priority: '0.7' }))
+  const files = ['sitemap-static.xml', 'sitemap-estados.xml', 'sitemap-cidades.xml', ...propertyFiles]
+  writeFileSync(resolve(OUTPUT_DIR, 'sitemap.xml'), sitemapIndex(files))
+  console.log(`✅ sitemap: ${staticEntries.length + stateEntries.length + cityEntries.length + properties.length} URLs em ${files.length} arquivos`)
 }
 
-writeFileSync(resolve(OUTPUT_DIR, 'sitemap-static.xml'), wrapUrlset(staticUrls))
-console.log(`✅ sitemap-static.xml (${staticUrls.length} URLs)`)
-
-// --- 2. sitemap-estados.xml ---
-
-const estadoUrls = manifest.map(entry =>
-  urlEntry(`${SITE_URL}/estado/${entry.uf.toLowerCase()}`, {
-    lastmod: TODAY,
-    changefreq: 'daily',
-    priority: '0.8'
-  })
-)
-writeFileSync(resolve(OUTPUT_DIR, 'sitemap-estados.xml'), wrapUrlset(estadoUrls))
-console.log(`✅ sitemap-estados.xml (${estadoUrls.length} URLs)`)
-
-// --- 3. sitemap-cidades.xml ---
-
-const cidadeUrls = [...allCidades.values()]
-  .filter(c => c.count >= 3) // Only cities with 3+ properties
-  .map(c => urlEntry(`${SITE_URL}/estado/${c.uf.toLowerCase()}/${c.slug}`, {
-    lastmod: TODAY,
-    changefreq: 'daily',
-    priority: '0.7'
-  }))
-
-writeFileSync(resolve(OUTPUT_DIR, 'sitemap-cidades.xml'), wrapUrlset(cidadeUrls))
-console.log(`✅ sitemap-cidades.xml (${cidadeUrls.length} URLs)`)
-
-// --- 4. sitemap-imoveis-{n}.xml ---
-
-const imoveisFiles = []
-for (let i = 0; i < allImoveis.length; i += MAX_URLS_PER_SITEMAP) {
-  const batch = allImoveis.slice(i, i + MAX_URLS_PER_SITEMAP)
-  const fileNum = Math.floor(i / MAX_URLS_PER_SITEMAP) + 1
-  const fileName = `sitemap-imoveis-${fileNum}.xml`
-
-  const urls = batch.map(im =>
-    urlEntry(`${SITE_URL}/imovel/${im.numero}`, {
-      lastmod: TODAY,
-      changefreq: 'weekly',
-      priority: '0.5'
-    })
-  )
-
-  writeFileSync(resolve(OUTPUT_DIR, fileName), wrapUrlset(urls))
-  imoveisFiles.push({ file: fileName, lastmod: TODAY })
-  console.log(`✅ ${fileName} (${urls.length} URLs)`)
-}
-
-// --- 5. sitemap.xml (index) ---
-
-const sitemapIndex = wrapSitemapIndex([
-  { file: 'sitemap-static.xml', lastmod: TODAY },
-  { file: 'sitemap-estados.xml', lastmod: TODAY },
-  { file: 'sitemap-cidades.xml', lastmod: TODAY },
-  ...imoveisFiles,
-])
-
-writeFileSync(resolve(OUTPUT_DIR, 'sitemap.xml'), sitemapIndex)
-console.log(`\n🗺️  sitemap.xml (index) gerado com ${3 + imoveisFiles.length} sub-sitemaps`)
-console.log(`📍 Total de URLs: ${staticUrls.length + estadoUrls.length + cidadeUrls.length + allImoveis.length}`)
+main()

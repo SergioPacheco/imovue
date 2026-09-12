@@ -29,9 +29,6 @@
 </template>
 
 <script setup lang="ts">
-import { useSeoHead } from '@/composables/useSeoHead'
-useSeoHead({
-  title: 'Contato',
-  description: 'Entre em contato com o Imovue para reportar erros, sugerir melhorias ou esclarecer dúvidas sobre a plataforma.',
-})
+import { useSeoHead, getInstitutionalSeo } from '@/composables/useSeoHead'
+useSeoHead(() => getInstitutionalSeo('/contato'))
 </script>

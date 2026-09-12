@@ -35,7 +35,7 @@
       <section class="bg-gradient-to-br from-brand-50 to-green-50 py-12">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900">
-            Imóveis de Leilão da CAIXA em {{ cidadeNome }}/{{ ufUpper }}
+            Imóveis da CAIXA em {{ cidadeNome }}/{{ ufUpper }}
           </h1>
           <p class="mt-3 text-lg text-gray-600 max-w-3xl">
             {{ imoveisCidade.length.toLocaleString('pt-BR') }} imóveis disponíveis em {{ cidadeNome }}
@@ -144,7 +144,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useSeoHead, breadcrumbJsonLd } from '@/composables/useSeoHead'
+import { useSeoHead, getCidadeSeo } from '@/composables/useSeoHead'
 import { dataService } from '@/services/dataService'
 import { UF_NOMES } from '@/constants/uf'
 import type { Imovel } from '@/types'
@@ -221,23 +221,12 @@ onMounted(async () => {
 })
 
 // SEO
-useSeoHead({
-  title: `Imóveis de Leilão da CAIXA em ${cidadeNome.value || 'Cidade'}/${ufUpper.value}`,
-  description: `${imoveisCidade.value.length || ''} imóveis da CAIXA com desconto em ${cidadeNome.value || 'cidade'}/${ufUpper.value}. Apartamentos, casas e terrenos com até ${maiorDesconto.value || 90}% de desconto.`,
-  canonical: `https://imovue.com.br/estado/${uf.value}/${cidadeSlug.value}`,
-  jsonLd: [
-    breadcrumbJsonLd([
-      { name: 'Início', url: '/' },
-      { name: nomeEstado.value, url: `/estado/${uf.value}` },
-      { name: cidadeNome.value || '', url: `/estado/${uf.value}/${cidadeSlug.value}` },
-    ]),
-    {
-      '@context': 'https://schema.org',
-      '@type': 'CollectionPage',
-      name: `Imóveis de Leilão da CAIXA em ${cidadeNome.value}/${ufUpper.value}`,
-      description: `Catálogo de imóveis retomados pela CAIXA disponíveis em ${cidadeNome.value}, ${nomeEstado.value}.`,
-      url: `https://imovue.com.br/estado/${uf.value}/${cidadeSlug.value}`,
-    }
-  ],
-})
+useSeoHead(() => cidadeNome.value ? getCidadeSeo({
+  uf: uf.value,
+  stateName: nomeEstado.value,
+  city: cidadeNome.value || 'Cidade',
+  count: imoveisCidade.value.length,
+  minPrice: precoMinimo.value,
+  maxDiscount: maiorDesconto.value,
+}) : null)
 </script>

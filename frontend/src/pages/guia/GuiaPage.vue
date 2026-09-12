@@ -69,7 +69,7 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent } from 'vue'
 import { getArticle, getRelated } from '@/data/articles'
-import { useSeoHead, articleJsonLd, breadcrumbJsonLd, faqJsonLd } from '@/composables/useSeoHead'
+import { useSeoHead, getGuideSeo, getNotFoundSeo } from '@/composables/useSeoHead'
 import AffiliateCourseCard from '@/components/AffiliateCourseCard.vue'
 
 const props = defineProps<{ slug: string }>()
@@ -86,30 +86,5 @@ function formatDate(d: string) {
   return new Date(d + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
 }
 
-if (article.value) {
-  const jsonLd: Record<string, unknown>[] = [
-    articleJsonLd({
-      title: article.value.title,
-      description: article.value.description,
-      url: `/guias/${props.slug}`,
-      datePublished: article.value.datePublished,
-      dateModified: article.value.dateModified,
-    }),
-    breadcrumbJsonLd([
-      { name: 'Início', url: '/' },
-      { name: 'Guias', url: '/guias' },
-      { name: article.value.title, url: `/guias/${props.slug}` },
-    ]),
-  ]
-  if (article.value.faq?.length) {
-    jsonLd.push(faqJsonLd(article.value.faq))
-  }
-
-  useSeoHead({
-    title: article.value.title,
-    description: article.value.description,
-    ogType: 'article',
-    jsonLd,
-  })
-}
+useSeoHead(() => article.value ? getGuideSeo(article.value) : getNotFoundSeo(`/guias/${props.slug}`))
 </script>

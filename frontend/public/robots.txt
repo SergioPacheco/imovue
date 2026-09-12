@@ -12,6 +12,14 @@ Disallow: /*?*page=
 Disallow: /*?*precoMin=
 Disallow: /*?*precoMax=
 Disallow: /*?*descontoMin=
+Disallow: /*?*cidade=
+Disallow: /*?*bairro=
+Disallow: /*?*tipoImovel=
+Disallow: /*?*modalidade=
+Disallow: /*?*financiamento=
+Disallow: /*?*quartosMin=
+Disallow: /*?*vagasMin=
+Disallow: /*?*q=
 
 # Arquivos de dados (JSON)
 Disallow: /data/
