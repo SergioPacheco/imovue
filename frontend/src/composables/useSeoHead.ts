@@ -27,6 +27,9 @@ export interface SeoHeadOptions {
   robots?: string
   ogType?: string
   ogImage?: string
+  ogTitle?: string
+  ogDescription?: string
+  ogImageAlt?: string
   jsonLd?: Record<string, unknown> | Record<string, unknown>[]
 }
 
@@ -76,21 +79,26 @@ export function useSeoHead(source: SeoHeadSource) {
       const canonical = opts.canonical || `${SITE_URL}${window.location.pathname}`
       const robots = opts.robots || 'index,follow'
       const image = opts.ogImage || DEFAULT_IMAGE
+      const socialTitle = opts.ogTitle ? `${opts.ogTitle} | ${SITE_NAME}` : fullTitle
+      const socialDescription = opts.ogDescription || opts.description
+      const imageAlt = opts.ogImageAlt || 'Imovue — imóveis da CAIXA com desconto'
 
       document.title = fullTitle
       setMeta('description', opts.description)
       setMeta('robots', robots)
-      setMeta('og:title', fullTitle, 'property')
-      setMeta('og:description', opts.description, 'property')
+      setMeta('og:title', socialTitle, 'property')
+      setMeta('og:description', socialDescription, 'property')
       setMeta('og:type', opts.ogType || 'website', 'property')
       setMeta('og:url', canonical, 'property')
       setMeta('og:image', image, 'property')
+      setMeta('og:image:alt', imageAlt, 'property')
       setMeta('og:site_name', SITE_NAME, 'property')
       setMeta('og:locale', 'pt_BR', 'property')
       setMeta('twitter:card', 'summary_large_image')
-      setMeta('twitter:title', fullTitle)
-      setMeta('twitter:description', opts.description)
+      setMeta('twitter:title', socialTitle)
+      setMeta('twitter:description', socialDescription)
       setMeta('twitter:image', image)
+      setMeta('twitter:image:alt', imageAlt)
       setLink('canonical', canonical)
       setJsonLd(opts.jsonLd)
     })

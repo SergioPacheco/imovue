@@ -1,6 +1,6 @@
 <template>
   <div :class="['relative overflow-hidden', sizeClass]" :style="{ background: bg }">
-    <img v-if="imgOk" :src="imgUrl" :alt="tipo || 'Imóvel'" class="w-full h-full object-cover" @error="imgOk = false" />
+    <img v-if="imgOk" :src="imgUrl" :alt="alt || tipo || 'Imóvel'" class="w-full h-full object-cover" @error="imgOk = false" />
     <svg v-else class="absolute inset-0 m-auto w-16 h-16 opacity-20 text-white" fill="currentColor" viewBox="0 0 24 24">
       <path v-if="icon === 'casa'" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/>
       <path v-else-if="icon === 'apto'" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
@@ -14,7 +14,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 
-const props = withDefaults(defineProps<{ tipo?: string | null; numero?: string; size?: 'sm' | 'lg' }>(), { size: 'sm' })
+const props = withDefaults(defineProps<{ tipo?: string | null; numero?: string; alt?: string; size?: 'sm' | 'lg' }>(), { size: 'sm' })
 
 const imgOk = ref(true)
 const imgUrl = computed(() => {

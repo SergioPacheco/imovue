@@ -14,6 +14,7 @@ O container `GTM-KCM8NP97` já está instalado no site. O app publica eventos no
 | `imovue_pagination` | `paginate_listings` | Página seguinte/anterior |
 | `imovue_property_view` | `view_property` | Detalhe de imóvel carregado |
 | `imovue_official_click` | `click_caixa_official` | Clique no link oficial da CAIXA |
+| `imovue_share` | `share_property` | Compartilhamento ou cópia do link de um imóvel |
 
 Os parâmetros enviados são dados de navegação e catálogo, como estado, cidade, tipo, preço, desconto e número do imóvel. Não são enviados nome, e-mail ou outros dados pessoais.
 

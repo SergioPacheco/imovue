@@ -180,8 +180,8 @@ export function faqJsonLd(items) {
   }
 }
 
-function seo({ title, description, path, robots = 'index,follow', ogType = 'website', ogImage = DEFAULT_IMAGE, jsonLd = [] }) {
-  return { title, description, canonical: canonicalPath(path), robots, ogType, ogImage, jsonLd }
+function seo({ title, description, path, robots = 'index,follow', ogType = 'website', ogImage = DEFAULT_IMAGE, ogTitle = '', ogDescription = '', ogImageAlt = 'Imovue — imóveis da CAIXA com desconto', jsonLd = [] }) {
+  return { title, description, canonical: canonicalPath(path), robots, ogType, ogImage, ogTitle, ogDescription, ogImageAlt, jsonLd }
 }
 
 export function getHomeSeo() {
@@ -269,11 +269,22 @@ export function getImovelSeo(imovel) {
     imovel.financiamento === 'Sim' ? 'Aceita financiamento.' : '',
   ]
   const description = descriptionParts.filter(Boolean).join(' ')
+  const socialTitle = `${type} da CAIXA em ${city}/${uf}${discount ? ` — ${discount} de desconto` : imovel.precoVenda ? ` — ${formatCurrency(imovel.precoVenda)}` : ''}`
+  const socialDescription = [
+    `Confira este ${type.toLocaleLowerCase('pt-BR')} da CAIXA em ${city}/${uf}${neighborhood ? `, no bairro ${neighborhood}` : ''}.`,
+    imovel.precoVenda ? `Preço: ${formatCurrency(imovel.precoVenda)}.` : '',
+    discount ? `${discount} de desconto.` : '',
+    imovel.modalidadeVenda ? `${imovel.modalidadeVenda}.` : '',
+    `Imóvel nº ${imovel.numeroImovel}. Veja detalhes e condições no Imovue.`,
+  ].filter(Boolean).join(' ')
   const path = `/imovel/${imovel.numeroImovel}`
   const cityPath = `/estado/${uf.toLowerCase()}/${slugify(city)}`
   return seo({
     title,
     description,
+    ogTitle: socialTitle,
+    ogDescription: socialDescription,
+    ogImageAlt: `${type} da CAIXA em ${city}, ${uf} — Imovue`,
     path,
     jsonLd: [
       breadcrumbJsonLd([

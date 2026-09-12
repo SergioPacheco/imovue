@@ -275,6 +275,9 @@ function renderHead(baseHtml, seo) {
     .replace(/<link\b[^>]*rel=["']canonical["'][^>]*>\s*/gi, '')
     .replace(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>[\s\S]*?<\/script>\s*/gi, '')
   const fullTitle = `${seo.title} | ${SITE_NAME}`
+  const socialTitle = seo.ogTitle ? `${seo.ogTitle} | ${SITE_NAME}` : fullTitle
+  const socialDescription = seo.ogDescription || seo.description
+  const imageAlt = seo.ogImageAlt || 'Imovue — imóveis da CAIXA com desconto'
   const jsonLd = seo.jsonLd?.length ? `<script type="application/ld+json" data-seo-jsonld>${jsonForHtml(seo.jsonLd)}</script>` : ''
   const head = `
   <title>${escapeHtml(fullTitle)}</title>
@@ -282,16 +285,18 @@ function renderHead(baseHtml, seo) {
   <meta name="robots" content="${escapeHtml(seo.robots || 'index,follow')}" />
   <link rel="canonical" href="${escapeHtml(seo.canonical)}" />
   <meta property="og:type" content="${escapeHtml(seo.ogType || 'website')}" />
-  <meta property="og:title" content="${escapeHtml(fullTitle)}" />
-  <meta property="og:description" content="${escapeHtml(seo.description)}" />
+  <meta property="og:title" content="${escapeHtml(socialTitle)}" />
+  <meta property="og:description" content="${escapeHtml(socialDescription)}" />
   <meta property="og:url" content="${escapeHtml(seo.canonical)}" />
   <meta property="og:image" content="${escapeHtml(seo.ogImage)}" />
+  <meta property="og:image:alt" content="${escapeHtml(imageAlt)}" />
   <meta property="og:site_name" content="${SITE_NAME}" />
   <meta property="og:locale" content="pt_BR" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="${escapeHtml(fullTitle)}" />
-  <meta name="twitter:description" content="${escapeHtml(seo.description)}" />
+  <meta name="twitter:title" content="${escapeHtml(socialTitle)}" />
+  <meta name="twitter:description" content="${escapeHtml(socialDescription)}" />
   <meta name="twitter:image" content="${escapeHtml(seo.ogImage)}" />
+  <meta name="twitter:image:alt" content="${escapeHtml(imageAlt)}" />
   ${jsonLd}`
   return html.replace('</head>', `${head}\n</head>`)
 }

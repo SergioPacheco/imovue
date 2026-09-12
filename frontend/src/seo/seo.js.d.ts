@@ -10,6 +10,9 @@ export interface SeoData {
   robots: string
   ogType: string
   ogImage: string
+  ogTitle: string
+  ogDescription: string
+  ogImageAlt: string
   jsonLd: Record<string, unknown>[]
 }
 
