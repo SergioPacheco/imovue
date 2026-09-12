@@ -3,6 +3,7 @@ import { dirname, resolve } from 'path'
 import { runInNewContext } from 'vm'
 import { fileURLToPath } from 'url'
 import { slugify } from '../src/seo/seo.js'
+import { selectPrerenderProperties } from './property-prerender-policy.js'
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url))
 const FRONTEND_DIR = resolve(SCRIPT_DIR, '..')
@@ -89,7 +90,7 @@ function main() {
   writeFileSync(resolve(OUTPUT_DIR, 'sitemap-cidades.xml'), urlset(cityEntries))
 
   const propertyFiles = []
-  const properties = [...catalog.properties.values()]
+  const properties = selectPrerenderProperties([...catalog.properties.values()])
   for (let start = 0; start < properties.length; start += MAX_URLS_PER_SITEMAP) {
     const fileName = `sitemap-imoveis-${propertyFiles.length + 1}.xml`
     const entries = properties.slice(start, start + MAX_URLS_PER_SITEMAP).map(item => urlEntry(`${SITE_URL}/imovel/${encodeURIComponent(item.numeroImovel)}`, { lastmod: DATA_LASTMOD, priority: '0.5' }))

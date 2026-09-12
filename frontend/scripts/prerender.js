@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
+import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'fs'
 import { dirname, join, resolve } from 'path'
 import { runInNewContext } from 'vm'
 import { fileURLToPath } from 'url'
@@ -20,6 +20,7 @@ import {
   getNotFoundSeo,
   slugify,
 } from '../src/seo/seo.js'
+import { isFullPrerenderMode, propertyPrerenderSummary, selectPrerenderProperties } from './property-prerender-policy.js'
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url))
 const FRONTEND_DIR = resolve(SCRIPT_DIR, '..')
@@ -325,8 +326,9 @@ function main() {
     }
   }
 
+  const propertiesToPrerender = selectPrerenderProperties(catalog.properties)
   const generatedProperties = new Set()
-  for (const item of catalog.properties) {
+  for (const item of propertiesToPrerender) {
     if (!item.numeroImovel || generatedProperties.has(String(item.numeroImovel))) continue
     generatedProperties.add(String(item.numeroImovel))
     writePage(`/imovel/${encodeURIComponent(item.numeroImovel)}`, getImovelSeo(item), renderPropertyBody(item))
@@ -348,8 +350,15 @@ function main() {
     writePage(path, { ...seo, title, description }, `<main class="seo-static-page"><h1>${escapeHtml(title)}</h1><p>${escapeHtml(description)}</p></main>`)
   }
 
-  writeFileSync(resolve(DIST_DIR, '404.html'), renderPage(getNotFoundSeo('/404'), `<main class="seo-static-page"><h1>Página não encontrada</h1><p>A página que você procura não existe.</p><p><a href="/">Voltar para o início</a></p></main>`))
-  console.log(`✅ prerender: ${generatedProperties.size} imóveis, ${catalog.byCity.size} cidades, ${articles.length} guias`)
+  const notFoundFile = resolve(DIST_DIR, '404.html')
+  if (isFullPrerenderMode()) {
+    writeFileSync(notFoundFile, renderPage(getNotFoundSeo('/404'), `<main class="seo-static-page"><h1>Página não encontrada</h1><p>A página que você procura não existe.</p><p><a href="/">Voltar para o início</a></p></main>`))
+  } else if (existsSync(notFoundFile)) {
+    // Sem 404.html, o Cloudflare Pages ativa o fallback SPA para os imóveis
+    // que não couberam no limite de páginas estáticas do plano Free.
+    unlinkSync(notFoundFile)
+  }
+  console.log(`✅ prerender: ${propertyPrerenderSummary(catalog.properties, propertiesToPrerender)}, ${catalog.byCity.size} cidades, ${articles.length} guias`)
 }
 
 main()

@@ -66,11 +66,11 @@ Para um novo JSON-LD, confirme que a propriedade existe no conteúdo visível e 
 
 ## Escala e hospedagem
 
-O dataset atual gera 25.023 páginas de imóveis, 1.280 páginas de cidades e 30 guias em poucos segundos, sem abrir Chromium. A saída observada é aproximadamente 228 MB no disco (cerca de 170 MB de conteúdo bruto) e 26.375 HTMLs porque cada clean URL precisa de um arquivo HTML no Cloudflare Pages.
+O dataset atual tem 25.023 imóveis, 1.280 páginas de cidades e 30 guias. O limite do plano Free do Cloudflare Pages é de 20.000 arquivos, contando cada HTML publicado.
 
-Isso ultrapassa o limite de 20.000 arquivos do plano Free do Cloudflare Pages. Para manter a cobertura completa, o projeto precisa ser publicado em um plano pago com `PAGES_WRANGLER_MAJOR_VERSION=4` configurado nas variáveis de ambiente do projeto (o limite passa a 100.000 arquivos). O `seo:check` emite um alerta desse cenário e falha se `PAGES_FREE_PLAN=1` for definido no ambiente de CI.
+O build padrão usa o modo Free: prerenderiza 18.000 imóveis priorizados por desconto, financiamento e preço, além de todos os estados, cidades, guias e páginas institucionais. Os imóveis restantes continuam acessíveis pela SPA e não entram no sitemap até receberem HTML próprio. A ausência de `404.html` é intencional nesse modo: o Cloudflare Pages assume o fallback SPA para as rotas de imóveis não prerenderizadas.
 
-Se não for possível usar o plano pago, a alternativa é manter estados, cidades, guias e imóveis prioritários no prerender e mover os demais detalhes para uma Pages Function/Worker que devolva HTML determinístico, ou reduzir a lista indexável por critérios editoriais. Essa troca depende da infraestrutura e não é ativada automaticamente para não retirar o SEO inicial das URLs atuais.
+Para gerar a cobertura completa localmente, use `SEO_PRERENDER_MODE=full npm run build`. Esse modo ultrapassa o limite do plano Free e só deve ser usado em um plano pago com `PAGES_WRANGLER_MAJOR_VERSION=4`, que eleva o limite para 100.000 arquivos. O `seo:check` pode ser executado com `PAGES_FREE_PLAN=1` para transformar o limite em erro de CI.
 
 ## Pós-deploy
 
