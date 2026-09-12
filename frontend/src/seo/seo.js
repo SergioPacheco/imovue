@@ -2,6 +2,8 @@ export const SITE_NAME = 'Imovue'
 export const SITE_URL = 'https://imovue.com.br'
 export const DEFAULT_IMAGE = `${SITE_URL}/og-logo.png`
 export const SOCIAL_IMAGE = `${SITE_URL}/og-social.png`
+export const SOCIAL_IMAGE_WIDTH = 1731
+export const SOCIAL_IMAGE_HEIGHT = 909
 
 export const UF_NOMES = Object.freeze({
   AC: 'Acre', AL: 'Alagoas', AM: 'Amazonas', AP: 'Amapá', BA: 'Bahia',
@@ -181,8 +183,8 @@ export function faqJsonLd(items) {
   }
 }
 
-function seo({ title, description, path, robots = 'index,follow', ogType = 'website', ogImage = SOCIAL_IMAGE, ogTitle = '', ogDescription = '', ogImageAlt = 'Imovue — imóveis da CAIXA com desconto', jsonLd = [] }) {
-  return { title, description, canonical: canonicalPath(path), robots, ogType, ogImage, ogTitle, ogDescription, ogImageAlt, jsonLd }
+function seo({ title, description, path, robots = 'index,follow', ogType = 'website', ogImage = SOCIAL_IMAGE, ogImageWidth = SOCIAL_IMAGE_WIDTH, ogImageHeight = SOCIAL_IMAGE_HEIGHT, ogTitle = '', ogDescription = '', ogImageAlt = 'Imovue — imóveis da CAIXA com desconto', jsonLd = [] }) {
+  return { title, description, canonical: canonicalPath(path), robots, ogType, ogImage, ogImageWidth, ogImageHeight, ogTitle, ogDescription, ogImageAlt, jsonLd }
 }
 
 export function getHomeSeo() {

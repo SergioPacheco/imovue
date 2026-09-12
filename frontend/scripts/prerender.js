@@ -289,6 +289,9 @@ function renderHead(baseHtml, seo) {
   <meta property="og:description" content="${escapeHtml(socialDescription)}" />
   <meta property="og:url" content="${escapeHtml(seo.canonical)}" />
   <meta property="og:image" content="${escapeHtml(seo.ogImage)}" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="${escapeHtml(seo.ogImageWidth || 1731)}" />
+  <meta property="og:image:height" content="${escapeHtml(seo.ogImageHeight || 909)}" />
   <meta property="og:image:alt" content="${escapeHtml(imageAlt)}" />
   <meta property="og:site_name" content="${SITE_NAME}" />
   <meta property="og:locale" content="pt_BR" />

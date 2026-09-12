@@ -1,7 +1,6 @@
 import { onMounted, onUnmounted, watchEffect, type WatchStopHandle } from 'vue'
 import {
   DEFAULT_IMAGE,
-  SOCIAL_IMAGE,
   SITE_NAME,
   SITE_URL,
   articleJsonLd,
@@ -28,6 +27,8 @@ export interface SeoHeadOptions {
   robots?: string
   ogType?: string
   ogImage?: string
+  ogImageWidth?: number
+  ogImageHeight?: number
   ogTitle?: string
   ogDescription?: string
   ogImageAlt?: string
@@ -79,7 +80,7 @@ export function useSeoHead(source: SeoHeadSource) {
       const fullTitle = `${opts.title} | ${SITE_NAME}`
       const canonical = opts.canonical || `${SITE_URL}${window.location.pathname}`
       const robots = opts.robots || 'index,follow'
-      const image = opts.ogImage || SOCIAL_IMAGE
+      const image = opts.ogImage || `${SITE_URL}/og-social.png`
       const socialTitle = opts.ogTitle ? `${opts.ogTitle} | ${SITE_NAME}` : fullTitle
       const socialDescription = opts.ogDescription || opts.description
       const imageAlt = opts.ogImageAlt || 'Imovue — imóveis da CAIXA com desconto'
@@ -92,6 +93,9 @@ export function useSeoHead(source: SeoHeadSource) {
       setMeta('og:type', opts.ogType || 'website', 'property')
       setMeta('og:url', canonical, 'property')
       setMeta('og:image', image, 'property')
+      setMeta('og:image:type', 'image/png', 'property')
+      setMeta('og:image:width', String(opts.ogImageWidth || 1731), 'property')
+      setMeta('og:image:height', String(opts.ogImageHeight || 909), 'property')
       setMeta('og:image:alt', imageAlt, 'property')
       setMeta('og:site_name', SITE_NAME, 'property')
       setMeta('og:locale', 'pt_BR', 'property')
@@ -113,7 +117,6 @@ export function useSeoHead(source: SeoHeadSource) {
 
 export {
   DEFAULT_IMAGE,
-  SOCIAL_IMAGE,
   SITE_NAME,
   SITE_URL,
   articleJsonLd,

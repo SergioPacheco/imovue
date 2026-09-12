@@ -2,6 +2,8 @@ export const SITE_NAME: string
 export const SITE_URL: string
 export const DEFAULT_IMAGE: string
 export const SOCIAL_IMAGE: string
+export const SOCIAL_IMAGE_WIDTH: number
+export const SOCIAL_IMAGE_HEIGHT: number
 export const UF_NOMES: Record<string, string>
 
 export interface SeoData {
@@ -11,6 +13,8 @@ export interface SeoData {
   robots: string
   ogType: string
   ogImage: string
+  ogImageWidth: number
+  ogImageHeight: number
   ogTitle: string
   ogDescription: string
   ogImageAlt: string
