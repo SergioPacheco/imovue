@@ -49,7 +49,7 @@ Para a página nacional piloto, o repositório já está configurado com a pági
 
 Após uma publicação bem-sucedida, `social/published.json` guarda UF, imóvel, página, `post_id`, data e URL rastreável. A Action também consulta posts recentes da página pela Graph API, de modo que uma repetição da execução não reutilize um imóvel já publicado.
 
-O agendamento usa `13:30 UTC`, equivalente a 10:30 em Brasília no horário UTC−3. A atualização dos dados foi ajustada para segunda, quarta e sexta às 06:00 em Brasília; a publicação bloqueia datasets mais antigos que 72 horas.
+O agendamento usa `13:30 UTC`, equivalente a 10:30 em Brasília no horário UTC−3. A atualização dos imóveis continua em workflow separado, semanalmente às segundas-feiras às 06:00 em Brasília. O publicador não dispara o downloader nem altera os dados; ele apenas lê o último dataset versionado. A publicação bloqueia datasets mais antigos que 72 horas.
 
 ## Imagens
 
