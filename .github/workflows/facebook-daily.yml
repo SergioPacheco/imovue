@@ -37,6 +37,13 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add social/published.json
-          git diff --staged --quiet || git commit -m "chore(social): registrar publicações diárias"
-          git push
+          # O arquivo só é criado quando uma publicação é concluída.
+          if [ -f social/published.json ]; then
+            git add social/published.json
+          fi
+          if ! git diff --staged --quiet; then
+            git commit -m "chore(social): registrar publicações diárias"
+            git push
+          else
+            echo "Nenhum histórico novo para persistir."
+          fi
