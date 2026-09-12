@@ -1,6 +1,7 @@
 import { onMounted, onUnmounted, watchEffect, type WatchStopHandle } from 'vue'
 import {
   DEFAULT_IMAGE,
+  SOCIAL_IMAGE,
   SITE_NAME,
   SITE_URL,
   articleJsonLd,
@@ -78,7 +79,7 @@ export function useSeoHead(source: SeoHeadSource) {
       const fullTitle = `${opts.title} | ${SITE_NAME}`
       const canonical = opts.canonical || `${SITE_URL}${window.location.pathname}`
       const robots = opts.robots || 'index,follow'
-      const image = opts.ogImage || DEFAULT_IMAGE
+      const image = opts.ogImage || SOCIAL_IMAGE
       const socialTitle = opts.ogTitle ? `${opts.ogTitle} | ${SITE_NAME}` : fullTitle
       const socialDescription = opts.ogDescription || opts.description
       const imageAlt = opts.ogImageAlt || 'Imovue — imóveis da CAIXA com desconto'
@@ -112,6 +113,7 @@ export function useSeoHead(source: SeoHeadSource) {
 
 export {
   DEFAULT_IMAGE,
+  SOCIAL_IMAGE,
   SITE_NAME,
   SITE_URL,
   articleJsonLd,

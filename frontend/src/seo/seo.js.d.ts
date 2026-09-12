@@ -1,6 +1,7 @@
 export const SITE_NAME: string
 export const SITE_URL: string
 export const DEFAULT_IMAGE: string
+export const SOCIAL_IMAGE: string
 export const UF_NOMES: Record<string, string>
 
 export interface SeoData {
