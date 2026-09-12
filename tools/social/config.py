@@ -18,6 +18,7 @@ DEFAULT_MAX_DATA_AGE_HOURS = 72
 DEFAULT_GRAPH_VERSION = "v23.0"
 
 UF_NAMES = {
+    "BR": "Brasil",
     "AC": "Acre", "AL": "Alagoas", "AP": "Amapá", "AM": "Amazonas",
     "BA": "Bahia", "CE": "Ceará", "DF": "Distrito Federal", "ES": "Espírito Santo",
     "GO": "Goiás", "MA": "Maranhão", "MT": "Mato Grosso", "MS": "Mato Grosso do Sul",
@@ -50,4 +51,3 @@ def load_page_tokens() -> dict[str, str]:
 
 def graph_version() -> str:
     return os.environ.get("META_GRAPH_VERSION", DEFAULT_GRAPH_VERSION).strip() or DEFAULT_GRAPH_VERSION
-

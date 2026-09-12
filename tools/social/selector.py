@@ -8,6 +8,12 @@ from .utils import now_utc, parse_datetime, read_json
 
 
 def load_properties(uf: str) -> list[dict]:
+    if uf.upper() == "BR":
+        properties = []
+        for path in sorted(DATA_DIR.glob("*.json")):
+            if len(path.stem) == 2 and path.stem.upper() not in {"BR"}:
+                properties.extend(read_json(path, []))
+        return properties
     path = DATA_DIR / f"{uf.upper()}.json"
     if not path.exists():
         return []
@@ -49,4 +55,3 @@ def candidates(uf: str, minimum_discount: float = DEFAULT_MIN_DISCOUNT, recent_i
             continue
         result.append((imovel, rank_property(imovel, median_for(imovel, stats))))
     return sorted(result, key=lambda item: (item[1].total, float(item[0].get("percentualDesconto") or 0)), reverse=True)
-

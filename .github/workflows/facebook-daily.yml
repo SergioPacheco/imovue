@@ -30,7 +30,8 @@ jobs:
         env:
           META_PAGE_TOKENS_JSON: ${{ secrets.META_PAGE_TOKENS_JSON }}
           META_GRAPH_VERSION: ${{ vars.META_GRAPH_VERSION }}
-        run: python tools/social/post_daily.py --all --publish
+        # Página nacional piloto. Trocar para --all quando as páginas estaduais forem habilitadas.
+        run: python tools/social/post_daily.py --uf BR --publish
 
       - name: Persistir histórico de publicações
         run: |

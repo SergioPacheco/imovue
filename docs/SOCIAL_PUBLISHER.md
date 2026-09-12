@@ -43,7 +43,7 @@ META_PAGE_TOKENS_JSON='{"SC":"..."}' \
 python tools/social/post_daily.py --uf SC --dry-run
 ```
 
-Depois habilite somente SC e use `--publish`. A Action diária já está criada em `.github/workflows/facebook-daily.yml`, mas páginas vêm desabilitadas por padrão.
+Para a página nacional piloto, o repositório já está configurado com a página `BR` e o ID público informado. Adicione o token no Secret e execute `--uf BR --publish`; a Action diária usa esse modo e publica apenas uma oportunidade nacional por dia. Quando as páginas estaduais forem habilitadas, altere a Action para `--all --publish`.
 
 ## Histórico e Action
 
