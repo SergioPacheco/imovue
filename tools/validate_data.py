@@ -1,6 +1,7 @@
 """
 Valida JSONs gerados antes de commitar.
-Falha se algum JSON está vazio, corrompido ou perdeu >50% dos imóveis.
+Falha se algum JSON está corrompido ou se o dataset inteiro está vazio.
+Uma UF pode estar sem oferta na lista atual.
 """
 
 import json
@@ -8,7 +9,7 @@ import os
 import sys
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "frontend", "public", "data")
-MIN_IMOVEIS_POR_UF = 1
+MIN_IMOVEIS_POR_UF = 0
 
 
 def run():
@@ -44,8 +45,8 @@ def run():
             erros.append(f"{uf}: JSON não é uma lista")
             continue
 
-        if len(data) < MIN_IMOVEIS_POR_UF:
-            erros.append(f"{uf}: apenas {len(data)} imóveis (mínimo: {MIN_IMOVEIS_POR_UF})")
+        if len(data) == 0:
+            print(f"⚠️ {uf}: nenhum imóvel disponível na lista atual")
             continue
 
         # Verifica estrutura mínima do primeiro imóvel
@@ -55,13 +56,16 @@ def run():
         if faltando:
             erros.append(f"{uf}: campos ausentes no JSON — {faltando}")
 
+    total = sum(entry["total"] for entry in manifest)
+    if total == 0:
+        erros.append("dataset inteiro está vazio")
+
     if erros:
         print("❌ Validação FALHOU — commit abortado:")
         for e in erros:
             print(f"   • {e}")
         sys.exit(1)
 
-    total = sum(entry["total"] for entry in manifest)
     print(f"✅ Validação OK — {len(manifest)} UFs, {total} imóveis")
 
 
