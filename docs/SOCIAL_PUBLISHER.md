@@ -36,6 +36,10 @@ Para a primeira página, use um secret individual:
 META_PAGE_TOKEN_BR=PAGE_ACCESS_TOKEN
 ```
 
+Para testes locais, copie `.env.example` para `.env` e preencha o token. O
+arquivo `.env` é ignorado pelo Git; variáveis já exportadas no ambiente têm
+precedência.
+
 O código também aceita `META_PAGE_TOKENS_JSON` para compatibilidade e para uma futura configuração centralizada, mas secrets individuais são preferíveis para reduzir o risco de exposição acidental em logs.
 
 O token nunca é impresso no log. A versão da Graph API pode ser definida em `META_GRAPH_VERSION`; o código usa `v23.0` como padrão. A publicação usa `/{page_id}/photos`, enviando o card gerado e o texto como legenda.

@@ -29,6 +29,24 @@ UF_NAMES = {
 }
 
 
+def load_local_env() -> None:
+    """Carrega um .env simples sem substituir variáveis já exportadas."""
+    env_path = ROOT_DIR / ".env"
+    if not env_path.exists():
+        return
+    for raw_line in env_path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        value = value.strip()
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
+            value = value[1:-1]
+        if key and key not in os.environ:
+            os.environ[key] = value
+
+
 def load_pages() -> dict[str, dict]:
     if not PAGES_FILE.exists():
         return {}
@@ -37,12 +55,13 @@ def load_pages() -> dict[str, dict]:
 
 
 def load_page_tokens() -> dict[str, str]:
+    load_local_env()
     # Prefere um secret separado por página; o JSON permanece compatível para
     # facilitar a expansão para as futuras páginas estaduais.
     individual = {
         key.removeprefix("META_PAGE_TOKEN_").upper(): value
         for key, value in os.environ.items()
-        if key.startswith("META_PAGE_TOKEN_") and value.strip()
+        if key.startswith("META_PAGE_TOKEN_") and key != "META_PAGE_TOKENS_JSON" and value.strip()
     }
     raw = os.environ.get("META_PAGE_TOKENS_JSON", "{}").strip()
     if not raw:
@@ -59,4 +78,5 @@ def load_page_tokens() -> dict[str, str]:
 
 
 def graph_version() -> str:
+    load_local_env()
     return os.environ.get("META_GRAPH_VERSION", DEFAULT_GRAPH_VERSION).strip() or DEFAULT_GRAPH_VERSION
