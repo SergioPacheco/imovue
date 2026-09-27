@@ -46,6 +46,7 @@ python tools/validate_data.py
 | `geocode.py` | Adiciona lat/lng usando tabela de municípios IBGE |
 | `validate_data.py` | Valida JSONs antes de commit (evita dados corrompidos) |
 | `social/post_daily.py` | Seleciona imóveis, gera posts/cards e publica páginas configuradas |
+| `social/prune_stale.py` | Deleta posts de imóveis que saíram do catálogo (`--dry-run` para prever) |
 
 ## Workflows automáticos
 
@@ -57,9 +58,14 @@ Ele:
 
 1. baixa as listas públicas da CAIXA;
 2. converte os CSVs em JSONs por UF;
-3. adiciona geolocalização;
-4. valida os dados;
-5. faz commit e push dos JSONs atualizados para o branch `main`.
+3. valida os dados;
+4. faz commit e push dos JSONs atualizados para o branch `main`.
+
+### Geocodificação por estado
+
+O workflow `.github/workflows/geocode.yml` roda diariamente às **12:00 UTC (09:00 em Brasília)** com **1 job por UF em paralelo** (limite de 4 simultâneos, por causa da política de uso do Nominatim) e também aceita disparo manual para uma UF específica.
+
+Cada job geocodifica só a sua UF, valida e commita o JSON + o cache da UF (`tools/.geocode_cache_UF.json`). A falha de um estado nunca bloqueia os outros, e o push usa rebase com retry porque cada job toca arquivos próprios. Com cache, dias sem bairro novo não fazem nenhum request ao Nominatim.
 
 Os CSVs brutos permanecem ignorados. O frontend e o publicador social leem os JSONs versionados em `frontend/public/data/`.
 
@@ -67,11 +73,13 @@ Os CSVs brutos permanecem ignorados. O frontend e o publicador social leem os JS
 
 Atualmente, a publicação automática é feita somente no Facebook. O workflow `.github/workflows/facebook-daily.yml` executa diariamente às **13:30 UTC (10:30 em Brasília)** e também pode ser iniciado manualmente. Os cards gerados podem ser reutilizados manualmente em outras redes; não há publicação automática no Instagram, LinkedIn ou X neste momento.
 
-Atualmente ele publica na página nacional **Imovue Brasil**, usando:
+Atualmente ele publica na página nacional **Imovue Brasil**, até 3 vezes ao dia nos slots **10:00, 14:30 e 19:30 (Brasília)**, usando:
 
 ```bash
 python tools/social/post_daily.py --uf BR --publish
 ```
+
+Cada execução publica no máximo 1 post (somente dentro do slot) — nunca o dia inteiro de uma vez. Frequência e horários são configuráveis sem mudar código (`IMOVUE_FACEBOOK_POSTS_PER_DAY`, grade em `tools/social/config.py`).
 
 Quando as páginas estaduais estiverem configuradas, o comando poderá ser alterado para:
 
@@ -88,7 +96,8 @@ Para cada UF com candidato elegível, o sistema:
 - seleciona uma oportunidade com preço, cidade, número do imóvel e desconto mínimo de 25%;
 - evita imóveis publicados nos últimos 60 dias;
 - calcula um score usando desconto, financiamento, preço por m², completude dos dados e imagem disponível;
-- gera um card PNG de 1200×630 pixels;
+- sorteia o post por peso do score dentro do top-20, penalizando cidade/UF repetidas nos últimos 14 dias;
+- gera um card feed PNG de 1080×1350 (4:5) e um card story de 1080×1920 (9:16, para reuso manual no Instagram);
 - cria uma legenda com estado, tipo do imóvel, cidade, bairro, preço, avaliação, desconto, financiamento, área e modalidade;
 - inclui um link rastreável para a página interna do imóvel no Imovue;
 - inclui o aviso para consultar edital e condições diretamente na CAIXA;
@@ -104,7 +113,7 @@ Essa página interna apresenta os dados analisados e contém o link `urlOficial`
 
 Após uma publicação bem-sucedida, a Action grava o imóvel, a UF, a página, o `post_id`, a data e a URL em `social/published.json`, e faz commit desse histórico no GitHub. O token nunca é gravado no repositório.
 
-O publicador bloqueia datasets com mais de 72 horas, mas não baixa os dados nem dispara o deploy do frontend. A sequência recomendada é: atualizar dados, aguardar o deploy do Cloudflare Pages, verificar a URL do imóvel em produção e só então publicar nas redes sociais.
+O publicador não tem trava de frescor: a idade do dataset é apenas informativa no log. A sequência recomendada continua sendo: atualizar dados, aguardar o deploy do Cloudflare Pages, verificar a URL do imóvel em produção e só então publicar nas redes sociais.
 
 ### Configuração das páginas estaduais
 

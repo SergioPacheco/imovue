@@ -18,11 +18,13 @@ python tools/social/post_daily.py --all --generate-only
 
 Os arquivos são gravados em `out/social/YYYY-MM-DD/UF.txt` e `UF.png`. O diretório `out/` não entra no Git.
 
-O modo `--publish` só publica quando a UF está habilitada, possui `pageId`, token e dataset com no máximo 72 horas. O limite pode ser conferido com `--max-data-age-hours`; `--allow-stale` existe apenas para exceções manuais.
+Não há trava de frescor: a idade do dataset é apenas informativa no log. As flags `--max-data-age-hours` e `--allow-stale` permanecem por compatibilidade mas não bloqueiam mais a publicação.
 
 ## Seleção e ranking
 
 São eliminados imóveis sem preço, desconto, cidade ou número, com desconto abaixo de 25% e imóveis registrados no histórico nos últimos 60 dias. O score de 0 a 100 combina desconto, financiamento, comparação de preço/m² com a mediana do bairro no catálogo, completude dos dados e imagem própria disponível.
+
+A escolha final é um sorteio ponderado pelo score dentro do top-N (`--top-n`, padrão 20; `--top-n 1` reproduz o antigo top-1 determinístico). `--seed` permite sorteio reprodutível. A anti-repetição (`--no-repeat-city-days`, padrão 14, `0` desativa) penaliza candidatos cuja cidade (peso ×0,2) ou UF do imóvel (peso ×0,5) apareceu em publicações recentes, sem excluí-los. Novos registros em `published.json` guardam `cidade` e `uf_imovel` para isso; registros antigos têm a localização resolvida via catálogo quando possível.
 
 O sistema não afirma que um imóvel está abaixo do mercado. A mediana é apenas dos imóveis presentes no catálogo atual do Imovue.
 
@@ -53,12 +55,42 @@ python tools/social/post_daily.py --uf SC --dry-run
 
 Para a página nacional piloto, o repositório já está configurado com a página `BR` e o ID público informado. Adicione o token no Secret e execute `--uf BR --publish`; a Action diária usa esse modo e publica apenas uma oportunidade nacional por dia. Quando as páginas estaduais forem habilitadas, altere a Action para `--all --publish`.
 
+## Estratégia de publicação (página nacional)
+
+A grade é centralizada em `tools/social/config.py` (`SCHEDULES`); nenhuma lógica de horário fica espalhada no código. Horários sempre locais do Brasil (`IMOVUE_FACEBOOK_TIMEZONE`, padrão `America/Sao_Paulo` — nunca UTC/Spain/server para decisão).
+
+| Posts/dia (`IMOVUE_FACEBOOK_POSTS_PER_DAY`) | Slots (BRT) |
+|---|---|
+| 2 | 11:30, 19:00 |
+| 3 (padrão e fallback) | 10:00, 14:30, 19:30 |
+| 4 | 09:30, 12:30, 16:30, 20:00 |
+
+Valor ausente ou fora de {2,3,4} cai para 3. O workflow dispara em todos os slots possíveis (crons em UTC) e o script publica **no máximo 1 post por execução**, somente se "agora" estiver dentro do slot (tolerância de 50 min para atraso do runner). Repetição do mesmo slot no dia é ignorada por idempotência (`scheduled_for` já publicado).
+
+- **Anti-duplicidade:** `IMOVUE_FACEBOOK_REPOST_AFTER_DAYS` (padrão 30) + verificação remota dos posts da página. Falha de API registra `status: error` e **não** marca o imóvel como publicado.
+- **Variedade intra-dia:** sorteio ponderado no top-20 penaliza UF/cidade/bairro/tipo/faixa de preço já publicados hoje, além da anti-repetição de 14 dias por cidade/UF.
+- **Copy:** abertura rotativa por slot (4 variantes, "alto desconto" só com desconto ≥40%), localização `Bairro – Cidade/UF`, estrutura fixa (venda, avaliação, desconto, área, quartos, modalidade) e 4–6 hashtags (`#ImoveisCaixa #ImoveisComDesconto #OportunidadeImobiliaria #Imovue` + cidade/estado sem acentos).
+- **Registros:** cada tentativa grava `property_id, scheduled_for, published_at, timezone, post_id, url, status, error` — base pronta para futura análise de desempenho por horário (alcance, CTR etc., sem ML por ora).
+- **Teste seguro:** `--dry-run` e `--generate-only` nunca tocam a API (tokens nem são carregados); `--slot HH:MM` força um slot para teste local.
+
 ## Histórico e Action
 
-Após uma publicação bem-sucedida, `social/published.json` guarda UF, imóvel, página, `post_id`, data e URL rastreável. A Action também consulta posts recentes da página pela Graph API, de modo que uma repetição da execução não reutilize um imóvel já publicado.
+Após uma publicação bem-sucedida, `social/published.json` guarda UF, imóvel, cidade/UF do imóvel, página, `post_id`, data e URL rastreável. A Action também consulta posts recentes da página pela Graph API, de modo que uma repetição da execução não reutilize um imóvel já publicado.
 
-O agendamento usa `13:30 UTC`, equivalente a 10:30 em Brasília no horário UTC−3. A atualização dos imóveis continua em workflow separado, semanalmente às segundas-feiras às 06:00 em Brasília. O publicador não dispara o downloader nem altera os dados; ele apenas lê o último dataset versionado. A publicação bloqueia datasets mais antigos que 72 horas.
+## Limpeza de posts obsoletos
+
+`tools/social/prune_stale.py` cruza o `published.json` com o catálogo atual e deleta da página (Graph API `DELETE /{post_id}`) os posts cujos imóveis saíram do catálogo. A entrada é mantida com `status: removed`, `removed_at` e `remove_detail` para auditoria. Preveja antes de aplicar:
+
+```bash
+python tools/social/prune_stale.py --dry-run   # só lista
+python tools/social/prune_stale.py             # deleta de verdade
+python tools/social/prune_stale.py --uf BR     # limita ao escopo BR
+```
+
+A Action diária (`facebook-daily.yml`) roda a limpeza automaticamente antes de publicar (com `continue-on-error`, sem bloquear a publicação) e persiste o histórico atualizado no mesmo commit.
+
+O agendamento usa `13:30 UTC`, equivalente a 10:30 em Brasília no horário UTC−3. A atualização dos imóveis continua em workflow separado, semanalmente às segundas-feiras às 06:00 em Brasília. O publicador não dispara o downloader nem altera os dados; ele apenas lê o último dataset versionado. Não há bloqueio por idade do dataset — apenas um aviso informativo no log.
 
 ## Imagens
 
-Os cards automáticos têm 1200×630 px, usam identidade própria e não dependem das fotografias temporárias da CAIXA. As variantes manuais para Instagram estão descritas em [SOCIAL_IMAGES.md](SOCIAL_IMAGES.md).
+Os cards automáticos usam identidade própria e não dependem das fotografias temporárias da CAIXA. Cada UF gera dois arquivos: `UF.png` (feed 1080×1350, proporção 4:5 — é esta a imagem publicada no Facebook) e `UF_story.png` (story 1080×1920, 9:16, para reuso manual no Instagram). Layout: fundo marinho em gradiente, cartão branco com selo de desconto + preço + avaliação riscada, botão CTA âmbar e rodapé de 1 linha; na arte aparecem apenas tipo, cidade/UF (a UF é sempre a do imóvel), bairro, preço, avaliação, desconto e marca. As variantes manuais para Instagram estão descritas em [SOCIAL_IMAGES.md](SOCIAL_IMAGES.md).

@@ -16,15 +16,6 @@ jobs:
         with:
           python-version: '3.11'
 
-      # Cache do geocode entre runs (evita re-requests ao Nominatim)
-      - name: Restaurar cache de geocodificação
-        uses: actions/cache@v5
-        with:
-          path: tools/.geocode_cache.json
-          key: geocode-cache-${{ github.run_number }}
-          restore-keys: |
-            geocode-cache-
-
       - name: Instalar dependências
         run: |
           pip install playwright requests
@@ -37,9 +28,6 @@ jobs:
       - name: Gerar JSONs
         run: python tools/csv_to_json.py
 
-      - name: Geocodificar (por bairro — otimizado)
-        run: python tools/geocode.py
-
       - name: Validar dados
         run: python tools/validate_data.py
 
@@ -48,7 +36,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           # Os CSVs brutos em data/listas/ são ignorados de propósito.
-          # Apenas os JSONs gerados e o cache de geocodificação entram no commit.
-          git add frontend/public/data/ tools/.geocode_cache.json
+          # Só os JSONs entram aqui; a geocodificação roda desacoplada
+          # em geocode.yml (1 job por UF) e commita lat/lng depois.
+          git add frontend/public/data/
           git diff --staged --quiet || git commit -m "chore(data): atualizar imóveis $(date +%Y-%m-%d)"
           git push

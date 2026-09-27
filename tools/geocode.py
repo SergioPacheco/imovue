@@ -58,15 +58,37 @@ def load_city_lookup() -> dict:
     return lookup
 
 
-def load_cache() -> dict:
-    if os.path.exists(CACHE_FILE):
-        with open(CACHE_FILE) as f:
+def cache_path_for(uf_filter: str | None) -> str:
+    """Cache por UF (jobs paralelos não disputam o mesmo arquivo).
+
+    Na primeira execução, o cache da UF é semeado a partir do cache
+    compartilhado legado, preservando o trabalho já feito.
+    """
+    if not uf_filter:
+        return CACHE_FILE
+    per_uf = os.path.join(os.path.dirname(__file__), f".geocode_cache_{uf_filter}.json")
+    if not os.path.exists(per_uf) and os.path.exists(CACHE_FILE):
+        try:
+            with open(CACHE_FILE) as f:
+                legacy = json.load(f)
+            seed = {k: v for k, v in legacy.items() if k.endswith(f"|{uf_filter}")}
+            with open(per_uf, "w", encoding="utf-8") as f:
+                json.dump(seed, f, ensure_ascii=False)
+            print(f"   cache {uf_filter} semeado com {len(seed)} entradas do cache legado")
+        except Exception as exc:
+            print(f"   aviso: semeadura do cache falhou ({exc}); começando vazio")
+    return per_uf
+
+
+def load_cache(path: str) -> dict:
+    if os.path.exists(path):
+        with open(path) as f:
             return json.load(f)
     return {}
 
 
-def save_cache(cache: dict):
-    with open(CACHE_FILE, "w", encoding="utf-8") as f:
+def save_cache(cache: dict, path: str | None = None):
+    with open(path or CACHE_FILE, "w", encoding="utf-8") as f:
         json.dump(cache, f, ensure_ascii=False)
 
 
@@ -96,8 +118,9 @@ def run():
     city_lookup = load_city_lookup()
     print(f"   {len(city_lookup)} cidades no fallback IBGE")
 
-    cache = {} if force else load_cache()
-    print(f"   {len(cache)} bairros em cache")
+    cache_file = cache_path_for(uf_filter)
+    cache = {} if force else load_cache(cache_file)
+    print(f"   {len(cache)} bairros em cache ({os.path.basename(cache_file)})")
 
     manifest_path = os.path.join(DATA_DIR, "manifest.json")
     with open(manifest_path) as f:
@@ -152,7 +175,7 @@ def run():
                     time.sleep(NOMINATIM_DELAY)
 
                     if requests_made % 50 == 0:
-                        save_cache(cache)
+                        save_cache(cache, cache_file)
                         print(f"   ... {requests_made} requests feitos")
 
                 # Cachear resultado (positivo ou negativo)
@@ -183,7 +206,7 @@ def run():
         geocoded = sum(1 for i in data if i.get('lat'))
         print(f"   {uf}: {geocoded}/{len(data)} geocodificados ({len(bairro_groups)} bairros processados)")
 
-    save_cache(cache)
+    save_cache(cache, cache_file)
 
     print(f"\n✅ Resultado:")
     print(f"   Já geocodificados:    {stats['already_geocoded']}")
