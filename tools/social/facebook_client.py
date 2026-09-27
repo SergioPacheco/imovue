@@ -80,3 +80,8 @@ class FacebookClient:
                 data={"message": caption, "published": "true"},
             )
         return str(result.get("post_id") or result.get("id") or "")
+
+    def delete_post(self, post_id: str) -> bool:
+        """Deleta um post/foto da página. Retorna True se removido."""
+        result = self._request("DELETE", post_id, params={})
+        return result.get("success") is True

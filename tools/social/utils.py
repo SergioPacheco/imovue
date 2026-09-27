@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import json
 import re
-from datetime import datetime, timezone
+import unicodedata
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.parse import urlencode
 
@@ -52,6 +53,14 @@ def area(value: object) -> str:
     return f"{float(value):,.0f}".replace(",", ".") + " m²"
 
 
+def hashtag(value: object) -> str:
+    """Normaliza texto para hashtag (sem acentos, espaços ou símbolos)."""
+    text = unicodedata.normalize("NFKD", clean_text(value))
+    text = "".join(char for char in text if not unicodedata.combining(char))
+    text = re.sub(r"[^A-Za-z0-9]", "", text)
+    return f"#{text}" if text else ""
+
+
 def property_url(imovel: dict, uf: str) -> str:
     property_id = clean_text(imovel.get("numeroImovel"))
     query = urlencode({
@@ -65,6 +74,15 @@ def property_url(imovel: dict, uf: str) -> str:
 
 def now_utc() -> datetime:
     return datetime.now(timezone.utc)
+
+
+def local_now(tz_name: str) -> datetime:
+    """Hora atual no timezone percebido pelo público (fallback: UTC-3 fixo)."""
+    try:
+        from zoneinfo import ZoneInfo
+        return datetime.now(ZoneInfo(tz_name))
+    except Exception:
+        return datetime.now(timezone(timedelta(hours=-3)))
 
 
 def parse_datetime(value: object) -> datetime | None:

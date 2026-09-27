@@ -13,9 +13,23 @@ OUTPUT_DIR = ROOT_DIR / "out" / "social"
 
 SITE_URL = "https://imovue.com.br"
 DEFAULT_MIN_DISCOUNT = 25.0
-DEFAULT_RECENT_DAYS = 60
-DEFAULT_MAX_DATA_AGE_HOURS = 72
+DEFAULT_RECENT_DAYS = 30
+DEFAULT_MAX_DATA_AGE_HOURS = 72  # Obsoleto: mantido por compatibilidade, sem efeito.
 DEFAULT_GRAPH_VERSION = "v23.0"
+
+# Estratégia de publicação da página nacional (horários locais do Brasil).
+# Centraliza aqui: nenhuma lógica de horário deve ficar espalhada no código.
+DEFAULT_TIMEZONE = "America/Sao_Paulo"
+DEFAULT_POSTS_PER_DAY = 3
+ALLOWED_POSTS_PER_DAY = (2, 3, 4)
+# Slots por quantidade diária (horário local America/Sao_Paulo).
+SCHEDULES = {
+    2: ("11:30", "19:00"),
+    3: ("10:00", "14:30", "19:30"),
+    4: ("09:30", "12:30", "16:30", "20:00"),
+}
+# Janela após o disparo do cron em que o slot ainda vale (atraso do runner).
+SLOT_TOLERANCE_MINUTES = 50
 
 UF_NAMES = {
     "BR": "Brasil",
@@ -80,3 +94,31 @@ def load_page_tokens() -> dict[str, str]:
 def graph_version() -> str:
     load_local_env()
     return os.environ.get("META_GRAPH_VERSION", DEFAULT_GRAPH_VERSION).strip() or DEFAULT_GRAPH_VERSION
+
+
+def facebook_timezone() -> str:
+    load_local_env()
+    return os.environ.get("IMOVUE_FACEBOOK_TIMEZONE", DEFAULT_TIMEZONE).strip() or DEFAULT_TIMEZONE
+
+
+def posts_per_day() -> int:
+    """Quantidade diária (2-4); ausente ou inválido cai para 3."""
+    load_local_env()
+    try:
+        value = int(os.environ.get("IMOVUE_FACEBOOK_POSTS_PER_DAY", DEFAULT_POSTS_PER_DAY))
+    except (TypeError, ValueError):
+        return DEFAULT_POSTS_PER_DAY
+    return value if value in ALLOWED_POSTS_PER_DAY else DEFAULT_POSTS_PER_DAY
+
+
+def repost_after_days() -> int:
+    load_local_env()
+    try:
+        value = int(os.environ.get("IMOVUE_FACEBOOK_REPOST_AFTER_DAYS", DEFAULT_RECENT_DAYS))
+    except (TypeError, ValueError):
+        return DEFAULT_RECENT_DAYS
+    return value if value > 0 else DEFAULT_RECENT_DAYS
+
+
+def schedule_for(count: int) -> tuple[str, ...]:
+    return SCHEDULES.get(count, SCHEDULES[DEFAULT_POSTS_PER_DAY])

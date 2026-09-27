@@ -1,8 +1,19 @@
 name: Facebook - Imóveis do dia
 
 on:
+  # União de todos os slots possíveis (horário de Brasília +3h = UTC).
+  # O script decide se "agora" é um slot ativo da grade configurada
+  # (IMOVUE_FACEBOOK_POSTS_PER_DAY) e publica no máximo 1 post por execução.
   schedule:
-    - cron: '30 13 * * *'
+    - cron: '30 12 * * *'  # 09:30 BRT
+    - cron: '0 13 * * *'   # 10:00 BRT
+    - cron: '30 14 * * *'  # 11:30 BRT
+    - cron: '30 15 * * *'  # 12:30 BRT
+    - cron: '30 17 * * *'  # 14:30 BRT
+    - cron: '30 19 * * *'  # 16:30 BRT
+    - cron: '0 22 * * *'   # 19:00 BRT
+    - cron: '30 22 * * *'  # 19:30 BRT
+    - cron: '0 23 * * *'   # 20:00 BRT
   workflow_dispatch:
 
 concurrency:
@@ -26,10 +37,21 @@ jobs:
       - name: Instalar dependências sociais
         run: python -m pip install -r requirements-social.txt
 
-      - name: Publicar oportunidades
+      - name: Remover posts de imóveis fora do catálogo
         env:
           META_PAGE_TOKEN_BR: ${{ secrets.META_PAGE_TOKEN_BR }}
           META_GRAPH_VERSION: ${{ vars.META_GRAPH_VERSION }}
+        # Não bloqueia a publicação se a limpeza falhar.
+        continue-on-error: true
+        run: python tools/social/prune_stale.py
+
+      - name: Publicar oportunidade do slot
+        env:
+          META_PAGE_TOKEN_BR: ${{ secrets.META_PAGE_TOKEN_BR }}
+          META_GRAPH_VERSION: ${{ vars.META_GRAPH_VERSION }}
+          IMOVUE_FACEBOOK_TIMEZONE: America/Sao_Paulo
+          IMOVUE_FACEBOOK_POSTS_PER_DAY: '3'
+          IMOVUE_FACEBOOK_REPOST_AFTER_DAYS: '30'
         # Página nacional piloto. Trocar para --all quando as páginas estaduais forem habilitadas.
         run: python tools/social/post_daily.py --uf BR --publish
 
@@ -37,7 +59,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          # O arquivo só é criado quando uma publicação é concluída.
+          # O arquivo muda tanto na limpeza (status removed) quanto na publicação.
           if [ -f social/published.json ]; then
             git add social/published.json
           fi
