@@ -26,7 +26,42 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
+    # Tokens de todas as páginas (Secrets inexistentes viram string vazia e a
+    # UF é ignorada sem erro). Vale para o prune e para a publicação.
+    env:
+      META_PAGE_TOKEN_BR: ${{ secrets.META_PAGE_TOKEN_BR }}
+      META_PAGE_TOKEN_AC: ${{ secrets.META_PAGE_TOKEN_AC }}
+      META_PAGE_TOKEN_AL: ${{ secrets.META_PAGE_TOKEN_AL }}
+      META_PAGE_TOKEN_AP: ${{ secrets.META_PAGE_TOKEN_AP }}
+      META_PAGE_TOKEN_AM: ${{ secrets.META_PAGE_TOKEN_AM }}
+      META_PAGE_TOKEN_BA: ${{ secrets.META_PAGE_TOKEN_BA }}
+      META_PAGE_TOKEN_CE: ${{ secrets.META_PAGE_TOKEN_CE }}
+      META_PAGE_TOKEN_DF: ${{ secrets.META_PAGE_TOKEN_DF }}
+      META_PAGE_TOKEN_ES: ${{ secrets.META_PAGE_TOKEN_ES }}
+      META_PAGE_TOKEN_GO: ${{ secrets.META_PAGE_TOKEN_GO }}
+      META_PAGE_TOKEN_MA: ${{ secrets.META_PAGE_TOKEN_MA }}
+      META_PAGE_TOKEN_MT: ${{ secrets.META_PAGE_TOKEN_MT }}
+      META_PAGE_TOKEN_MS: ${{ secrets.META_PAGE_TOKEN_MS }}
+      META_PAGE_TOKEN_MG: ${{ secrets.META_PAGE_TOKEN_MG }}
+      META_PAGE_TOKEN_PA: ${{ secrets.META_PAGE_TOKEN_PA }}
+      META_PAGE_TOKEN_PB: ${{ secrets.META_PAGE_TOKEN_PB }}
+      META_PAGE_TOKEN_PR: ${{ secrets.META_PAGE_TOKEN_PR }}
+      META_PAGE_TOKEN_PE: ${{ secrets.META_PAGE_TOKEN_PE }}
+      META_PAGE_TOKEN_PI: ${{ secrets.META_PAGE_TOKEN_PI }}
+      META_PAGE_TOKEN_RJ: ${{ secrets.META_PAGE_TOKEN_RJ }}
+      META_PAGE_TOKEN_RN: ${{ secrets.META_PAGE_TOKEN_RN }}
+      META_PAGE_TOKEN_RS: ${{ secrets.META_PAGE_TOKEN_RS }}
+      META_PAGE_TOKEN_RO: ${{ secrets.META_PAGE_TOKEN_RO }}
+      META_PAGE_TOKEN_RR: ${{ secrets.META_PAGE_TOKEN_RR }}
+      META_PAGE_TOKEN_SC: ${{ secrets.META_PAGE_TOKEN_SC }}
+      META_PAGE_TOKEN_SP: ${{ secrets.META_PAGE_TOKEN_SP }}
+      META_PAGE_TOKEN_SE: ${{ secrets.META_PAGE_TOKEN_SE }}
+      META_PAGE_TOKEN_TO: ${{ secrets.META_PAGE_TOKEN_TO }}
+      META_GRAPH_VERSION: ${{ vars.META_GRAPH_VERSION }}
+      IMOVUE_FACEBOOK_TIMEZONE: America/Sao_Paulo
+      IMOVUE_FACEBOOK_POSTS_PER_DAY: '3'
+      IMOVUE_FACEBOOK_REPOST_AFTER_DAYS: '30'
     steps:
       - uses: actions/checkout@v5
 
@@ -38,22 +73,14 @@ jobs:
         run: python -m pip install -r requirements-social.txt
 
       - name: Remover posts de imóveis fora do catálogo
-        env:
-          META_PAGE_TOKEN_BR: ${{ secrets.META_PAGE_TOKEN_BR }}
-          META_GRAPH_VERSION: ${{ vars.META_GRAPH_VERSION }}
         # Não bloqueia a publicação se a limpeza falhar.
         continue-on-error: true
         run: python tools/social/prune_stale.py
 
       - name: Publicar oportunidade do slot
-        env:
-          META_PAGE_TOKEN_BR: ${{ secrets.META_PAGE_TOKEN_BR }}
-          META_GRAPH_VERSION: ${{ vars.META_GRAPH_VERSION }}
-          IMOVUE_FACEBOOK_TIMEZONE: America/Sao_Paulo
-          IMOVUE_FACEBOOK_POSTS_PER_DAY: '3'
-          IMOVUE_FACEBOOK_REPOST_AFTER_DAYS: '30'
-        # Página nacional piloto. Trocar para --all quando as páginas estaduais forem habilitadas.
-        run: python tools/social/post_daily.py --uf BR --publish
+        # Publica em todas as páginas habilitadas (enabled + pageId + token).
+        # UFs sem configuração são ignoradas sem erro.
+        run: python tools/social/post_daily.py --all --publish
 
       - name: Persistir histórico de publicações
         run: |

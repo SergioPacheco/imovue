@@ -10,7 +10,8 @@ if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
     from social.compose_post import compose_post
     from social.config import (DATA_DIR, DEFAULT_MAX_DATA_AGE_HOURS, DEFAULT_MIN_DISCOUNT,
-                               OUTPUT_DIR, SLOT_TOLERANCE_MINUTES, STATE_FILE, UF_NAMES,
+                               OUTPUT_DIR, PUBLISHED_HISTORY_LIMIT, SLOT_TOLERANCE_MINUTES,
+                               STATE_FILE, UF_NAMES,
                                facebook_timezone, load_page_tokens, load_pages,
                                posts_per_day, repost_after_days, schedule_for)
     from social.facebook_client import FacebookAPIError, FacebookClient
@@ -20,7 +21,8 @@ if __package__ in (None, ""):
 else:
     from .compose_post import compose_post
     from .config import (DATA_DIR, DEFAULT_MAX_DATA_AGE_HOURS, DEFAULT_MIN_DISCOUNT,
-                         OUTPUT_DIR, SLOT_TOLERANCE_MINUTES, STATE_FILE, UF_NAMES,
+                         OUTPUT_DIR, PUBLISHED_HISTORY_LIMIT, SLOT_TOLERANCE_MINUTES,
+                         STATE_FILE, UF_NAMES,
                          facebook_timezone, load_page_tokens, load_pages,
                          posts_per_day, repost_after_days, schedule_for)
     from .facebook_client import FacebookAPIError, FacebookClient
@@ -361,7 +363,7 @@ def _record(state: list, imovel: dict, uf: str, page_id: str, post_id: str,
         "error": error,
         "url": property_url(imovel, uf),
     })
-    write_json(STATE_FILE, state[-1000:])
+    write_json(STATE_FILE, state[-PUBLISHED_HISTORY_LIMIT:])
 
 
 def _safe_error(exc: Exception) -> str:

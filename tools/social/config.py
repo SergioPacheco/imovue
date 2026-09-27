@@ -30,6 +30,9 @@ SCHEDULES = {
 }
 # Janela após o disparo do cron em que o slot ainda vale (atraso do runner).
 SLOT_TOLERANCE_MINUTES = 50
+# Teto do histórico (cobre 27 páginas × 3 posts/dia por mais de 100 dias,
+# bem acima da janela anti-duplicidade de 30 dias).
+PUBLISHED_HISTORY_LIMIT = 10000
 
 UF_NAMES = {
     "BR": "Brasil",

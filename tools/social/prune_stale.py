@@ -20,11 +20,11 @@ from pathlib import Path
 
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-    from social.config import DATA_DIR, STATE_FILE, load_page_tokens
+    from social.config import DATA_DIR, PUBLISHED_HISTORY_LIMIT, STATE_FILE, load_page_tokens
     from social.facebook_client import FacebookAPIError, FacebookClient
     from social.utils import now_utc, read_json, write_json
 else:
-    from .config import DATA_DIR, STATE_FILE, load_page_tokens
+    from .config import DATA_DIR, PUBLISHED_HISTORY_LIMIT, STATE_FILE, load_page_tokens
     from .facebook_client import FacebookAPIError, FacebookClient
     from .utils import now_utc, read_json, write_json
 
@@ -124,7 +124,7 @@ def main() -> int:
                 print(f"[{scope}] {property_id} | ERRO — {exc}")
 
     if changed:
-        write_json(STATE_FILE, state[-1000:])
+        write_json(STATE_FILE, state[-PUBLISHED_HISTORY_LIMIT:])
         print("💾 Histórico atualizado com status de remoção.")
     return 0
 
