@@ -72,7 +72,11 @@ def data_age_hours() -> float | None:
 
 
 def available_ufs() -> list[str]:
-    return sorted(path.stem.upper() for path in DATA_DIR.glob("*.json") if len(path.stem) == 2 and path.stem.upper() in UF_NAMES)
+    ufs = sorted(path.stem.upper() for path in DATA_DIR.glob("*.json") if len(path.stem) == 2 and path.stem.upper() in UF_NAMES)
+    # Agregado nacional: candidates("BR") soma todos os estados.
+    if "BR" not in ufs and len(ufs) > 1:
+        ufs.append("BR")
+    return sorted(ufs)
 
 
 def load_local_recent_ids(days: int) -> set[str]:
