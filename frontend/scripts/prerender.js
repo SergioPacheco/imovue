@@ -164,6 +164,7 @@ function renderHomeBody(catalog) {
     <ul>${catalog.states.map(state => `<li><a href="/estado/${state.uf.toLowerCase()}">${escapeHtml(state.name)} (${state.uf})</a> — ${formatNumber(state.stats.total)} imóveis</li>`).join('')}</ul>
     <h2>Como usar o Imovue</h2>
     <p>Explore uma página estadual, compare cidades e abra o detalhe de cada imóvel. Os dados são extraídos de listas públicas da CAIXA e podem ser conferidos na fonte oficial.</p>
+    <p><a href="/baixar-planilha">Baixe grátis a planilha de imóveis da CAIXA por estado.</a></p>
     <p><a href="/guias">Leia os guias sobre compra, documentação, custos e riscos.</a></p>
   </main>`
 }

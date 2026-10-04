@@ -22,6 +22,13 @@
             @search="onSmartSearch"
           />
         </div>
+
+        <div class="mt-5">
+          <router-link to="/baixar-planilha"
+            class="inline-flex items-center gap-2 border border-white/40 hover:border-white text-white hover:bg-white/10 font-semibold px-5 py-2.5 rounded-lg transition-colors">
+            📥 Baixar planilha de imóveis por estado — grátis
+          </router-link>
+        </div>
       </div>
     </section>
 
