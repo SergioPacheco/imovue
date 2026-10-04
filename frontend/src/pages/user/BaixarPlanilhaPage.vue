@@ -121,9 +121,17 @@ async function enviar() {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ email: email.value.trim(), uf: uf.value, consent: true, hp: hp.value }),
     })
-    const data = await res.json().catch(() => ({}))
-    if (!res.ok || !data.ok) {
-      erro.value = ERROS[data.error] || ERROS['rede']
+    const data = await res.json().catch(() => null)
+    if (!res.ok || !data?.ok) {
+      if (res.status === 503 || data?.error === 'indisponivel') {
+        erro.value = ERROS['indisponivel']
+      } else if (data?.error && ERROS[data.error]) {
+        erro.value = ERROS[data.error]
+      } else if (!res.ok) {
+        erro.value = 'Serviço de cadastro indisponível no momento — tente novamente em alguns minutos.'
+      } else {
+        erro.value = ERROS['rede']
+      }
       return
     }
     const lista = await dataService.listar(uf.value, { size: 99999 } as any)
