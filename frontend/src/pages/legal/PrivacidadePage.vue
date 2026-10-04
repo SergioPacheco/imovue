@@ -77,7 +77,15 @@
       <li><strong>localStorage</strong> — salva imóveis favoritos e UF selecionada (apenas no seu dispositivo)</li>
       <li><strong>Cookies de terceiros</strong> — utilizados por serviços de analytics e publicidade (detalhados abaixo)</li>
     </ul>
-    <p>Não operamos cadastro, não solicitamos CPF, e-mail ou telefone para navegar. Exibimos apenas dados comerciais de imóveis extraídos de listas públicas. Não coletamos, armazenamos ou processamos dados pessoais de proprietários, devedores ou terceiros.</p>
+    <p>Não operamos cadastro obrigatório e não solicitamos CPF ou telefone para navegar. Exibimos apenas dados comerciais de imóveis extraídos de listas públicas. Não coletamos, armazenamos ou processamos dados pessoais de proprietários, devedores ou terceiros.</p>
+
+    <h3>Cadastro voluntário para download da planilha (e-mail)</h3>
+    <p>Ao solicitar a planilha gratuita de um estado, coletamos exclusivamente:</p>
+    <ul>
+      <li><strong>E-mail</strong> informado por você;</li>
+      <li><strong>Estado escolhido</strong> e data/hora do cadastro (para controle do consentimento).</li>
+    </ul>
+    <p><strong>Finalidade:</strong> liberar o download e, ocasionalmente, enviar oportunidades de imóveis. <strong>Base legal:</strong> seu consentimento (art. 7º, I da LGPD), coletado via caixinha específica — sem marcar, não há cadastro. Os dados ficam em infraestrutura própria (Cloudflare) e nunca são vendidos ou compartilhados com terceiros. Cada e-mail enviado contém link de descadastro em 1 clique, e você pode pedir a exclusão a qualquer momento pelo e-mail abaixo (seção 10).</p>
 
     <h2>5. Serviços de terceiros</h2>
 

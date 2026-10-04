@@ -264,6 +264,7 @@ function renderInstitutionalBody(path) {
     '/termos': 'pages/legal/TermosPage.vue',
     '/privacidade': 'pages/legal/PrivacidadePage.vue',
     '/politica-de-privacidade': 'pages/legal/PrivacidadePage.vue',
+    '/baixar-planilha': 'pages/user/BaixarPlanilhaPage.vue',
     '/aviso-legal': 'pages/legal/AvisoLegalPage.vue',
   }
   return `<main class="seo-static-page">${sourceTemplate(resolve(SOURCE_DIR, fileMap[path]))}</main>`
@@ -346,7 +347,7 @@ function main() {
   writePage('/guias', getGuidesIndexSeo(), renderGuidesIndexBody(articles))
   for (const article of articles) writePage(`/guias/${article.slug}`, getGuideSeo(article), renderGuideBody(article, catalog))
 
-  for (const path of ['/sobre', '/contato', '/metodologia', '/fontes-dos-dados', '/politica-editorial', '/termos', '/privacidade', '/politica-de-privacidade', '/aviso-legal']) {
+  for (const path of ['/sobre', '/contato', '/metodologia', '/fontes-dos-dados', '/politica-editorial', '/termos', '/privacidade', '/politica-de-privacidade', '/baixar-planilha', '/aviso-legal']) {
     writePage(path, getInstitutionalSeo(path), renderInstitutionalBody(path))
   }
 

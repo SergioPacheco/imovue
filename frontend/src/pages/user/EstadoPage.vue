@@ -56,6 +56,18 @@
         </div>
       </section>
 
+      <!-- CTA planilha -->
+      <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-2">
+        <router-link :to="`/baixar-planilha?uf=${ufUpper}`"
+          class="flex items-center justify-between gap-4 bg-gradient-to-r from-brand-600 to-brand-800 text-white rounded-xl px-5 py-4 hover:shadow-md transition-shadow">
+          <div>
+            <div class="font-bold">📥 Baixar planilha completa de {{ nomeEstado }} (grátis)</div>
+            <div class="text-sm text-blue-100">Todos os {{ stats.total.toLocaleString('pt-BR') }} imóveis em CSV — informe só seu e-mail</div>
+          </div>
+          <span class="shrink-0 bg-white text-brand-700 text-sm font-bold px-4 py-2 rounded-lg">Baixar</span>
+        </router-link>
+      </section>
+
       <!-- Cidades -->
       <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h2 class="text-xl font-bold text-gray-900 mb-6">

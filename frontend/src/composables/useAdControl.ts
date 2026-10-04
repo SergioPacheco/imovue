@@ -6,6 +6,7 @@ const NO_ADS_PATHS = [
   '/favoritos',
   '/privacidade',
   '/politica-de-privacidade',
+  '/baixar-planilha',
   '/termos',
   '/contato',
 ]

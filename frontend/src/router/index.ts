@@ -13,6 +13,8 @@ const router = createRouter({
     { path: '/dashboard', component: () => import('@/pages/user/DashboardPage.vue'), meta: { noindex: true } },
     { path: '/favoritos', component: () => import('@/pages/user/FavoritosPage.vue'), meta: { noindex: true, noAds: true } },
 
+    { path: '/baixar-planilha', component: () => import('@/pages/user/BaixarPlanilhaPage.vue'), meta: { noindex: true, noAds: true } },
+
     // SEO: Estado e Cidade
     { path: '/estado/:uf', component: () => import('@/pages/user/EstadoPage.vue'), props: true },
     { path: '/estado/:uf/:cidade', component: () => import('@/pages/user/CidadePage.vue'), props: true },

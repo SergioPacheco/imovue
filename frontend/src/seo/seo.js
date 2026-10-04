@@ -51,6 +51,11 @@ const INSTITUTIONAL_SEO = {
     title: 'Política de Privacidade',
     description: 'Política de privacidade do Imovue: como tratamos dados do site e do app da Meta (Facebook) para publicações automáticas, cookies, LGPD e exclusão de dados.',
   },
+  '/baixar-planilha': {
+    title: 'Baixar planilha de imóveis da CAIXA por estado',
+    description: 'Informe seu e-mail e baixe grátis a planilha completa com todos os imóveis da CAIXA do estado escolhido: preços, descontos, cidades e links.',
+    robots: 'noindex,follow',
+  },
   '/aviso-legal': {
     title: 'Aviso Legal',
     description: 'Aviso legal do Imovue sobre a origem dos dados, análises automatizadas, responsabilidades e ausência de vínculo oficial com a CAIXA.',
