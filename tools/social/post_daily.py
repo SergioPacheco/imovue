@@ -15,8 +15,9 @@ if __package__ in (None, ""):
                                facebook_timezone, load_pages,
                                posts_per_day, repost_after_days, resolve_page_tokens,
                                schedule_for)
+    from social.templates import last_template_for_uf, select_template
     from social.facebook_client import FacebookAPIError, FacebookClient
-    from social.generate_card import generate_card, generate_story_card
+    from social.generate_card import generate_card, generate_preview_cards, generate_story_card
     from social.selector import candidates, price_band, weighted_pick
     from social.utils import local_now, now_utc, parse_datetime, property_url, read_json, write_json
 else:
@@ -27,8 +28,9 @@ else:
                          facebook_timezone, load_pages,
                          posts_per_day, repost_after_days, resolve_page_tokens,
                          schedule_for)
+    from .templates import last_template_for_uf, select_template
     from .facebook_client import FacebookAPIError, FacebookClient
-    from .generate_card import generate_card, generate_story_card
+    from .generate_card import generate_card, generate_preview_cards, generate_story_card
     from .selector import candidates, price_band, weighted_pick
     from .utils import local_now, now_utc, parse_datetime, property_url, read_json, write_json
 
@@ -53,6 +55,8 @@ def parser() -> argparse.ArgumentParser:
                          help="Semente para sorteio reprodutível (omitido = aleatório).")
     command.add_argument("--no-repeat-city-days", type=int, default=14,
                          help="Janela de anti-repetição por cidade/UF (0 desativa).")
+    command.add_argument("--preview-templates", action="store_true",
+                         help="Renderiza um card por tema elegível ({xUF}_preview_{tema}.png); implica generate-only.")
     # Mantidos por compatibilidade; não bloqueiam mais a publicação.
     command.add_argument("--max-data-age-hours", type=int, default=DEFAULT_MAX_DATA_AGE_HOURS,
                          help="(Obsoleto) Mantido por compatibilidade; a idade do dataset é só informativa.")
@@ -250,7 +254,10 @@ def write_summary(results: list[dict]) -> None:
 
 def main() -> int:
     args = parser().parse_args()
-    mode = "publish" if args.publish else "generate-only" if args.generate_only else "dry-run"
+    if args.preview_templates and args.publish:
+        print("❌ --preview-templates implica generate-only; não combine com --publish.")
+        return 2
+    mode = "publish" if args.publish else "generate-only" if (args.generate_only or args.preview_templates) else "dry-run"
     per_day = posts_per_day()
     slots = schedule_for(per_day)
     tz_name = facebook_timezone()
@@ -309,36 +316,47 @@ def main() -> int:
         text_path = output_dir / f"{uf}.txt"
         image_path = output_dir / f"{uf}.png"
         story_path = output_dir / f"{uf}_story.png"
+        theme = select_template(imovel, uf, today, last_template_for_uf(state, uf))
         text = compose_post(imovel, uf, ranking.total, slot_index)
         text_path.parent.mkdir(parents=True, exist_ok=True)
         text_path.write_text(text + "\n", encoding="utf-8")
-        generate_card(imovel, uf, ranking.total, image_path)
-        generate_story_card(imovel, uf, story_path)
+        generate_card(imovel, uf, ranking.total, image_path, theme)
+        generate_story_card(imovel, uf, story_path, theme)
+        if args.preview_templates:
+            previews = generate_preview_cards(imovel, uf, output_dir, uf)
+            result = {"uf": uf, "property_id": property_id, "score": ranking.total,
+                      "action": "NÃO PUBLICADO",
+                      "detail": f"PREVIEW slot {slot} tema {theme}: {', '.join(path.name for path in previews)}"}
+            results.append(result)
+            print(f"[{uf} {slot}] {property_id} | {ranking.total} pontos "
+                  f"(#{pick_index + 1}/{pool_size} sorteado, pool top-{pool_size}) | "
+                  f"{result['action']} — {result['detail']}")
+            continue
 
         scheduled_for = f"{today} {slot}"
-        result = {"uf": uf, "property_id": property_id, "score": ranking.total, "action": "NÃO PUBLICADO", "detail": f"{mode.upper()} slot {slot}"}
+        result = {"uf": uf, "property_id": property_id, "score": ranking.total, "action": "NÃO PUBLICADO", "detail": f"{mode.upper()} slot {slot} tema {theme}"}
         if mode == "publish":
             page = pages.get(uf, {})
             page_id = str(page.get("pageId") or "").strip()
             token = tokens.get(uf, "")
             if not page.get("enabled") or not page_id or not token:
                 result["detail"] = "página desativada ou token ausente"
-                _record(state, imovel, uf, page_id, "", scheduled_for, tz_name, "skipped", result["detail"])
+                _record(state, imovel, uf, page_id, "", scheduled_for, tz_name, "skipped", result["detail"], theme)
             else:
                 try:
                     client = FacebookClient(token)
                     remote_recent = client.recent_property_ids(page_id, recent_days)
                     if property_id in remote_recent:
                         result["detail"] = "já publicado na página nos últimos dias"
-                        _record(state, imovel, uf, page_id, "", scheduled_for, tz_name, "skipped", result["detail"])
+                        _record(state, imovel, uf, page_id, "", scheduled_for, tz_name, "skipped", result["detail"], theme)
                     else:
                         post_id = client.publish_card(page_id, image_path, text)
-                        _record(state, imovel, uf, page_id, post_id, scheduled_for, tz_name, "published", "")
+                        _record(state, imovel, uf, page_id, post_id, scheduled_for, tz_name, "published", "", theme)
                         result["action"] = "PUBLICADO"
                         result["detail"] = post_id or "sem post_id retornado"
                 except FacebookAPIError as exc:
                     # Falha registrada sem o token; imóvel NÃO marcado como publicado.
-                    _record(state, imovel, uf, page_id, "", scheduled_for, tz_name, "error", _safe_error(exc))
+                    _record(state, imovel, uf, page_id, "", scheduled_for, tz_name, "error", _safe_error(exc), theme)
                     result["detail"] = f"ERRO: {_safe_error(exc)}"
                     result["action"] = "ERRO"
         results.append(result)
@@ -351,10 +369,12 @@ def main() -> int:
 
 
 def _record(state: list, imovel: dict, uf: str, page_id: str, post_id: str,
-            scheduled_for: str, tz_name: str, status: str, error: str) -> None:
+            scheduled_for: str, tz_name: str, status: str, error: str,
+            template: str = "") -> None:
     state.append({
         "property_id": str(imovel.get("numeroImovel")),
         "uf": uf,
+        "template": template,
         "uf_imovel": str(imovel.get("uf") or "").strip().upper(),
         "cidade": str(imovel.get("cidade") or "").strip().upper(),
         "bairro": str(imovel.get("bairro") or "").strip().upper(),

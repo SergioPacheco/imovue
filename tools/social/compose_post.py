@@ -35,24 +35,47 @@ def opening(imovel: dict, tipo: str, cidade_uf: str, slot_index: int) -> str:
     return options[slot_index % len(options)]
 
 
-def compose_post(imovel: dict, uf: str, score: float, slot_index: int = 0) -> str:
+def body_lines(imovel: dict, tipo: str, linha_local: str, variant: str) -> list[str]:
+    """Corpo da legenda. Tudo factual do dataset; sem claims inventados."""
+    venda = currency(imovel.get("precoVenda"))
+    avaliacao = currency(imovel.get("valorAvaliacao")) if imovel.get("valorAvaliacao") else ""
+    desconto = percent(imovel.get("percentualDesconto"))
+    if variant == "comparativo" and avaliacao:
+        lines = [
+            f"🏠 {tipo} em {linha_local}",
+            f"🔥 De {avaliacao} por {venda} ({desconto} de desconto)",
+        ]
+    elif variant == "compacto":
+        lines = [
+            f"🏠 {tipo} em {linha_local}",
+            f"💰 {venda} · 🔥 {desconto} de desconto",
+        ]
+    else:  # detalhado
+        lines = [
+            f"🏠 {tipo} em {linha_local}",
+            f"💰 Venda: {venda}",
+            f"📊 Avaliação: {avaliacao or 'não informada'}",
+            f"🔥 Desconto: {desconto}",
+        ]
+    property_area = imovel.get("areaPrivativa") or imovel.get("areaTotal") or imovel.get("areaTerreno")
+    if variant != "compacto" and property_area:
+        lines.append(f"📐 Área: {area(property_area)}")
+    if variant != "compacto" and imovel.get("quartos"):
+        lines.append(f"🛏️ Quartos: {number_without_decimal(imovel['quartos'])}")
+    if imovel.get("modalidadeVenda"):
+        lines.append(f"💻 Modalidade: {display_name(imovel['modalidadeVenda'])}")
+    return lines
+
+
+def compose_post(imovel: dict, uf: str, score: float, slot_index: int = 0,
+                 variant: str | None = None) -> str:
+    from .templates import select_body_variant
+
     tipo = display_name(imovel.get("tipoImovel") or "Imóvel")
     linha_local, cidade_uf, tag_cidade = location_line(imovel)
-    details = [
-        opening(imovel, tipo, cidade_uf, slot_index),
-        "",
-        f"🏠 {tipo} em {linha_local}",
-        f"💰 Venda: {currency(imovel.get('precoVenda'))}",
-        f"📊 Avaliação: {currency(imovel.get('valorAvaliacao'))}",
-        f"🔥 Desconto: {percent(imovel.get('percentualDesconto'))}",
-    ]
-    property_area = imovel.get("areaPrivativa") or imovel.get("areaTotal") or imovel.get("areaTerreno")
-    if property_area:
-        details.append(f"📐 Área: {area(property_area)}")
-    if imovel.get("quartos"):
-        details.append(f"🛏️ Quartos: {number_without_decimal(imovel['quartos'])}")
-    if imovel.get("modalidadeVenda"):
-        details.append(f"💻 Modalidade: {display_name(imovel['modalidadeVenda'])}")
+    resolved = variant or select_body_variant(imovel)
+    details = [opening(imovel, tipo, cidade_uf, slot_index), ""]
+    details.extend(body_lines(imovel, tipo, linha_local, resolved))
 
     url = property_url(imovel, uf)
     tags = ["#ImoveisCaixa", "#ImoveisComDesconto", "#OportunidadeImobiliaria", "#Imovue"]

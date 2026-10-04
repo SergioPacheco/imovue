@@ -80,7 +80,7 @@ Valor ausente ou fora de {2,3,4} cai para 3. O workflow dispara em todos os slot
 - **Anti-duplicidade:** `IMOVUE_FACEBOOK_REPOST_AFTER_DAYS` (padrão 30) + verificação remota dos posts da página. Falha de API registra `status: error` e **não** marca o imóvel como publicado.
 - **Variedade intra-dia:** sorteio ponderado no top-20 penaliza UF/cidade/bairro/tipo/faixa de preço já publicados hoje, além da anti-repetição de 14 dias por cidade/UF.
 - **Copy:** abertura rotativa por slot (4 variantes, "alto desconto" só com desconto ≥40%), localização `Bairro – Cidade/UF`, estrutura fixa (venda, avaliação, desconto, área, quartos, modalidade) e 4–6 hashtags (`#ImoveisCaixa #ImoveisComDesconto #OportunidadeImobiliaria #Imovue` + cidade/estado sem acentos).
-- **Registros:** cada tentativa grava `property_id, scheduled_for, published_at, timezone, post_id, url, status, error` — base pronta para futura análise de desempenho por horário (alcance, CTR etc., sem ML por ora).
+- **Registros:** cada tentativa grava `property_id, scheduled_for, published_at, timezone, post_id, url, status, error, template` — base pronta para futura análise de desempenho por horário e por tema (alcance, CTR etc., sem ML por ora).
 - **Teste seguro:** `--dry-run` e `--generate-only` nunca tocam a API (tokens nem são carregados); `--slot HH:MM` força um slot para teste local.
 
 ## Histórico e Action
@@ -105,4 +105,24 @@ O agendamento usa `13:30 UTC`, equivalente a 10:30 em Brasília no horário UTC�
 
 Os cards automáticos usam identidade própria e não dependem das fotografias temporárias da CAIXA. Cada UF gera dois arquivos: `UF.png` (feed 1080×1350, proporção 4:5 — é esta a imagem publicada no Facebook) e `UF_story.png` (story 1080×1920, 9:16, para reuso manual no Instagram).
 
-Layout (fundo `tools/social/assets/imovue-social-background-1080x1350.png`, com fallback em gradiente navy se o asset faltar): wordmark Imovue, pill "OFERTA CAIXA" (contorno âmbar, sem aparência de botão), tipo em caixa alta âmbar, cidade · UF em serifada grande (quebra em até 2 linhas e encolhe para nomes longos), bairro em cinza claro, painel branco com badge de desconto + preço + avaliação riscada, até 3 linhas factuais com ícones lineares (área, quartos, vagas — só quando existem no dataset) e rodapé editorial com filete âmbar (`Acesse imovue.com.br | {modalidade}`). Não há botão nem elemento clicável na arte, e nenhuma frase comercial é inventada — só atributos do dataset. As variantes manuais para Instagram estão descritas em [SOCIAL_IMAGES.md](SOCIAL_IMAGES.md).
+Layout base (fundo `tools/social/assets/imovue-social-background-1080x1350.png`, com fallback em gradiente navy se o asset faltar): wordmark Imovue, pill "OFERTA CAIXA" (contorno âmbar, sem aparência de botão), tipo em caixa alta âmbar, cidade · UF em serifada grande (quebra em até 2 linhas e encolhe para nomes longos), bairro em cinza claro, painel branco com badge de desconto + preço + avaliação riscada, até 3 linhas factuais com ícones lineares (área, quartos, vagas — só quando existem no dataset) e rodapé editorial com filete âmbar (`Acesse imovue.com.br | {modalidade}`). Não há botão nem elemento clicável na arte, e nenhuma frase comercial é inventada — só atributos do dataset. As variantes manuais para Instagram estão descritas em [SOCIAL_IMAGES.md](SOCIAL_IMAGES.md).
+
+## Temas dos anúncios (anti-monotonia)
+
+Três temas com os mesmos componentes (`tools/social/templates.py`); fotos reais de imóveis não são usadas:
+
+| Tema | Visual | Elegibilidade |
+|---|---|---|
+| `premium` | navy/âmbar atual | sempre |
+| `claro` | fundo claro, texto navy | sempre |
+| `desconto-hero` | desconto gigante como protagonista | só com desconto ≥ 40% |
+
+A seleção é determinística (`hash(property_id + data)`, pesos 40/35/25) e evita repetir o tema do dia anterior na mesma UF. A legenda também varia o corpo (`detalhado`, `comparativo` com "De X por Y", `compacto` — estável por imóvel, tudo factual). O tema vai para o `published.json`, permitindo comparar performance por tema no futuro.
+
+Pré-visualização antes de ativar (não publica, não grava histórico):
+
+```bash
+python tools/social/post_daily.py --uf SP --preview-templates --slot 10:00
+```
+
+Gera `{UF}_preview_{tema}.png` por tema elegível em `out/social/YYYY-MM-DD/`.
