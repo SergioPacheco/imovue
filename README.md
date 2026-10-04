@@ -127,25 +127,19 @@ Cada estado deve ter uma página do Facebook com o padrão `Imovue Nome do Estad
 }
 ```
 
-Cada página precisa de um Page Access Token próprio no GitHub Actions, por exemplo:
+Todas as páginas usam um único token de System User (sem expiração), salvo como secret `FB_SYSTEM_USER_TOKEN` no GitHub Actions. O System User é criado no Meta Business, recebe acesso às páginas e tem o token gerado com as permissões `pages_show_list`, `pages_read_engagement` e `pages_manage_posts`.
 
-```text
-META_PAGE_TOKEN_SP
-META_PAGE_TOKEN_RJ
-META_PAGE_TOKEN_SC
-```
-
-Não coloque tokens, App Secret ou User Access Tokens no código. Um único app Meta pode administrar várias páginas, desde que a conta tenha acesso às páginas e as permissões necessárias para publicação.
+Não coloque tokens, App Secret ou User Access Tokens no código. Um único app Meta pode administrar várias páginas, desde que o System User tenha acesso às páginas e as permissões necessárias para publicação.
 
 Antes de ativar uma nova UF:
 
 1. crie a página e obtenha o ID numérico;
-2. configure o `pageId` e mantenha `enabled: false`;
-3. salve o token como secret no GitHub;
+2. adicione a página aos ativos do System User no Meta Business;
+3. configure o `pageId` em `social/facebook_pages.json` e mantenha `enabled: false`;
 4. gere o post com `--generate-only` e confira o texto e o card;
 5. confirme que o imóvel escolhido já existe no site publicado;
 6. faça um teste isolado com `--uf UF --publish`;
-7. somente depois altere o workflow para `--all --publish`.
+7. somente depois ative com `enabled: true`.
 
 Nem toda UF publica todos os dias: se não houver candidato elegível, o sistema registra a UF como não publicada.
 

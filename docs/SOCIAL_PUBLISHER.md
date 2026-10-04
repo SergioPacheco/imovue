@@ -30,26 +30,36 @@ O sistema não afirma que um imóvel está abaixo do mercado. A mediana é apena
 
 ## Configuração Facebook
 
-Edite `social/facebook_pages.json` apenas com nomes, IDs e habilitação. Não coloque tokens nesse arquivo. Os tokens ficam no Secret do GitHub:
-
-Para a primeira página, use um secret individual:
+Edite `social/facebook_pages.json` apenas com nomes, IDs e habilitação. Não coloque tokens nesse arquivo. O token fica no Secret do GitHub:
 
 ```text
-META_PAGE_TOKEN_BR=PAGE_ACCESS_TOKEN
+FB_SYSTEM_USER_TOKEN=TOKEN_DO_SYSTEM_USER
 ```
 
-Para testes locais, copie `.env.example` para `.env` e preencha o token. O
-arquivo `.env` é ignorado pelo Git; variáveis já exportadas no ambiente têm
-precedência.
+É um único token de System User (Meta Business, sem expiração) com acesso a
+todas as páginas. Para testes locais, copie `.env.example` para `.env` e
+preencha o token. O arquivo `.env` é ignorado pelo Git; variáveis já
+exportadas no ambiente têm precedência.
 
-O código também aceita `META_PAGE_TOKENS_JSON` para compatibilidade e para uma futura configuração centralizada, mas secrets individuais são preferíveis para reduzir o risco de exposição acidental em logs.
+Nenhum outro token é aceito: o código lê exclusivamente `FB_SYSTEM_USER_TOKEN`.
+Não crie `META_PAGE_TOKEN_<UF>`, `PAGE_TOKENS` ou similares — em nenhum
+ambiente, arquivo, secret ou log. É 1 secret só.
+
+Na nova experiência de Páginas, os endpoints de leitura/publicação exigem o
+Page Access Token de cada página. A troca é automática em tempo de execução
+(`resolve_page_tokens` em `tools/social/config.py`): o publicador chama
+`GET /me/accounts` com o system token e usa o page token de cada página —
+tudo só em memória, sem gravar tokens em disco, log ou repositório. Se a
+troca voltar vazia, o código usa o token configurado e a UF é ignorada sem
+erro. Pré-requisito: as páginas precisam estar nos ativos do System User no
+Meta Business.
 
 O token nunca é impresso no log. A versão da Graph API pode ser definida em `META_GRAPH_VERSION`; o código usa `v23.0` como padrão. A publicação usa `/{page_id}/photos`, enviando o card gerado e o texto como legenda.
 
 Antes de ativar uma página, valide manualmente:
 
 ```bash
-META_PAGE_TOKENS_JSON='{"SC":"..."}' \
+FB_SYSTEM_USER_TOKEN='...' \
 python tools/social/post_daily.py --uf SC --dry-run
 ```
 

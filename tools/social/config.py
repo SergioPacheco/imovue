@@ -72,31 +72,126 @@ def load_pages() -> dict[str, dict]:
 
 
 def load_page_tokens() -> dict[str, str]:
+    # REGRA DE OURO: existe APENAS 1 secret — FB_SYSTEM_USER_TOKEN (System User
+    # imovue-cron, sem expiração). Nenhum outro token é lido, criado ou salvo.
     load_local_env()
-    # Prefere um secret separado por página; o JSON permanece compatível para
-    # facilitar a expansão para as futuras páginas estaduais.
-    individual = {
-        key.removeprefix("META_PAGE_TOKEN_").upper(): value
-        for key, value in os.environ.items()
-        if key.startswith("META_PAGE_TOKEN_") and key != "META_PAGE_TOKENS_JSON" and value.strip()
-    }
-    raw = os.environ.get("META_PAGE_TOKENS_JSON", "{}").strip()
-    if not raw:
-        return individual
-    try:
-        parsed = json.loads(raw)
-    except json.JSONDecodeError as exc:
-        raise ValueError("META_PAGE_TOKENS_JSON não contém JSON válido") from exc
-    if not isinstance(parsed, dict):
-        raise ValueError("META_PAGE_TOKENS_JSON deve ser um objeto UF → token")
-    tokens = {str(uf).upper(): str(token) for uf, token in parsed.items() if token}
-    tokens.update(individual)
-    return tokens
+    system_token = os.environ.get("FB_SYSTEM_USER_TOKEN", "").strip()
+    if not system_token:
+        return {}
+    return dict.fromkeys(UF_NAMES, system_token)
 
 
 def graph_version() -> str:
     load_local_env()
     return os.environ.get("META_GRAPH_VERSION", DEFAULT_GRAPH_VERSION).strip() or DEFAULT_GRAPH_VERSION
+
+
+def resolve_page_tokens(pages: dict[str, dict]) -> dict[str, str]:
+    """Resolve o token efetivo por UF.
+
+    Na nova experiência de Páginas, os endpoints de leitura/publicação exigem
+    o Page Access Token de cada página — o token do System User sozinho é
+    rejeitado (#10). A troca é feita em tempo de execução via
+    ``GET /me/accounts`` e os page tokens vivem só em memória: nenhum token
+    é gravado em disco, log ou repositório.
+
+    Sem system token (ou se a troca voltar vazia), cai para
+    :func:`load_page_tokens` sem erro — a UF é ignorada na publicação.
+    """
+    load_local_env()
+    base = load_page_tokens()
+    system_token = os.environ.get("FB_SYSTEM_USER_TOKEN", "").strip()
+    if not system_token:
+        return base
+    try:
+        page_tokens, page_names = _exchange_system_token(system_token)
+    except Exception as exc:
+        # Exceções do requests podem embutir a URL (com access_token).
+        print(f"⚠️ Falha na troca por page tokens ({_sanitize(str(exc))}); usando token configurado.")
+        return base
+    if not page_tokens:
+        print("⚠️ System User sem ativos (me/accounts voltou 0 páginas); usando token configurado.")
+        return base
+    _report_discovery(pages or {}, page_names)
+    resolved = dict(base)
+    for uf, page in (pages or {}).items():
+        page_id = str((page or {}).get("pageId") or "").strip()
+        if page_id and page_id in page_tokens:
+            resolved[str(uf).upper()] = page_tokens[page_id]
+    return resolved
+
+
+def _report_discovery(pages: dict[str, dict], page_names: dict[str, str]) -> None:
+    """Auto-discovery assistido: reporta divergências, nunca posta sozinho.
+
+    - Página acessível ao System User mas fora do facebook_pages.json é só
+      REPORTADA (ex.: página nova ou de outro projeto) — jamais publicada
+      sem cadastro explícito com enabled + pageId.
+    - UF configurada mas sem acesso indica ativo faltando no System User.
+    """
+    configured = {
+        str((page or {}).get("pageId") or "").strip(): uf
+        for uf, page in pages.items()
+    }
+    configured.pop("", None)
+    for page_id, name in sorted(page_names.items(), key=lambda item: item[1]):
+        if page_id not in configured:
+            print(f"ℹ️ Página acessível fora do cadastro (ignorada): {name} ({page_id})")
+    for page_id, uf in sorted(configured.items()):
+        if page_id not in page_names:
+            print(f"⚠️ {uf} configurada mas sem acesso via System User — verifique os ativos ({page_id})")
+
+
+def _exchange_system_token(system_token: str) -> tuple[dict[str, str], dict[str, str]]:
+    """Troca system token por page tokens.
+
+    Retorna (page_tokens, page_names): page_id → page_token e page_id → nome.
+    Nomes servem só para o relatório de discovery — tokens nunca vão a log.
+    """
+    import requests
+
+    url = f"https://graph.facebook.com/{graph_version()}/me/accounts"
+    page_tokens: dict[str, str] = {}
+    page_names: dict[str, str] = {}
+    params: dict[str, object] = {"fields": "id,name,access_token", "limit": 100}
+    while url:
+        # O token vai como parâmetro, mas nunca entra em logs ou exceções:
+        # em caso de erro, só a mensagem da Meta (sem o token) é propagada.
+        response = requests.get(url, params={**params, "access_token": system_token}, timeout=30)
+        if response.status_code >= 400:
+            raise RuntimeError(_graph_error_message(response))
+        data = response.json()
+        for item in data.get("data", []):
+            page_id = str(item.get("id") or "").strip()
+            page_token = str(item.get("access_token") or "").strip()
+            if page_id:
+                page_names[page_id] = str(item.get("name") or page_id)
+            if page_id and page_token:
+                page_tokens[page_id] = page_token
+        paging = (data.get("paging") or {}).get("next", "")
+        url = paging
+        params = {}
+    return page_tokens, page_names
+
+
+def _graph_error_message(response) -> str:
+    try:
+        error = response.json().get("error", {})
+        detail = error.get("message") or ""
+        code = error.get("code", "")
+        return f"Graph API {response.status_code}/{code}: {detail}"[:300]
+    except ValueError:
+        return f"Graph API {response.status_code}"
+
+
+def _sanitize(text: str) -> str:
+    """Remove valores de access_token de mensagens de erro (nunca em log)."""
+    import re
+
+    text = re.sub(r"access_token=[^&\s]+", "access_token=***", text)
+    if len(text) > 300:
+        text = text[:300]
+    return text
 
 
 def facebook_timezone() -> str:

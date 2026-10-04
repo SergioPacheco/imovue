@@ -12,8 +12,9 @@ if __package__ in (None, ""):
     from social.config import (DATA_DIR, DEFAULT_MAX_DATA_AGE_HOURS, DEFAULT_MIN_DISCOUNT,
                                OUTPUT_DIR, PUBLISHED_HISTORY_LIMIT, SLOT_TOLERANCE_MINUTES,
                                STATE_FILE, UF_NAMES,
-                               facebook_timezone, load_page_tokens, load_pages,
-                               posts_per_day, repost_after_days, schedule_for)
+                               facebook_timezone, load_pages,
+                               posts_per_day, repost_after_days, resolve_page_tokens,
+                               schedule_for)
     from social.facebook_client import FacebookAPIError, FacebookClient
     from social.generate_card import generate_card, generate_story_card
     from social.selector import candidates, price_band, weighted_pick
@@ -23,8 +24,9 @@ else:
     from .config import (DATA_DIR, DEFAULT_MAX_DATA_AGE_HOURS, DEFAULT_MIN_DISCOUNT,
                          OUTPUT_DIR, PUBLISHED_HISTORY_LIMIT, SLOT_TOLERANCE_MINUTES,
                          STATE_FILE, UF_NAMES,
-                         facebook_timezone, load_page_tokens, load_pages,
-                         posts_per_day, repost_after_days, schedule_for)
+                         facebook_timezone, load_pages,
+                         posts_per_day, repost_after_days, resolve_page_tokens,
+                         schedule_for)
     from .facebook_client import FacebookAPIError, FacebookClient
     from .generate_card import generate_card, generate_story_card
     from .selector import candidates, price_band, weighted_pick
@@ -266,7 +268,7 @@ def main() -> int:
 
     ufs = [uf.upper() for uf in args.uf] if args.uf else available_ufs()
     pages = load_pages()
-    tokens = load_page_tokens() if mode == "publish" else {}
+    tokens = resolve_page_tokens(pages) if mode == "publish" else {}
     local_recent = load_local_recent_ids(recent_days)
     age = data_age_hours()
     results = []
@@ -373,7 +375,7 @@ def _record(state: list, imovel: dict, uf: str, page_id: str, post_id: str,
 def _safe_error(exc: Exception) -> str:
     """Mensagem sem segredos (o token nunca entra na exceção da API)."""
     text = str(exc)
-    for secret in ("access_token", "META_PAGE_TOKEN"):
+    for secret in ("access_token", "META_PAGE_TOKEN", "FB_SYSTEM_USER_TOKEN"):
         text = text.replace(secret, "***")
     return text[:300]
 
