@@ -25,6 +25,9 @@ function json(data: unknown, status = 200): Response {
   });
 }
 
+export const onRequestGet: PagesFunction<Env> = async () =>
+  json({ ok: false, error: "metodo-nao-permitido" }, 405);
+
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   let body: Record<string, unknown>;
   try {
