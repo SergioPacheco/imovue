@@ -48,12 +48,18 @@
     <div v-else class="mt-8 bg-green-50 border border-green-200 rounded-xl p-6">
       <h2 class="text-lg font-bold text-green-900">Download liberado! 🎉</h2>
       <p class="text-sm text-green-800 mt-1">
-        {{ total }} imóveis de {{ nomeEstado }} prontos para baixar em CSV (abre no Excel e Google Planilhas).
+        {{ total }} imóveis de {{ nomeEstado }} prontos para baixar em Excel (.xlsx) ou CSV.
       </p>
-      <button @click="baixar" :disabled="baixando"
-        class="mt-4 px-6 py-2.5 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-semibold rounded-lg transition-colors">
-        {{ baixando ? 'Gerando…' : `Baixar planilha de ${nomeEstado}` }}
-      </button>
+      <div class="mt-4 flex flex-col sm:flex-row gap-3">
+        <button @click="baixar('xlsx')" :disabled="baixando"
+          class="px-6 py-2.5 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-semibold rounded-lg transition-colors">
+          {{ baixando ? 'Gerando…' : `Baixar planilha de ${nomeEstado} (.xlsx)` }}
+        </button>
+        <button @click="baixar('csv')" :disabled="baixando"
+          class="px-6 py-2.5 bg-white border border-green-600 text-green-700 hover:bg-green-50 disabled:opacity-50 font-semibold rounded-lg transition-colors">
+          Versão CSV
+        </button>
+      </div>
       <p class="text-xs text-gray-500 mt-3">Não gostou? Cada e-mail nosso tem link de descadastro em 1 clique.</p>
     </div>
   </div>
@@ -66,7 +72,7 @@ import { useSeoHead } from '@/composables/useSeoHead'
 import { SITE_URL } from '@/seo/seo.js'
 import { dataService } from '@/services/dataService'
 import { UF_NOMES } from '@/constants/uf'
-import { baixarCsv } from '@/utils/planilha'
+import { baixarCsv, baixarXlsx } from '@/utils/planilha'
 
 useSeoHead(() => ({
   title: 'Baixar planilha de imóveis da CAIXA por estado',
@@ -148,11 +154,12 @@ async function enviar() {
   }
 }
 
-async function baixar() {
+async function baixar(formato: 'xlsx' | 'csv') {
   baixando.value = true
   try {
     const lista = await dataService.listar(uf.value, { size: 99999 } as any)
-    baixarCsv(lista.content, uf.value)
+    if (formato === 'xlsx') await baixarXlsx(lista.content, uf.value, nomeEstado.value)
+    else baixarCsv(lista.content, uf.value)
   } finally {
     baixando.value = false
   }
