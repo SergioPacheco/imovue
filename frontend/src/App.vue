@@ -98,7 +98,7 @@
             <h3 class="font-semibold text-gray-900 mb-2">Legal</h3>
             <ul class="space-y-1.5 text-gray-500">
               <li><router-link to="/termos" class="footer-link">Termos de Uso</router-link></li>
-              <li><router-link to="/privacidade" class="footer-link">Privacidade</router-link></li>
+              <li><router-link to="/politica-de-privacidade" class="footer-link">Política de Privacidade</router-link></li>
               <li><router-link to="/aviso-legal" class="footer-link">Aviso Legal</router-link></li>
             </ul>
           </div>

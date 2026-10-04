@@ -5,6 +5,7 @@ import { useRoute } from 'vue-router'
 const NO_ADS_PATHS = [
   '/favoritos',
   '/privacidade',
+  '/politica-de-privacidade',
   '/termos',
   '/contato',
 ]

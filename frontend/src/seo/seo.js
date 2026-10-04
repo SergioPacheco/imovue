@@ -47,6 +47,10 @@ const INSTITUTIONAL_SEO = {
     description: 'Política de privacidade do Imovue: dados coletados, cookies, Google Analytics, AdSense, seus direitos pela LGPD e como gerenciar preferências.',
     robots: 'noindex,follow',
   },
+  '/politica-de-privacidade': {
+    title: 'Política de Privacidade',
+    description: 'Política de privacidade do Imovue: como tratamos dados do site e do app da Meta (Facebook) para publicações automáticas, cookies, LGPD e exclusão de dados.',
+  },
   '/aviso-legal': {
     title: 'Aviso Legal',
     description: 'Aviso legal do Imovue sobre a origem dos dados, análises automatizadas, responsabilidades e ausência de vínculo oficial com a CAIXA.',

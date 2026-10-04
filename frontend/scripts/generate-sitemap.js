@@ -75,6 +75,7 @@ function main() {
     urlEntry(`${SITE_URL}/metodologia`, { priority: '0.6' }),
     urlEntry(`${SITE_URL}/fontes-dos-dados`, { priority: '0.5' }),
     urlEntry(`${SITE_URL}/politica-editorial`, { priority: '0.4' }),
+    urlEntry(`${SITE_URL}/politica-de-privacidade`, { priority: '0.3' }),
     urlEntry(`${SITE_URL}/aviso-legal`, { priority: '0.3' }),
     urlEntry(`${SITE_URL}/guias`, { priority: '0.9' }),
     ...articles.map(article => urlEntry(`${SITE_URL}/guias/${article.slug}`, { lastmod: article.dateModified, priority: '0.7' })),

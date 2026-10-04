@@ -43,6 +43,7 @@ const router = createRouter({
 
     // Legal
     { path: '/termos', component: () => import('@/pages/legal/TermosPage.vue') },
+    { path: '/politica-de-privacidade', component: () => import('@/pages/legal/PrivacidadePage.vue') },
     { path: '/privacidade', component: () => import('@/pages/legal/PrivacidadePage.vue') },
     { path: '/aviso-legal', component: () => import('@/pages/legal/AvisoLegalPage.vue') },
 
