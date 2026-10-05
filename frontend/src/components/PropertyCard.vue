@@ -1,6 +1,6 @@
 <template>
   <div class="property-card group relative">
-    <router-link :to="`/imoveis/${imovel.numeroImovel}`" class="block">
+    <router-link :to="{ path: `/imovel/${imovel.numeroImovel}`, query: { uf: imovel.uf } }" class="block">
       <PropertyImage :tipo="imovel.tipoImovel" :numero="imovel.numeroImovel">
         <div class="absolute top-3 left-3 flex gap-1.5">
           <span v-if="imovel.tipoImovel" class="badge badge-type">{{ imovel.tipoImovel }}</span>

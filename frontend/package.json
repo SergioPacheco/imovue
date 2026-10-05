@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "test": "node --import ./tests/register.mjs tests/search.test.mjs",
     "dev": "vite",
     "build": "vite build && node scripts/prerender.js && node scripts/generate-sitemap.js",
     "build:sitemap": "node scripts/generate-sitemap.js",

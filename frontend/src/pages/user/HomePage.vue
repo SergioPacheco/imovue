@@ -18,10 +18,13 @@
         <!-- Smart Search -->
         <div class="mt-8 max-w-2xl mx-auto relative">
           <SmartSearchBar
+            :uf-atual="store.ufSelecionada"
             placeholder="Ex: apartamento em SP até 200 mil com 2 quartos..."
             @search="onSmartSearch"
           />
         </div>
+
+        <p v-if="mensagemBusca" class="mt-3 text-sm text-blue-100" role="status">{{ mensagemBusca }}</p>
 
         <div class="mt-5">
           <router-link to="/baixar-planilha"
@@ -222,7 +225,7 @@ import { useCatalogoStore } from '@/stores/catalogo'
 import SmartSearchBar from '@/components/SmartSearchBar.vue'
 import AffiliateCourseCard from '@/components/AffiliateCourseCard.vue'
 import { UF_NOMES } from '@/constants/uf'
-import type { SmartSearchResult } from '@/composables/useSmartSearch'
+import { searchToQuery, type SmartSearchResult } from '@/composables/useSmartSearch'
 import { trackEvent } from '@/services/analytics'
 
 useSeoHead(getHomeSeo)
@@ -232,6 +235,7 @@ const store = useCatalogoStore()
 const ufs = ref<string[]>([])
 const loading = ref(true)
 const busca = ref('')
+const mensagemBusca = ref('')
 const manifestMap = ref<Record<string, number>>({})
 const totalImoveis = ref(0)
 const maiorDesconto = ref(0)
@@ -261,8 +265,9 @@ function onSmartSearch(result: SmartSearchResult, query: string) {
   const uf = result.uf || store.ufSelecionada || ''
   if (uf) {
     store.ufSelecionada = uf
-    router.push({ path: '/imoveis', query: result.filtros as any })
+    router.push({ path: '/imoveis', query: searchToQuery(result.filtros, uf) })
   } else {
+    mensagemBusca.value = 'Selecione um estado ou inclua a UF na descrição, por exemplo “apartamento em SP até 200 mil”.'
     // Sem estado detectado — rola até o seletor de estados
     const section = document.querySelector('.uf-section')
     if (section) section.scrollIntoView({ behavior: 'smooth' })

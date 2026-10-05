@@ -346,6 +346,8 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch, nextTick } from 'vue'
+import { useRoute } from 'vue-router'
+import { UF_NOMES } from '@/constants/uf'
 import PropertyImage from '@/components/PropertyImage.vue'
 import AffiliateCourseCard from '@/components/AffiliateCourseCard.vue'
 import { useFavoritos } from '@/composables/useFavoritos'
@@ -370,6 +372,7 @@ async function initLeaflet() {
 
 const props = defineProps<{ numero: string }>()
 const store = useCatalogoStore()
+const route = useRoute()
 
 function slugify(text: string) {
   return text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
@@ -484,7 +487,8 @@ const ocupacaoExplicacao = computed(() => {
 onMounted(async () => {
   canNativeShare.value = typeof navigator !== 'undefined' && typeof navigator.share === 'function'
   try {
-    const uf = store.ufSelecionada
+    const ufHint = typeof route.query.uf === 'string' ? route.query.uf.toUpperCase() : ''
+    const uf = Object.prototype.hasOwnProperty.call(UF_NOMES, ufHint) ? ufHint : store.ufSelecionada
     if (uf) {
       imovel.value = (await dataService.detalhe(uf, props.numero)) ?? null
     }

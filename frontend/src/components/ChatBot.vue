@@ -2,7 +2,7 @@
   <!-- Botão flutuante com avatar -->
   <div v-if="!aberto" class="fixed bottom-6 right-6 z-50">
     <div class="chat-pulse-ring"></div>
-    <button @click="aberto = true" class="chat-fab-avatar group">
+    <button @click="aberto = true" class="chat-fab-avatar group" aria-label="Abrir assistente de busca">
       <img src="/avatar-ana.webp?v=3" alt="Ana" class="w-full h-full rounded-full object-cover group-hover:scale-105 transition-transform duration-200" />
     </button>
   </div>
@@ -10,7 +10,7 @@
   <!-- Painel do chat -->
   <transition name="chat-panel">
     <div v-if="aberto"
-      class="fixed bottom-6 right-6 z-50 w-[380px] max-w-[calc(100vw-2rem)] h-[520px] max-h-[calc(100vh-3rem)]
+      class="fixed bottom-4 right-4 z-50 w-[380px] max-w-[calc(100vw-2rem)] h-[520px] max-h-[calc(100dvh-2rem)]
              chat-panel flex flex-col overflow-visible">
 
       <!-- Header -->
@@ -27,7 +27,7 @@
             </div>
           </div>
         </div>
-        <button @click="aberto = false" class="text-white/80 hover:text-white p-1 transition-colors">
+        <button @click="aberto = false" class="text-white/80 hover:text-white p-1 transition-colors" aria-label="Fechar assistente">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
           </svg>
@@ -41,17 +41,22 @@
           <div :class="msg.role === 'user'
             ? 'bg-brand-500 text-white rounded-2xl rounded-br-md px-4 py-2.5 max-w-[85%]'
             : 'bg-white text-gray-800 rounded-2xl rounded-bl-md px-4 py-2.5 max-w-[85%] shadow-sm border border-gray-100'">
-            <div class="text-sm whitespace-pre-line" v-html="renderMarkdown(msg.text)"></div>
+            <div class="text-sm whitespace-pre-line break-words">{{ msg.text }}</div>
             <!-- Imóveis inline -->
             <div v-if="msg.imoveis && msg.imoveis.length > 0" class="mt-2 space-y-1.5">
               <router-link v-for="im in msg.imoveis" :key="im.numeroImovel"
-                :to="`/imoveis/${im.numeroImovel}?uf=${im.uf}`"
+                :to="{ path: `/imovel/${im.numeroImovel}`, query: { uf: im.uf } }"
                 @click="aberto = false"
                 class="block text-xs bg-gray-50 rounded-lg px-2.5 py-1.5 hover:bg-brand-50 transition-colors border border-gray-200">
                 <span class="font-medium">{{ im.cidade }}</span> · R$ {{ fmt(im.precoVenda) }}
                 <span v-if="im.percentualDesconto" class="text-green-600 font-bold ml-1">-{{ im.percentualDesconto }}%</span>
               </router-link>
             </div>
+            <router-link v-if="msg.imoveis?.length && msg.filtrosAplicados?.uf"
+              :to="{ path: '/imoveis', query: searchToQuery(msg.filtrosAplicados.filtros, msg.filtrosAplicados.uf) }"
+              @click="aberto = false" class="block mt-3 text-xs font-semibold text-brand-600 underline">
+              Ver todos os resultados e ajustar filtros
+            </router-link>
           </div>
         </div>
         <div v-if="digitando" class="flex justify-start">
@@ -69,10 +74,11 @@
       <div class="border-t border-gray-200 p-3 shrink-0 bg-white">
         <div class="flex gap-2">
           <input v-model="input" type="text"
+            maxlength="1000" aria-label="Mensagem para o assistente" :disabled="digitando"
             placeholder="Pergunte sobre imóveis..."
-            class="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition-all"
+            class="flex-1 min-w-0 px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition-all"
             @keydown.enter="enviar" />
-          <button @click="enviar" :disabled="!input.trim()"
+          <button @click="enviar" :disabled="!input.trim() || digitando" aria-label="Enviar mensagem"
             class="bg-brand-500 text-white px-4 rounded-xl hover:bg-brand-600 disabled:opacity-40 transition-all hover:shadow-md">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
@@ -85,14 +91,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted } from 'vue'
-import { useChatBot, type ChatMessage } from '@/composables/useChatBot'
+import { ref, nextTick } from 'vue'
+import { useChatBot, isStatisticsQuery, type ChatMessage } from '@/composables/useChatBot'
 import { useCatalogoStore } from '@/stores/catalogo'
 import { dataService } from '@/services/dataService'
 import type { Imovel } from '@/types'
+import { parseSmartSearch, searchToQuery } from '@/composables/useSmartSearch'
 
 const store = useCatalogoStore()
-const { gerarResposta } = useChatBot()
+const { gerarResposta, contexto } = useChatBot()
 
 const aberto = ref(false)
 const input = ref('')
@@ -100,57 +107,50 @@ const digitando = ref(false)
 const messagesRef = ref<HTMLElement>()
 const dados = ref<Imovel[]>([])
 const cidades = ref<string[]>([])
+const dadosUf = ref('')
 
 const mensagens = ref<ChatMessage[]>([
-  { role: 'bot', text: 'Oi! 😊 Sou a Ana, sua consultora virtual de imóveis.\n\nPosso te ajudar a encontrar oportunidades, comparar preços e tirar dúvidas sobre leilão da Caixa.\n\nSelecione um estado na página e me pergunte, por exemplo:\n• "apartamentos até 200 mil"\n• "melhores descontos em Goiânia"\n• "imóveis financiáveis"' }
+  { role: 'bot', text: 'Oi! Sou a Ana, assistente de busca do Imovue.\n\nBusco imóveis reais nos dados da CAIXA. Experimente:\n• “apartamentos em SP até 200 mil”\n• “casas em Recife com dois quartos”\n\nVocê pode complementar a busca nas próximas mensagens.' }
 ])
 
 const fmt = (v: number | null) => v ? v.toLocaleString('pt-BR', { minimumFractionDigits: 0 }) : '-'
 
-function renderMarkdown(text: string): string {
-  return text
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/_(.+?)_/g, '<em>$1</em>')
-    .replace(/\n/g, '<br>')
-}
-
-async function carregarDados() {
-  const uf = store.ufSelecionada
-  if (!uf) return
-  dados.value = await dataService.listar(uf, { size: 99999 }).then(r => r.content)
+async function carregarDados(uf: string) {
+  if (dadosUf.value === uf) return
+  dados.value = await dataService.listar(uf, { size: 99999 }, { strict: true }).then(r => r.content)
   cidades.value = await dataService.cidades(uf)
+  dadosUf.value = uf
 }
 
 async function enviar() {
   const texto = input.value.trim()
-  if (!texto) return
+  if (!texto || digitando.value) return
 
   mensagens.value.push({ role: 'user', text: texto })
   input.value = ''
   digitando.value = true
   await scrollBottom()
 
-  if (dados.value.length === 0 && store.ufSelecionada) {
-    await carregarDados()
-  }
-
-  if (dados.value.length === 0) {
-    await delay(500)
-    mensagens.value.push({ role: 'bot', text: '⚠️ Nenhum estado selecionado ainda. Volte à página inicial e selecione um estado primeiro!' })
+  try {
+    let result = parseSmartSearch(texto, cidades.value, { ufAtual: dadosUf.value })
+    const uf = result.uf || contexto.uf || store.ufSelecionada
+    if (result.perguntas.length || (result.intent === 'UNKNOWN' && !isStatisticsQuery(texto)) || result.intent === 'RESET_SEARCH') {
+      mensagens.value.push(gerarResposta(texto, dados.value, cidades.value, result))
+    } else if (!uf) {
+      mensagens.value.push({ role: 'bot', text: 'Em qual estado deseja pesquisar? Inclua a UF na mensagem, por exemplo “apartamento em SP até 200 mil”.' })
+    } else {
+      await carregarDados(uf)
+      result = parseSmartSearch(texto, cidades.value, { ufAtual: uf })
+      contexto.uf ||= uf
+      mensagens.value.push(gerarResposta(texto, dados.value, cidades.value, result))
+    }
+  } catch {
+    mensagens.value.push({ role: 'bot', text: 'Não consegui carregar os dados desta busca. Tente novamente.' })
+  } finally {
     digitando.value = false
     await scrollBottom()
-    return
   }
-
-  await delay(600 + Math.random() * 400)
-
-  const resposta = gerarResposta(texto, dados.value, cidades.value)
-  mensagens.value.push(resposta)
-  digitando.value = false
-  await scrollBottom()
 }
-
-function delay(ms: number) { return new Promise(r => setTimeout(r, ms)) }
 
 async function scrollBottom() {
   await nextTick()
@@ -159,9 +159,6 @@ async function scrollBottom() {
   }
 }
 
-onMounted(() => {
-  if (store.ufSelecionada) carregarDados()
-})
 </script>
 
 <style scoped>

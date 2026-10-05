@@ -1,5 +1,6 @@
-import type { Imovel } from '@/types'
-import { parseSmartSearch, type SmartSearchResult } from './useSmartSearch'
+import type { FiltrosImovel, Imovel } from '@/types'
+import { searchProperties, normalizeSearchText } from '@/services/propertySearch'
+import { describeSearch, parseSmartSearch, type SmartSearchResult } from './useSmartSearch'
 
 export interface ChatMessage {
   role: 'user' | 'bot'
@@ -8,126 +9,75 @@ export interface ChatMessage {
   filtrosAplicados?: SmartSearchResult
 }
 
-const SAUDACOES = ['oi', 'olá', 'ola', 'hey', 'bom dia', 'boa tarde', 'boa noite', 'hello', 'hi']
-const AJUDA = ['ajuda', 'help', 'como funciona', 'o que você faz', 'comandos']
+const fmt = (value: number | null) => value == null ? 'Não informado'
+  : value.toLocaleString('pt-BR', { maximumFractionDigits: 0 })
 
-function fmt(v: number | null): string {
-  if (!v) return '-'
-  return v.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
-}
-
-function gerarResposta(query: string, dados: Imovel[], cidades: string[]): ChatMessage {
-  const q = query.toLowerCase().trim()
-
-  // Saudação
-  if (SAUDACOES.some(s => q === s || q.startsWith(s + ' '))) {
-    return {
-      role: 'bot',
-      text: `👋 Olá! Sou o assistente do Imovue. Tenho **${fmt(dados.length)} imóveis** carregados.\n\nMe pergunte algo como:\n- "apartamentos até 200 mil"\n- "melhores descontos"\n- "casas com 3 quartos"\n- "quantos imóveis tem em Goiânia?"`,
-    }
-  }
-
-  // Ajuda
-  if (AJUDA.some(s => q.includes(s))) {
-    return {
-      role: 'bot',
-      text: `🤖 Posso te ajudar a encontrar imóveis! Experimente:\n\n• **Filtrar:** "apartamento até 150 mil com 2 quartos"\n• **Estatísticas:** "qual o desconto médio?" ou "quantos imóveis tem?"\n• **Top descontos:** "melhores oportunidades" ou "maiores descontos"\n• **Por cidade:** "imóveis em Campinas" ou "casas em Curitiba"\n• **Por modalidade:** "venda direta" ou "leilão"`,
-    }
-  }
-
-  // Quantos imóveis / estatísticas
-  if (q.match(/quantos|total|estatístic|estatistic|resumo|overview/)) {
-    const precos = dados.map(i => i.precoVenda).filter(Boolean) as number[]
-    const descontos = dados.map(i => i.percentualDesconto).filter(Boolean) as number[]
-    const avgPreco = precos.length ? precos.reduce((a, b) => a + b, 0) / precos.length : 0
-    const avgDesc = descontos.length ? descontos.reduce((a, b) => a + b, 0) / descontos.length : 0
-    const tipos = [...new Set(dados.map(i => i.tipoImovel).filter(Boolean))]
-
-    return {
-      role: 'bot',
-      text: `📊 **Resumo dos dados carregados:**\n\n• Total: **${fmt(dados.length)}** imóveis\n• Preço médio: **R$ ${fmt(avgPreco)}**\n• Desconto médio: **${avgDesc.toFixed(1)}%**\n• Tipos: ${tipos.join(', ')}\n• Cidades: ${cidades.length}\n\nQuer filtrar por algo específico?`,
-    }
-  }
-
-  // Melhores descontos / oportunidades
-  if (q.match(/melhor|top|maior desconto|oportunidade|barato/)) {
-    const top = [...dados]
-      .filter(i => i.percentualDesconto && i.percentualDesconto > 0)
-      .sort((a, b) => (b.percentualDesconto ?? 0) - (a.percentualDesconto ?? 0))
-      .slice(0, 5)
-
-    if (top.length === 0) {
-      return { role: 'bot', text: '😕 Não encontrei imóveis com desconto nos dados carregados.' }
-    }
-
-    const lista = top.map((im, i) =>
-      `${i + 1}. **${im.tipoImovel || 'Imóvel'}** em ${im.cidade} — **${im.percentualDesconto}% off** (R$ ${fmt(im.precoVenda)})`
-    ).join('\n')
-
-    return {
-      role: 'bot',
-      text: `🔥 **Top 5 maiores descontos:**\n\n${lista}\n\nQuer ver detalhes de algum? Ou filtrar por tipo/cidade?`,
-      imoveis: top,
-    }
-  }
-
-  // Mais barato
-  if (q.match(/mais barato|menor preço|menor preco|cheapest/)) {
-    const top = [...dados]
-      .filter(i => i.precoVenda && i.precoVenda > 0)
-      .sort((a, b) => (a.precoVenda ?? Infinity) - (b.precoVenda ?? Infinity))
-      .slice(0, 5)
-
-    const lista = top.map((im, i) =>
-      `${i + 1}. **R$ ${fmt(im.precoVenda)}** — ${im.tipoImovel || 'Imóvel'} em ${im.cidade} (${im.percentualDesconto ?? 0}% off)`
-    ).join('\n')
-
-    return {
-      role: 'bot',
-      text: `💰 **5 mais baratos:**\n\n${lista}`,
-      imoveis: top,
-    }
-  }
-
-  // Busca com filtros (fallback principal)
-  const result = parseSmartSearch(query, cidades)
-  const filtros = result.filtros
-
-  // Aplica filtros nos dados
-  let filtrados = [...dados]
-  if (filtros.tipoImovel) filtrados = filtrados.filter(i => i.tipoImovel === filtros.tipoImovel)
-  if (filtros.cidade) filtrados = filtrados.filter(i => i.cidade === filtros.cidade)
-  if (filtros.precoMax) filtrados = filtrados.filter(i => (i.precoVenda ?? Infinity) <= filtros.precoMax!)
-  if (filtros.precoMin) filtrados = filtrados.filter(i => (i.precoVenda ?? 0) >= filtros.precoMin!)
-  if (filtros.descontoMin) filtrados = filtrados.filter(i => (i.percentualDesconto ?? 0) >= filtros.descontoMin!)
-  if (filtros.quartosMin) filtrados = filtrados.filter(i => (i.quartos ?? 0) >= filtros.quartosMin!)
-  if (filtros.vagasMin) filtrados = filtrados.filter(i => (i.vagas ?? 0) >= filtros.vagasMin!)
-
-  if (filtrados.length === 0) {
-    return {
-      role: 'bot',
-      text: `😕 Não encontrei imóveis com esses critérios.\n\n_Filtros aplicados: ${result.descricao}_\n\nTente ampliar a busca (ex: aumente o preço máximo ou remova algum filtro).`,
-      filtrosAplicados: result,
-    }
-  }
-
-  // Ordena por desconto
-  filtrados.sort((a, b) => (b.percentualDesconto ?? 0) - (a.percentualDesconto ?? 0))
-  const top = filtrados.slice(0, 5)
-  const avgDesc = filtrados.reduce((s, i) => s + (i.percentualDesconto ?? 0), 0) / filtrados.length
-
-  const lista = top.map((im, i) =>
-    `${i + 1}. ${im.tipoImovel || 'Imóvel'} em **${im.cidade}** — R$ ${fmt(im.precoVenda)} (${im.percentualDesconto ?? 0}% off)`
-  ).join('\n')
-
-  return {
-    role: 'bot',
-    text: `✅ Encontrei **${filtrados.length} imóveis**!\n\n_${result.descricao}_\n\nDesconto médio: **${avgDesc.toFixed(1)}%**\n\n**Destaques:**\n${lista}${filtrados.length > 5 ? `\n\n...e mais ${filtrados.length - 5} resultados.` : ''}`,
-    imoveis: top,
-    filtrosAplicados: result,
-  }
+export function isStatisticsQuery(query: string): boolean {
+  return /\b(?:quantos|total|estatisticas?|resumo|desconto medio)\b/.test(normalizeSearchText(query))
 }
 
 export function useChatBot() {
-  return { gerarResposta }
+  const contexto = { uf: null as string | null, filters: {} as FiltrosImovel, lastResults: [] as Imovel[] }
+
+  function gerarResposta(query: string, dados: Imovel[], cidades: string[], interpreted?: SmartSearchResult): ChatMessage {
+    const q = normalizeSearchText(query)
+    if (/^(oi|ola|hey|bom dia|boa tarde|boa noite|hello|hi)[!. ]*$/.test(q)
+      || /^(ajuda|help|como funciona|comandos)[?!. ]*$/.test(q)) {
+      return { role: 'bot', text: 'Posso buscar imóveis reais do catálogo e refinar sua busca. Experimente “apartamento em SP até 200 mil com dois quartos”. Depois diga “maior desconto”, “até 150 mil” ou “remova o limite de preço”.' }
+    }
+
+    const result = interpreted ?? parseSmartSearch(query, cidades, { ufAtual: dados[0]?.uf })
+    if (result.intent === 'RESET_SEARCH') {
+      contexto.filters = {}; contexto.lastResults = []; contexto.uf = dados[0]?.uf ?? null
+      return { role: 'bot', text: 'Limpei os filtros. Qual imóvel você procura?' }
+    }
+    if (result.intent === 'UNKNOWN' && !isStatisticsQuery(query)) {
+      return { role: 'bot', text: 'Não consegui identificar critérios de busca. Diga um tipo, uma cidade ou um orçamento, por exemplo “casa em Recife até 200 mil”.' }
+    }
+
+    const nextUf = result.uf || contexto.uf || dados[0]?.uf || null
+    if (contexto.uf && nextUf !== contexto.uf) {
+      delete contexto.filters.cidade; delete contexto.filters.bairro
+    }
+    contexto.uf = nextUf
+    for (const key of result.removerFiltros) delete contexto.filters[key]
+    Object.assign(contexto.filters, result.filtros)
+    const applied: SmartSearchResult = {
+      ...result, uf: nextUf, filtros: { ...contexto.filters },
+      descricao: describeSearch(contexto.filters, nextUf),
+    }
+    if (result.perguntas.length) {
+      return { role: 'bot', text: result.perguntas.join('\n\n'), filtrosAplicados: applied }
+    }
+    if (nextUf && dados.some(im => im.uf !== nextUf)) {
+      return { role: 'bot', text: `É necessário carregar os imóveis de ${nextUf} para aplicar esta busca.`, filtrosAplicados: applied }
+    }
+    const found = searchProperties({ ...contexto.filters, sort: contexto.filters.sort || 'percentualDesconto,desc' }, dados)
+    contexto.lastResults = found
+    const occupancyWarning = typeof contexto.filters.ocupado === 'boolean'
+      ? '\n\nOcupação: imóveis sem situação informada não são considerados confirmados.' : ''
+
+    if (isStatisticsQuery(query)) {
+      const discounts = found.map(im => im.percentualDesconto).filter((v): v is number => v != null && v >= 0 && v <= 100)
+      const average = discounts.length ? (discounts.reduce((sum, v) => sum + v, 0) / discounts.length).toFixed(1) + '%' : 'Não informado'
+      return { role: 'bot', text: `Encontrei ${found.length} imóveis.\n\n${applied.descricao}\n\nDesconto médio: ${average}.${occupancyWarning}`, filtrosAplicados: applied }
+    }
+    if (!found.length) {
+      const alternatives: string[] = []
+      if (contexto.filters.precoMax != null || contexto.filters.precoMin != null) {
+        const expanded = searchProperties({ ...contexto.filters, precoMax: undefined, precoMin: undefined }, dados)
+        if (expanded.length) alternatives.push(`Remover o limite de preço: ${expanded.length} imóveis. Diga “remova o limite de preço”.`)
+      }
+      if (contexto.filters.descontoMin != null) {
+        const expanded = searchProperties({ ...contexto.filters, descontoMin: undefined }, dados)
+        if (expanded.length) alternatives.push(`Sem desconto mínimo: ${expanded.length} imóveis. Diga “remova o desconto mínimo”.`)
+      }
+      return { role: 'bot', text: `Não encontrei imóveis com todos os critérios.\n\n${applied.descricao}${occupancyWarning}\n\n${alternatives.join('\n') || 'Você pode informar outro orçamento, tipo ou cidade para refinar a busca.'}`, filtrosAplicados: applied }
+    }
+    return {
+      role: 'bot', imoveis: found.slice(0, 5), filtrosAplicados: applied,
+      text: `Encontrei ${found.length} imóveis.\n\n${applied.descricao}${occupancyWarning}\n\n${found.slice(0, 5).map((im, index) => `${index + 1}. ${im.tipoImovel || 'Imóvel'} em ${im.cidade} — R$ ${fmt(im.precoVenda)} (${im.percentualDesconto == null ? 'desconto não informado' : im.percentualDesconto + '% de desconto'})`).join('\n')}\n\nVocê pode ajustar o orçamento ou dizer “maior desconto” e “mais baratos”.`,
+    }
+  }
+  return { gerarResposta, contexto }
 }

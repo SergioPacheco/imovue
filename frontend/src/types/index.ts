@@ -39,6 +39,8 @@ export interface FiltrosImovel {
   modalidade?: string
   financiamento?: string
   quartosMin?: number
+  quartosMax?: number
+  ocupado?: boolean
   vagasMin?: number
   page?: number
   size?: number

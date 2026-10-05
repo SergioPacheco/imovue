@@ -1,4 +1,5 @@
 import type { Imovel, FiltrosImovel, PageResponse } from '@/types'
+import { filterProperties as applyFilters, sortProperties as applySort } from './propertySearch'
 
 interface ManifestEntry { uf: string; total: number; precoMedio: number; descontoMedio: number; maiorDesconto: number; financiaveis: number; altosDescontos: number }
 
@@ -7,82 +8,73 @@ type EstatisticasBairros = Record<string, Record<string, Record<string, BairroSt
 
 let manifest: ManifestEntry[] | null = null
 let bairroStats: EstatisticasBairros | null = null
+let manifestRequest: Promise<ManifestEntry[]> | null = null
+let bairroStatsRequest: Promise<EstatisticasBairros> | null = null
 const cache = new Map<string, Imovel[]>()
+const pendingUfs = new Map<string, Promise<Imovel[]>>()
 
 async function loadManifest(): Promise<ManifestEntry[]> {
   if (manifest) return manifest
-  try {
-    const res = await fetch('/data/manifest.json')
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    manifest = await res.json()
-  } catch (e) {
-    console.error('Erro ao carregar manifest:', e)
-    manifest = []
-  }
-  return manifest!
+  if (manifestRequest) return manifestRequest
+  manifestRequest = (async () => {
+    try {
+      const res = await fetch('/data/manifest.json')
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      manifest = await res.json()
+      return manifest!
+    } catch (e) {
+      console.error('Erro ao carregar manifest:', e)
+      return []
+    } finally { manifestRequest = null }
+  })()
+  return manifestRequest
 }
 
 async function loadBairroStats(): Promise<EstatisticasBairros> {
   if (bairroStats) return bairroStats
-  try {
-    const res = await fetch('/data/estatisticas_bairros.json')
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    bairroStats = await res.json()
-  } catch (e) {
-    console.error('Erro ao carregar stats de bairro:', e)
-    bairroStats = {}
-  }
-  return bairroStats!
+  if (bairroStatsRequest) return bairroStatsRequest
+  bairroStatsRequest = (async () => {
+    try {
+      const res = await fetch('/data/estatisticas_bairros.json')
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      bairroStats = await res.json()
+      return bairroStats!
+    } catch (e) {
+      console.error('Erro ao carregar stats de bairro:', e)
+      return {}
+    } finally { bairroStatsRequest = null }
+  })()
+  return bairroStatsRequest
 }
 
-async function loadUf(uf: string): Promise<Imovel[]> {
+async function requestUf(uf: string): Promise<Imovel[]> {
   if (cache.has(uf)) return cache.get(uf)!
-  try {
-    const res = await fetch(`/data/${uf}.json`)
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    const data: Imovel[] = await res.json()
-    cache.set(uf, data)
-    return data
-  } catch (e) {
-    console.error(`Erro ao carregar ${uf}:`, e)
+  const pending = pendingUfs.get(uf)
+  if (pending) return pending
+  const request = (async () => {
+    try {
+      const res = await fetch(`/data/${uf}.json`)
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const data: Imovel[] = await res.json()
+      cache.set(uf, data)
+      return data
+    } catch (e) {
+      console.error(`Erro ao carregar ${uf}:`, e)
+      throw e
+    } finally {
+      pendingUfs.delete(uf)
+    }
+  })()
+  pendingUfs.set(uf, request)
+  return request
+}
+
+async function loadUf(uf: string, strict = false): Promise<Imovel[]> {
+  try { return await requestUf(uf) }
+  catch (error) {
+    if (strict) throw error
     return []
   }
-}
-
-function stripCount(val: string): string {
-  return val.replace(/ \(\d+\)$/, '')
-}
-
-function applyFilters(imoveis: Imovel[], filtros: FiltrosImovel): Imovel[] {
-  return imoveis.filter(i => {
-    if (filtros.cidade && i.cidade !== stripCount(filtros.cidade)) return false
-    if (filtros.bairro && i.bairro !== stripCount(filtros.bairro)) return false
-    if (filtros.tipoImovel && i.tipoImovel !== filtros.tipoImovel) return false
-    if (filtros.precoMin && (i.precoVenda ?? 0) < filtros.precoMin) return false
-    if (filtros.precoMax && (i.precoVenda ?? Infinity) > filtros.precoMax) return false
-    if (filtros.descontoMin && (i.percentualDesconto ?? 0) < filtros.descontoMin) return false
-    if (filtros.modalidade && i.modalidadeVenda !== filtros.modalidade) return false
-    if (filtros.financiamento && i.financiamento !== filtros.financiamento) return false
-    if (filtros.quartosMin && (i.quartos ?? 0) < filtros.quartosMin) return false
-    if (filtros.vagasMin && (i.vagas ?? 0) < filtros.vagasMin) return false
-    return true
-  })
-}
-
-function applySort(imoveis: Imovel[], sort?: string): Imovel[] {
-  if (!sort) return imoveis
-  const [field, dir] = sort.split(',')
-  const mult = dir === 'asc' ? 1 : -1
-  return [...imoveis].sort((a, b) => {
-    let va = (a as any)[field] ?? 0
-    let vb = (b as any)[field] ?? 0
-    // Descontos inválidos (>100 ou <0) vão pro final
-    if (field === 'percentualDesconto') {
-      if (va <= 0 || va > 100) va = 0
-      if (vb <= 0 || vb > 100) vb = 0
-    }
-    return (va - vb) * mult
-  })
 }
 
 export const dataService = {
@@ -95,8 +87,8 @@ export const dataService = {
     return m.map(e => e.uf)
   },
 
-  async listar(uf: string, filtros: FiltrosImovel): Promise<PageResponse<Imovel>> {
-    const all = await loadUf(uf)
+  async listar(uf: string, filtros: FiltrosImovel, options: { strict?: boolean } = {}): Promise<PageResponse<Imovel>> {
+    const all = await loadUf(uf, options.strict)
     const filtered = applyFilters(all, filtros)
     const sorted = applySort(filtered, filtros.sort)
     const page = filtros.page ?? 0

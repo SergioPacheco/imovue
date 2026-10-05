@@ -6,8 +6,23 @@
       <span class="badge badge-type">{{ resultado?.totalElements || 0 }} encontrados</span>
     </div>
 
+    <fieldset :disabled="!initialized" class="mb-4 min-w-0">
+      <SmartSearchBar :cidades="cidadesBusca" :uf-atual="estado.uf"
+        placeholder="Ex: apartamento até 300 mil com dois quartos" @search="aplicarBusca" />
+    </fieldset>
+
+    <div v-if="chips.length" class="flex flex-wrap gap-2 mb-3" aria-label="Filtros aplicados">
+      <button v-for="chip in chips" :key="chip.key" @click="removerFiltro(chip.key)" :disabled="!initialized"
+        class="inline-flex items-center gap-2 rounded-full bg-brand-50 text-brand-700 border border-brand-100 px-3 py-2 text-xs"
+        :aria-label="`Remover filtro: ${chip.label}`">{{ chip.label }} <span aria-hidden="true">×</span></button>
+    </div>
+    <p v-if="typeof filtros.ocupado === 'boolean'" class="text-sm text-amber-800 mb-3" role="status">
+      A ocupação pode não estar informada. Este filtro inclui apenas situações confirmadas nos dados.
+    </p>
+    <p v-if="erro" class="text-sm text-red-700 mb-3" role="alert">{{ erro }} <button class="underline" @click="buscar()">Tentar novamente</button></p>
+
     <!-- Filtros -->
-    <div class="bg-white rounded-xl border border-gray-200 p-3 sm:p-4 mb-4">
+    <fieldset :disabled="!initialized" class="min-w-0 bg-white rounded-xl border border-gray-200 p-3 sm:p-4 mb-4">
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div>
           <label class="block text-xs font-medium text-gray-500 mb-1">Estado</label>
@@ -19,19 +34,20 @@
           <label class="block text-xs font-medium text-gray-500 mb-1">Cidade</label>
           <select v-model="filtros.cidade" class="input-field">
             <option value="">Todas</option>
-            <option v-for="c in cidades" :key="c">{{ c }}</option>
+            <option v-for="c in cidades" :key="c" :value="semContagem(c)">{{ c }}</option>
           </select>
         </div>
         <div>
           <label class="block text-xs font-medium text-gray-500 mb-1">Bairro</label>
           <select v-model="filtros.bairro" class="input-field">
             <option value="">Todos</option>
-            <option v-for="b in bairros" :key="b">{{ b }}</option>
+            <option v-for="b in bairros" :key="b" :value="semContagem(b)">{{ b }}</option>
           </select>
         </div>
         <div>
           <label class="block text-xs font-medium text-gray-500 mb-1">Ordenar</label>
           <select v-model="filtros.sort" class="input-field">
+            <option value="">Ordem do catálogo</option>
             <option value="percentualDesconto,desc">Maior desconto</option>
             <option value="precoVenda,asc">Menor preço</option>
             <option value="precoVenda,desc">Maior preço</option>
@@ -79,6 +95,23 @@
               <option v-for="m in modalidades" :key="m">{{ m }}</option>
             </select>
           </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Quartos máx</label>
+            <input v-model.number="filtros.quartosMax" type="number" min="0" placeholder="Máx" class="input-field" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Financiamento</label>
+            <select v-model="filtros.financiamento" class="input-field">
+              <option value="">Todos</option><option value="Sim">Aceita</option><option value="Não">Não aceita</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Ocupação confirmada</label>
+            <select v-model="filtros.ocupado" class="input-field">
+              <option :value="undefined">Todas / não informada</option>
+              <option :value="false">Desocupado</option><option :value="true">Ocupado</option>
+            </select>
+          </div>
       </div>
       <div class="mt-3 border-t border-gray-100 pt-3 flex justify-end">
         <button @click="showAdvanced = !showAdvanced" class="text-xs font-medium text-gray-500 hover:text-brand-500 flex items-center gap-1">
@@ -86,7 +119,7 @@
           Mais filtros
         </button>
       </div>
-    </div>
+    </fieldset>
 
     <!-- Loading -->
     <div v-if="loading" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -103,7 +136,8 @@
     <div v-else-if="resultado && resultado.content.length === 0" class="text-center py-20">
       <div class="text-5xl mb-4">🏚️</div>
       <h3 class="text-lg font-semibold text-gray-700">Nenhum imóvel encontrado</h3>
-      <p class="text-gray-400 mt-1">Tente ajustar os filtros para ampliar a busca.</p>
+      <p class="text-gray-500 mt-1">Tente ajustar os filtros para ampliar a busca.</p>
+      <p v-for="suggestion in alternativas" :key="suggestion" class="text-sm text-gray-600 mt-2">{{ suggestion }}</p>
       <button @click="limpar" class="btn-secondary mt-4">Limpar filtros</button>
     </div>
 
@@ -140,135 +174,210 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useSeoHead, getListagemSeo } from '@/composables/useSeoHead'
 import { dataService } from '@/services/dataService'
 import { useCatalogoStore } from '@/stores/catalogo'
-import type { Imovel } from '@/types'
+import { describeSearch, searchFromQuery, searchToQuery, type SmartSearchResult } from '@/composables/useSmartSearch'
+import { normalizeSearchText } from '@/services/propertySearch'
+import type { Imovel, FiltrosImovel } from '@/types'
 import { UF_NOMES } from '@/constants/uf'
 import PropertyCard from '@/components/PropertyCard.vue'
+import SmartSearchBar from '@/components/SmartSearchBar.vue'
 import AffiliateCourseCard from '@/components/AffiliateCourseCard.vue'
 import { AFFILIATE_CONFIG } from '@/config/affiliate'
 import { trackEvent } from '@/services/analytics'
 
 const route = useRoute()
 useSeoHead(() => getListagemSeo({ hasFilters: Object.keys(route.query).length > 0 }))
-
 const router = useRouter()
 const store = useCatalogoStore()
 const estado = ref({ uf: store.ufSelecionada, total: 0 })
 const ufsDisponiveis = ref<string[]>([])
 const cidades = ref<string[]>([])
+const cidadesBusca = ref<string[]>([])
 const tipos = ref<string[]>([])
 const bairros = ref<string[]>([])
 const modalidades = ref<string[]>([])
 const showAdvanced = ref(false)
 const resultado = ref<{ content: Imovel[]; totalElements: number; totalPages: number } | null>(null)
 const loading = ref(true)
+const erro = ref('')
+const alternativas = ref<string[]>([])
 const analises = ref<Map<string, { classificacao: 'sub' | 'normal' | 'sobre'; ratio: number }>>(new Map())
-let skipNextFilterWatch = false
-let analyticsReady = false
+const filtros = reactive<FiltrosImovel>({ sort: 'percentualDesconto,desc', page: 0, size: 21 })
+const initialized = ref(false)
+let syncing = false
+let updatingRoute = false
+let requestVersion = 0
+let debounceTimer: ReturnType<typeof setTimeout> | undefined
 
-const filtros = reactive({
-  cidade: '', bairro: '', tipoImovel: '', modalidade: '',
-  precoMin: undefined as number | undefined, precoMax: undefined as number | undefined,
-  descontoMin: undefined as number | undefined, quartosMin: undefined as number | undefined,
-  vagasMin: undefined as number | undefined, sort: 'percentualDesconto,desc', page: 0, size: 21
-})
+const semContagem = (value: string) => value.replace(/ \(\d+\)$/, '')
+const chipKeys: (keyof FiltrosImovel)[] = ['cidade', 'bairro', 'tipoImovel', 'modalidade', 'financiamento',
+  'precoMin', 'precoMax', 'descontoMin', 'quartosMin', 'quartosMax', 'vagasMin', 'ocupado', 'sort']
+const chips = computed(() => chipKeys.filter(key => filtros[key] != null && filtros[key] !== '')
+  .map(key => ({ key, label: describeSearch({ [key]: filtros[key] }, null) })))
 
-async function buscar() {
+async function syncUrl() {
+  updatingRoute = true
+  try {
+    await router.replace({ path: '/imoveis', query: searchToQuery(filtros, estado.value.uf) })
+    await nextTick()
+  } finally { updatingRoute = false }
+}
+
+async function buscar(resetPage = true) {
+  if (!estado.value.uf) return
+  const version = ++requestVersion
   loading.value = true
-  filtros.page = 0
-  resultado.value = await dataService.listar(estado.value.uf, filtros as any)
-  const opcoes = await dataService.opcoesFiltros(estado.value.uf, filtros as any)
-  cidades.value = opcoes.cidades
-  tipos.value = opcoes.tipos
-  bairros.value = opcoes.bairros
-  modalidades.value = opcoes.modalidades
-  loading.value = false
-  // Analisa preço vs bairro em background
-  if (resultado.value) {
+  erro.value = ''
+  if (resetPage) filtros.page = 0
+  const snapshot = { ...filtros }
+  const uf = estado.value.uf
+  try {
+    const [found, options, allCities] = await Promise.all([
+      dataService.listar(uf, snapshot, { strict: true }), dataService.opcoesFiltros(uf, snapshot), dataService.cidades(uf),
+    ])
+    if (version !== requestVersion) return
+    resultado.value = found
+    cidades.value = options.cidades
+    cidadesBusca.value = allCities
+    tipos.value = options.tipos
+    bairros.value = options.bairros
+    modalidades.value = options.modalidades
+    loading.value = false
+    alternativas.value = []
+    if (!found.totalElements) {
+      if (snapshot.precoMax != null || snapshot.precoMin != null) {
+        const expanded = await dataService.listar(uf, { ...snapshot, precoMax: undefined, precoMin: undefined })
+        if (expanded.totalElements && version === requestVersion) alternativas.value.push(`Sem os limites de preço, há ${expanded.totalElements} imóveis. Remova os chips de preço para tentar.`)
+      }
+      if (snapshot.descontoMin != null) {
+        const expanded = await dataService.listar(uf, { ...snapshot, descontoMin: undefined })
+        if (expanded.totalElements && version === requestVersion) alternativas.value.push(`Sem desconto mínimo, há ${expanded.totalElements} imóveis. Remova esse chip para tentar.`)
+      }
+    }
     const map = new Map<string, { classificacao: 'sub' | 'normal' | 'sobre'; ratio: number }>()
-    await Promise.all(resultado.value.content.map(async (im) => {
-      const a = await dataService.getAnalisePreco(im)
-      if (a) map.set(im.numeroImovel, { classificacao: a.classificacao, ratio: a.ratio })
+    await Promise.all(found.content.map(async im => {
+      const analysis = await dataService.getAnalisePreco(im)
+      if (analysis) map.set(im.numeroImovel, { classificacao: analysis.classificacao, ratio: analysis.ratio })
     }))
-    analises.value = map
+    if (version === requestVersion) analises.value = map
+  } catch {
+    if (version === requestVersion) {
+      resultado.value = null
+      erro.value = 'Não foi possível carregar os imóveis. Tente novamente.'
+    }
+  } finally {
+    if (version === requestVersion) loading.value = false
   }
 }
 
-let debounceTimer: ReturnType<typeof setTimeout>
 function currentFilterParams() {
   return {
-    filter_uf: estado.value.uf,
-    filter_city: filtros.cidade || undefined,
-    filter_neighborhood: filtros.bairro || undefined,
-    filter_property_type: filtros.tipoImovel || undefined,
-    filter_sale_type: filtros.modalidade || undefined,
-    filter_financing: (filtros as any).financiamento || undefined,
-    filter_price_min: filtros.precoMin,
-    filter_price_max: filtros.precoMax,
-    filter_discount_min: filtros.descontoMin,
-    filter_bedrooms_min: filtros.quartosMin,
-    filter_parking_min: filtros.vagasMin,
-    filter_sort: filtros.sort,
+    filter_uf: estado.value.uf, filter_city: filtros.cidade || undefined,
+    filter_neighborhood: filtros.bairro || undefined, filter_property_type: filtros.tipoImovel || undefined,
+    filter_sale_type: filtros.modalidade || undefined, filter_financing: filtros.financiamento || undefined,
+    filter_price_min: filtros.precoMin, filter_price_max: filtros.precoMax,
+    filter_discount_min: filtros.descontoMin, filter_bedrooms_min: filtros.quartosMin,
+    filter_parking_min: filtros.vagasMin, filter_sort: filtros.sort,
   }
 }
 
-watch(() => [filtros.cidade, filtros.bairro, filtros.tipoImovel, filtros.modalidade,
-  filtros.precoMin, filtros.precoMax, filtros.descontoMin, filtros.quartosMin,
-  filtros.vagasMin, filtros.sort], () => {
-  if (skipNextFilterWatch) { skipNextFilterWatch = false; return }
+watch(() => chipKeys.map(key => filtros[key]), () => {
+  if (!initialized.value || syncing) return
   clearTimeout(debounceTimer)
-  debounceTimer = setTimeout(() => {
-    if (analyticsReady) trackEvent('imovue_filter', currentFilterParams())
-    buscar()
+  ++requestVersion
+  debounceTimer = setTimeout(async () => {
+    trackEvent('imovue_filter', currentFilterParams())
+    await syncUrl()
+    await buscar()
   }, 300)
 })
-
-watch(() => filtros.cidade, () => { filtros.bairro = '' })
-
-watch(() => estado.value.uf, (novaUf) => {
+watch(() => filtros.cidade, () => {
+  if (!syncing && initialized.value) filtros.bairro = undefined
+})
+watch(() => estado.value.uf, async novaUf => {
+  if (!initialized.value || syncing) return
+  syncing = true
+  clearTimeout(debounceTimer)
+  filtros.cidade = undefined; filtros.bairro = undefined
   store.ufSelecionada = novaUf
-  if (analyticsReady) trackEvent('imovue_state_change', { filter_uf: novaUf })
-  skipNextFilterWatch = true
-  filtros.cidade = ''
-  filtros.bairro = ''
-  buscar()
-})
-
-function limpar() {
-  filtros.cidade = ''; filtros.bairro = ''; filtros.tipoImovel = ''; filtros.modalidade = ''
-  filtros.precoMin = undefined; filtros.precoMax = undefined
-  filtros.descontoMin = undefined; filtros.quartosMin = undefined; filtros.vagasMin = undefined
-  if (analyticsReady) trackEvent('imovue_filter_reset', { filter_uf: estado.value.uf })
-}
-
-function paginar(dir: number) {
-  filtros.page += dir
-  if (analyticsReady) trackEvent('imovue_pagination', { page: filtros.page, direction: dir > 0 ? 'next' : 'previous', filter_uf: estado.value.uf })
-  loading.value = true
-  dataService.listar(estado.value.uf, filtros as any).then(r => { resultado.value = r; loading.value = false })
-}
-
-onMounted(async () => {
-  ufsDisponiveis.value = await dataService.ufsDisponiveis()
-  if (!estado.value.uf) {
-    if (ufsDisponiveis.value.length > 0) {
-      estado.value.uf = ufsDisponiveis.value[0]
-      store.ufSelecionada = estado.value.uf
-    } else { router.push('/'); return }
-  }
-  const q = router.currentRoute.value.query
-  if (q.cidade) filtros.cidade = q.cidade as string
-  if (q.tipoImovel) filtros.tipoImovel = q.tipoImovel as string
-  if (q.precoMax) filtros.precoMax = Number(q.precoMax)
-  if (q.precoMin) filtros.precoMin = Number(q.precoMin)
-  if (q.descontoMin) filtros.descontoMin = Number(q.descontoMin)
-  if (q.sort) filtros.sort = q.sort as string
-  if (q.financiamento) (filtros as any).financiamento = q.financiamento as string
+  await nextTick()
+  syncing = false
+  trackEvent('imovue_state_change', { filter_uf: novaUf })
+  await syncUrl()
   await buscar()
-  analyticsReady = true
 })
+
+async function applyFiltersFromQuery() {
+  syncing = true
+  clearTimeout(debounceTimer)
+  ++requestVersion
+  try {
+    const parsed = searchFromQuery(route.query)
+    const uf = parsed.uf && ufsDisponiveis.value.includes(parsed.uf) ? parsed.uf
+      : ufsDisponiveis.value.includes(store.ufSelecionada) ? store.ufSelecionada : ufsDisponiveis.value[0]
+    if (!uf) { await router.push('/'); return }
+    estado.value.uf = uf
+    store.ufSelecionada = uf
+    for (const key of chipKeys) delete filtros[key]
+    Object.assign(filtros, { sort: 'percentualDesconto,desc' }, parsed.filtros)
+    cidadesBusca.value = await dataService.cidades(uf)
+    if (filtros.cidade) filtros.cidade = cidadesBusca.value.find(c => normalizeSearchText(c) === normalizeSearchText(semContagem(filtros.cidade!))) || filtros.cidade
+    await nextTick()
+  } finally { syncing = false }
+  await buscar()
+}
+watch(() => route.query, async () => {
+  if (initialized.value && !updatingRoute) await applyFiltersFromQuery()
+})
+
+async function aplicarBusca(result: SmartSearchResult, query: string) {
+  syncing = true
+  clearTimeout(debounceTimer)
+  ++requestVersion
+  try {
+    if (result.intent === 'RESET_SEARCH') for (const key of chipKeys) delete filtros[key]
+    const uf = result.uf || estado.value.uf
+    if (uf !== estado.value.uf) { filtros.cidade = undefined; filtros.bairro = undefined }
+    if (result.filtros.cidade) filtros.bairro = undefined
+    estado.value.uf = uf
+    store.ufSelecionada = uf
+    for (const key of result.removerFiltros) delete filtros[key]
+    Object.assign(filtros, result.filtros)
+    cidadesBusca.value = await dataService.cidades(uf)
+    if (filtros.cidade) filtros.cidade = cidadesBusca.value.find(c => normalizeSearchText(c) === normalizeSearchText(filtros.cidade!)) || filtros.cidade
+    await nextTick()
+  } catch {
+    erro.value = 'Não foi possível carregar os imóveis. Tente novamente.'
+  } finally { syncing = false }
+  trackEvent('imovue_search', { search_term: query, search_description: describeSearch(filtros, estado.value.uf), search_uf: estado.value.uf })
+  await syncUrl()
+  await buscar()
+}
+function removerFiltro(key: keyof FiltrosImovel) {
+  if (key === 'sort') filtros.sort = ''
+  else filtros[key] = undefined
+}
+function limpar() {
+  for (const key of chipKeys) delete filtros[key]
+  trackEvent('imovue_filter_reset', { filter_uf: estado.value.uf })
+}
+async function paginar(dir: number) {
+  filtros.page = (filtros.page || 0) + dir
+  trackEvent('imovue_pagination', { page: filtros.page, direction: dir > 0 ? 'next' : 'previous', filter_uf: estado.value.uf })
+  await buscar(false)
+}
+onMounted(async () => {
+  try {
+    ufsDisponiveis.value = await dataService.ufsDisponiveis()
+    await applyFiltersFromQuery()
+  } catch {
+    erro.value = 'Não foi possível carregar os imóveis. Tente novamente.'
+    loading.value = false
+  } finally { initialized.value = true }
+})
+onUnmounted(() => { clearTimeout(debounceTimer); ++requestVersion })
 </script>
