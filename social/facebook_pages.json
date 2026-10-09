@@ -1,8 +1,8 @@
 {
   "BR": {"enabled": true, "pageId": "1367221386473185", "name": "Imovue Brasil"},
-  "AC": {"enabled": false, "pageId": "", "name": "Imovue Acre"},
-  "AL": {"enabled": false, "pageId": "", "name": "Imovue Alagoas"},
-  "AP": {"enabled": false, "pageId": "", "name": "Imovue Amapá"},
+  "AC": {"enabled": true, "pageId": "1410918928764568", "name": "Imovue Acre"},
+  "AL": {"enabled": true, "pageId": "1288843330986818", "name": "Imovue Alagoas"},
+  "AP": {"enabled": true, "pageId": "1380310078496013", "name": "Imovue Amapá"},
   "AM": {"enabled": false, "pageId": "", "name": "Imovue Amazonas"},
   "BA": {"enabled": false, "pageId": "", "name": "Imovue Bahia"},
   "CE": {"enabled": false, "pageId": "", "name": "Imovue Ceará"},
