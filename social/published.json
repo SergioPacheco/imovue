@@ -569,9 +569,11 @@
     "scheduled_for": "2026-09-27 19:30",
     "published_at": "2026-09-27T21:30:45.681911+00:00",
     "timezone": "America/Sao_Paulo",
-    "status": "published",
+    "status": "removed",
     "error": "",
-    "url": "https://imovue.com.br/imovel/1555532747610?utm_source=facebook&utm_medium=social&utm_campaign=br_daily&utm_content=1555532747610"
+    "url": "https://imovue.com.br/imovel/1555532747610?utm_source=facebook&utm_medium=social&utm_campaign=br_daily&utm_content=1555532747610",
+    "removed_at": "2026-10-19T18:48:13.331243+00:00",
+    "remove_detail": "deletado via Graph API DELETE"
   },
   {
     "property_id": "10151420",
@@ -639,9 +641,11 @@
     "scheduled_for": "2026-09-27 19:30",
     "published_at": "",
     "timezone": "America/Sao_Paulo",
-    "status": "skipped",
+    "status": "removed",
     "error": "página desativada ou token ausente",
-    "url": "https://imovue.com.br/imovel/1444423291974?utm_source=facebook&utm_medium=social&utm_campaign=ap_daily&utm_content=1444423291974"
+    "url": "https://imovue.com.br/imovel/1444423291974?utm_source=facebook&utm_medium=social&utm_campaign=ap_daily&utm_content=1444423291974",
+    "removed_at": "2026-10-19T18:48:13.331322+00:00",
+    "remove_detail": "sem post_id; nada a deletar na API"
   },
   {
     "property_id": "8444400798566",
@@ -1046,9 +1050,11 @@
     "scheduled_for": "2026-10-04 10:00",
     "published_at": "",
     "timezone": "America/Sao_Paulo",
-    "status": "error",
+    "status": "removed",
     "error": "Facebook API 400: Error validating access token: Session has expired on Sunday, 27-Sep-26 19:00:00 PDT. The current time is Sunday, 04-Oct-26 05:47:55 PDT.",
-    "url": "https://imovue.com.br/imovel/8444416111999?utm_source=facebook&utm_medium=social&utm_campaign=rs_daily&utm_content=8444416111999"
+    "url": "https://imovue.com.br/imovel/8444416111999?utm_source=facebook&utm_medium=social&utm_campaign=rs_daily&utm_content=8444416111999",
+    "removed_at": "2026-10-19T18:48:13.331329+00:00",
+    "remove_detail": "sem post_id; nada a deletar na API"
   },
   {
     "property_id": "1555528553075",
@@ -1114,9 +1120,11 @@
     "scheduled_for": "2026-10-04 10:00",
     "published_at": "",
     "timezone": "America/Sao_Paulo",
-    "status": "error",
+    "status": "removed",
     "error": "Facebook API 400: Error validating access token: Session has expired on Sunday, 27-Sep-26 18:00:00 PDT. The current time is Sunday, 04-Oct-26 05:48:02 PDT.",
-    "url": "https://imovue.com.br/imovel/8444411080483?utm_source=facebook&utm_medium=social&utm_campaign=go_daily&utm_content=8444411080483"
+    "url": "https://imovue.com.br/imovel/8444411080483?utm_source=facebook&utm_medium=social&utm_campaign=go_daily&utm_content=8444411080483",
+    "removed_at": "2026-10-19T18:48:13.331351+00:00",
+    "remove_detail": "sem post_id; nada a deletar na API"
   },
   {
     "property_id": "8555536370683",
@@ -1131,9 +1139,11 @@
     "scheduled_for": "2026-10-04 10:00",
     "published_at": "",
     "timezone": "America/Sao_Paulo",
-    "status": "error",
+    "status": "removed",
     "error": "Facebook API 400: Error validating access token: Session has expired on Sunday, 27-Sep-26 17:00:00 PDT. The current time is Sunday, 04-Oct-26 05:48:04 PDT.",
-    "url": "https://imovue.com.br/imovel/8555536370683?utm_source=facebook&utm_medium=social&utm_campaign=rn_daily&utm_content=8555536370683"
+    "url": "https://imovue.com.br/imovel/8555536370683?utm_source=facebook&utm_medium=social&utm_campaign=rn_daily&utm_content=8555536370683",
+    "removed_at": "2026-10-19T18:48:13.331355+00:00",
+    "remove_detail": "sem post_id; nada a deletar na API"
   },
   {
     "property_id": "8444410702367",
@@ -2057,9 +2067,11 @@
     "scheduled_for": "2026-10-04 14:30",
     "published_at": "",
     "timezone": "America/Sao_Paulo",
-    "status": "skipped",
+    "status": "removed",
     "error": "página desativada ou token ausente",
-    "url": "https://imovue.com.br/imovel/1444408877645?utm_source=facebook&utm_medium=social&utm_campaign=al_daily&utm_content=1444408877645"
+    "url": "https://imovue.com.br/imovel/1444408877645?utm_source=facebook&utm_medium=social&utm_campaign=al_daily&utm_content=1444408877645",
+    "removed_at": "2026-10-19T18:48:13.331359+00:00",
+    "remove_detail": "sem post_id; nada a deletar na API"
   },
   {
     "property_id": "1555526643620",
@@ -2527,9 +2539,11 @@
     "scheduled_for": "2026-10-05 19:30",
     "published_at": "2026-10-05T23:14:57.068239+00:00",
     "timezone": "America/Sao_Paulo",
-    "status": "published",
+    "status": "removed",
     "error": "",
-    "url": "https://imovue.com.br/imovel/8787706224705?utm_source=facebook&utm_medium=social&utm_campaign=go_daily&utm_content=8787706224705"
+    "url": "https://imovue.com.br/imovel/8787706224705?utm_source=facebook&utm_medium=social&utm_campaign=go_daily&utm_content=8787706224705",
+    "removed_at": "2026-10-19T18:48:18.836180+00:00",
+    "remove_detail": "deletado via Graph API DELETE"
   },
   {
     "property_id": "1444400411388",
@@ -2745,9 +2759,11 @@
     "scheduled_for": "2026-10-05 19:30",
     "published_at": "",
     "timezone": "America/Sao_Paulo",
-    "status": "skipped",
+    "status": "removed",
     "error": "página desativada ou token ausente",
-    "url": "https://imovue.com.br/imovel/10206961?utm_source=facebook&utm_medium=social&utm_campaign=ro_daily&utm_content=10206961"
+    "url": "https://imovue.com.br/imovel/10206961?utm_source=facebook&utm_medium=social&utm_campaign=ro_daily&utm_content=10206961",
+    "removed_at": "2026-10-19T18:48:18.836207+00:00",
+    "remove_detail": "sem post_id; nada a deletar na API"
   },
   {
     "property_id": "8444429349786",
@@ -3095,9 +3111,11 @@
     "scheduled_for": "2026-10-06 19:30",
     "published_at": "",
     "timezone": "America/Sao_Paulo",
-    "status": "skipped",
+    "status": "removed",
     "error": "página desativada ou token ausente",
-    "url": "https://imovue.com.br/imovel/8787715335913?utm_source=facebook&utm_medium=social&utm_campaign=ms_daily&utm_content=8787715335913"
+    "url": "https://imovue.com.br/imovel/8787715335913?utm_source=facebook&utm_medium=social&utm_campaign=ms_daily&utm_content=8787715335913",
+    "removed_at": "2026-10-19T18:48:18.836212+00:00",
+    "remove_detail": "sem post_id; nada a deletar na API"
   },
   {
     "property_id": "1444422223207",
@@ -3167,9 +3185,11 @@
     "scheduled_for": "2026-10-06 19:30",
     "published_at": "2026-10-06T23:08:33.013630+00:00",
     "timezone": "America/Sao_Paulo",
-    "status": "published",
+    "status": "removed",
     "error": "",
-    "url": "https://imovue.com.br/imovel/8787706227690?utm_source=facebook&utm_medium=social&utm_campaign=pe_daily&utm_content=8787706227690"
+    "url": "https://imovue.com.br/imovel/8787706227690?utm_source=facebook&utm_medium=social&utm_campaign=pe_daily&utm_content=8787706227690",
+    "removed_at": "2026-10-19T18:48:23.539904+00:00",
+    "remove_detail": "deletado via Graph API DELETE"
   },
   {
     "property_id": "8444417906820",
@@ -3955,9 +3975,11 @@
     "scheduled_for": "2026-10-10 19:30",
     "published_at": "2026-10-10T22:43:54.400202+00:00",
     "timezone": "America/Sao_Paulo",
-    "status": "published",
+    "status": "removed",
     "error": "",
-    "url": "https://imovue.com.br/imovel/1444423291974?utm_source=facebook&utm_medium=social&utm_campaign=ap_daily&utm_content=1444423291974"
+    "url": "https://imovue.com.br/imovel/1444423291974?utm_source=facebook&utm_medium=social&utm_campaign=ap_daily&utm_content=1444423291974",
+    "removed_at": "2026-10-19T18:48:29.874891+00:00",
+    "remove_detail": "deletado via Graph API DELETE"
   },
   {
     "property_id": "1555514430375",
@@ -4013,9 +4035,11 @@
     "scheduled_for": "2026-10-10 19:30",
     "published_at": "",
     "timezone": "America/Sao_Paulo",
-    "status": "skipped",
+    "status": "removed",
     "error": "página desativada ou token ausente",
-    "url": "https://imovue.com.br/imovel/8444428137246?utm_source=facebook&utm_medium=social&utm_campaign=ce_daily&utm_content=8444428137246"
+    "url": "https://imovue.com.br/imovel/8444428137246?utm_source=facebook&utm_medium=social&utm_campaign=ce_daily&utm_content=8444428137246",
+    "removed_at": "2026-10-19T18:48:29.874913+00:00",
+    "remove_detail": "sem post_id; nada a deletar na API"
   },
   {
     "property_id": "1444419158416",
@@ -4641,9 +4665,11 @@
     "scheduled_for": "2026-10-11 14:30",
     "published_at": "",
     "timezone": "America/Sao_Paulo",
-    "status": "skipped",
+    "status": "removed",
     "error": "página desativada ou token ausente",
-    "url": "https://imovue.com.br/imovel/1444416264908?utm_source=facebook&utm_medium=social&utm_campaign=mt_daily&utm_content=1444416264908"
+    "url": "https://imovue.com.br/imovel/1444416264908?utm_source=facebook&utm_medium=social&utm_campaign=mt_daily&utm_content=1444416264908",
+    "removed_at": "2026-10-19T18:48:29.874918+00:00",
+    "remove_detail": "sem post_id; nada a deletar na API"
   },
   {
     "property_id": "1444420607024",
@@ -5763,9 +5789,11 @@
     "scheduled_for": "2026-10-12 19:30",
     "published_at": "",
     "timezone": "America/Sao_Paulo",
-    "status": "skipped",
+    "status": "removed",
     "error": "página desativada ou token ausente",
-    "url": "https://imovue.com.br/imovel/8444406435732?utm_source=facebook&utm_medium=social&utm_campaign=ce_daily&utm_content=8444406435732"
+    "url": "https://imovue.com.br/imovel/8444406435732?utm_source=facebook&utm_medium=social&utm_campaign=ce_daily&utm_content=8444406435732",
+    "removed_at": "2026-10-19T18:48:29.874921+00:00",
+    "remove_detail": "sem post_id; nada a deletar na API"
   },
   {
     "property_id": "1444418745490",
@@ -5799,9 +5827,11 @@
     "scheduled_for": "2026-10-12 19:30",
     "published_at": "",
     "timezone": "America/Sao_Paulo",
-    "status": "skipped",
+    "status": "removed",
     "error": "página desativada ou token ausente",
-    "url": "https://imovue.com.br/imovel/10258747?utm_source=facebook&utm_medium=social&utm_campaign=es_daily&utm_content=10258747"
+    "url": "https://imovue.com.br/imovel/10258747?utm_source=facebook&utm_medium=social&utm_campaign=es_daily&utm_content=10258747",
+    "removed_at": "2026-10-19T18:48:29.874925+00:00",
+    "remove_detail": "sem post_id; nada a deletar na API"
   },
   {
     "property_id": "8444417053909",
@@ -5853,9 +5883,11 @@
     "scheduled_for": "2026-10-12 19:30",
     "published_at": "",
     "timezone": "America/Sao_Paulo",
-    "status": "skipped",
+    "status": "removed",
     "error": "página desativada ou token ausente",
-    "url": "https://imovue.com.br/imovel/8787716272443?utm_source=facebook&utm_medium=social&utm_campaign=mg_daily&utm_content=8787716272443"
+    "url": "https://imovue.com.br/imovel/8787716272443?utm_source=facebook&utm_medium=social&utm_campaign=mg_daily&utm_content=8787716272443",
+    "removed_at": "2026-10-19T18:48:29.874928+00:00",
+    "remove_detail": "sem post_id; nada a deletar na API"
   },
   {
     "property_id": "8444435244583",
@@ -5871,9 +5903,11 @@
     "scheduled_for": "2026-10-12 19:30",
     "published_at": "",
     "timezone": "America/Sao_Paulo",
-    "status": "skipped",
+    "status": "removed",
     "error": "página desativada ou token ausente",
-    "url": "https://imovue.com.br/imovel/8444435244583?utm_source=facebook&utm_medium=social&utm_campaign=ms_daily&utm_content=8444435244583"
+    "url": "https://imovue.com.br/imovel/8444435244583?utm_source=facebook&utm_medium=social&utm_campaign=ms_daily&utm_content=8444435244583",
+    "removed_at": "2026-10-19T18:48:29.874930+00:00",
+    "remove_detail": "sem post_id; nada a deletar na API"
   },
   {
     "property_id": "1444419115369",
@@ -5961,9 +5995,11 @@
     "scheduled_for": "2026-10-12 19:30",
     "published_at": "2026-10-12T22:33:47.105815+00:00",
     "timezone": "America/Sao_Paulo",
-    "status": "published",
+    "status": "removed",
     "error": "",
-    "url": "https://imovue.com.br/imovel/8444425660177?utm_source=facebook&utm_medium=social&utm_campaign=pi_daily&utm_content=8444425660177"
+    "url": "https://imovue.com.br/imovel/8444425660177?utm_source=facebook&utm_medium=social&utm_campaign=pi_daily&utm_content=8444425660177",
+    "removed_at": "2026-10-19T18:48:35.522410+00:00",
+    "remove_detail": "deletado via Graph API DELETE"
   },
   {
     "property_id": "1600000016830",
@@ -6051,9 +6087,11 @@
     "scheduled_for": "2026-10-12 19:30",
     "published_at": "",
     "timezone": "America/Sao_Paulo",
-    "status": "skipped",
+    "status": "removed",
     "error": "página desativada ou token ausente",
-    "url": "https://imovue.com.br/imovel/8444428981551?utm_source=facebook&utm_medium=social&utm_campaign=rr_daily&utm_content=8444428981551"
+    "url": "https://imovue.com.br/imovel/8444428981551?utm_source=facebook&utm_medium=social&utm_campaign=rr_daily&utm_content=8444428981551",
+    "removed_at": "2026-10-19T18:48:35.522429+00:00",
+    "remove_detail": "sem post_id; nada a deletar na API"
   },
   {
     "property_id": "10215014",
@@ -6087,9 +6125,11 @@
     "scheduled_for": "2026-10-12 19:30",
     "published_at": "2026-10-12T22:34:16.768002+00:00",
     "timezone": "America/Sao_Paulo",
-    "status": "published",
+    "status": "removed",
     "error": "",
-    "url": "https://imovue.com.br/imovel/8444425574386?utm_source=facebook&utm_medium=social&utm_campaign=sc_daily&utm_content=8444425574386"
+    "url": "https://imovue.com.br/imovel/8444425574386?utm_source=facebook&utm_medium=social&utm_campaign=sc_daily&utm_content=8444425574386",
+    "removed_at": "2026-10-19T18:48:40.197515+00:00",
+    "remove_detail": "deletado via Graph API DELETE"
   },
   {
     "property_id": "8444419898035",
@@ -6123,9 +6163,11 @@
     "scheduled_for": "2026-10-12 19:30",
     "published_at": "2026-10-12T22:34:22.928307+00:00",
     "timezone": "America/Sao_Paulo",
-    "status": "published",
+    "status": "removed",
     "error": "",
-    "url": "https://imovue.com.br/imovel/8444430913649?utm_source=facebook&utm_medium=social&utm_campaign=sp_daily&utm_content=8444430913649"
+    "url": "https://imovue.com.br/imovel/8444430913649?utm_source=facebook&utm_medium=social&utm_campaign=sp_daily&utm_content=8444430913649",
+    "removed_at": "2026-10-19T18:48:45.677475+00:00",
+    "remove_detail": "deletado via Graph API DELETE"
   },
   {
     "property_id": "1444424063061",
@@ -6321,9 +6363,11 @@
     "scheduled_for": "2026-10-14 14:30",
     "published_at": "",
     "timezone": "America/Sao_Paulo",
-    "status": "skipped",
+    "status": "removed",
     "error": "página desativada ou token ausente",
-    "url": "https://imovue.com.br/imovel/1555534034190?utm_source=facebook&utm_medium=social&utm_campaign=ma_daily&utm_content=1555534034190"
+    "url": "https://imovue.com.br/imovel/1555534034190?utm_source=facebook&utm_medium=social&utm_campaign=ma_daily&utm_content=1555534034190",
+    "removed_at": "2026-10-19T18:48:45.677497+00:00",
+    "remove_detail": "sem post_id; nada a deletar na API"
   },
   {
     "property_id": "1444420836139",
@@ -6447,9 +6491,11 @@
     "scheduled_for": "2026-10-14 14:30",
     "published_at": "2026-10-14T17:51:09.677708+00:00",
     "timezone": "America/Sao_Paulo",
-    "status": "published",
+    "status": "removed",
     "error": "",
-    "url": "https://imovue.com.br/imovel/8444426407840?utm_source=facebook&utm_medium=social&utm_campaign=pi_daily&utm_content=8444426407840"
+    "url": "https://imovue.com.br/imovel/8444426407840?utm_source=facebook&utm_medium=social&utm_campaign=pi_daily&utm_content=8444426407840",
+    "removed_at": "2026-10-19T18:48:51.148929+00:00",
+    "remove_detail": "deletado via Graph API DELETE"
   },
   {
     "property_id": "8787712778865",
@@ -6483,9 +6529,11 @@
     "scheduled_for": "2026-10-14 14:30",
     "published_at": "2026-10-14T17:51:19.551325+00:00",
     "timezone": "America/Sao_Paulo",
-    "status": "published",
+    "status": "removed",
     "error": "",
-    "url": "https://imovue.com.br/imovel/8555531706063?utm_source=facebook&utm_medium=social&utm_campaign=rj_daily&utm_content=8555531706063"
+    "url": "https://imovue.com.br/imovel/8555531706063?utm_source=facebook&utm_medium=social&utm_campaign=rj_daily&utm_content=8555531706063",
+    "removed_at": "2026-10-19T18:48:59.466852+00:00",
+    "remove_detail": "deletado via Graph API DELETE"
   },
   {
     "property_id": "8555536190448",
@@ -6537,9 +6585,11 @@
     "scheduled_for": "2026-10-14 14:30",
     "published_at": "",
     "timezone": "America/Sao_Paulo",
-    "status": "skipped",
+    "status": "removed",
     "error": "página desativada ou token ausente",
-    "url": "https://imovue.com.br/imovel/8444428981551?utm_source=facebook&utm_medium=social&utm_campaign=rr_daily&utm_content=8444428981551"
+    "url": "https://imovue.com.br/imovel/8444428981551?utm_source=facebook&utm_medium=social&utm_campaign=rr_daily&utm_content=8444428981551",
+    "removed_at": "2026-10-19T18:48:59.466877+00:00",
+    "remove_detail": "sem post_id; nada a deletar na API"
   },
   {
     "property_id": "1444420999097",
@@ -6555,9 +6605,11 @@
     "scheduled_for": "2026-10-14 14:30",
     "published_at": "2026-10-14T17:51:32.915140+00:00",
     "timezone": "America/Sao_Paulo",
-    "status": "published",
+    "status": "removed",
     "error": "",
-    "url": "https://imovue.com.br/imovel/1444420999097?utm_source=facebook&utm_medium=social&utm_campaign=rs_daily&utm_content=1444420999097"
+    "url": "https://imovue.com.br/imovel/1444420999097?utm_source=facebook&utm_medium=social&utm_campaign=rs_daily&utm_content=1444420999097",
+    "removed_at": "2026-10-19T18:49:05.244948+00:00",
+    "remove_detail": "deletado via Graph API DELETE"
   },
   {
     "property_id": "8787705612205",
@@ -6573,9 +6625,11 @@
     "scheduled_for": "2026-10-14 14:30",
     "published_at": "2026-10-14T17:51:37.839720+00:00",
     "timezone": "America/Sao_Paulo",
-    "status": "published",
+    "status": "removed",
     "error": "",
-    "url": "https://imovue.com.br/imovel/8787705612205?utm_source=facebook&utm_medium=social&utm_campaign=sc_daily&utm_content=8787705612205"
+    "url": "https://imovue.com.br/imovel/8787705612205?utm_source=facebook&utm_medium=social&utm_campaign=sc_daily&utm_content=8787705612205",
+    "removed_at": "2026-10-19T18:49:09.938473+00:00",
+    "remove_detail": "deletado via Graph API DELETE"
   },
   {
     "property_id": "8444424173493",
@@ -6591,9 +6645,11 @@
     "scheduled_for": "2026-10-14 14:30",
     "published_at": "",
     "timezone": "America/Sao_Paulo",
-    "status": "skipped",
+    "status": "removed",
     "error": "página desativada ou token ausente",
-    "url": "https://imovue.com.br/imovel/8444424173493?utm_source=facebook&utm_medium=social&utm_campaign=se_daily&utm_content=8444424173493"
+    "url": "https://imovue.com.br/imovel/8444424173493?utm_source=facebook&utm_medium=social&utm_campaign=se_daily&utm_content=8444424173493",
+    "removed_at": "2026-10-19T18:49:09.938496+00:00",
+    "remove_detail": "sem post_id; nada a deletar na API"
   },
   {
     "property_id": "1444419005067",
@@ -6609,9 +6665,11 @@
     "scheduled_for": "2026-10-14 14:30",
     "published_at": "2026-10-14T17:51:44.730096+00:00",
     "timezone": "America/Sao_Paulo",
-    "status": "published",
+    "status": "removed",
     "error": "",
-    "url": "https://imovue.com.br/imovel/1444419005067?utm_source=facebook&utm_medium=social&utm_campaign=sp_daily&utm_content=1444419005067"
+    "url": "https://imovue.com.br/imovel/1444419005067?utm_source=facebook&utm_medium=social&utm_campaign=sp_daily&utm_content=1444419005067",
+    "removed_at": "2026-10-19T18:49:16.448443+00:00",
+    "remove_detail": "deletado via Graph API DELETE"
   },
   {
     "property_id": "1555537629143",
@@ -6681,9 +6739,11 @@
     "scheduled_for": "2026-10-15 14:30",
     "published_at": "",
     "timezone": "America/Sao_Paulo",
-    "status": "skipped",
+    "status": "removed",
     "error": "página desativada ou token ausente",
-    "url": "https://imovue.com.br/imovel/8787712862769?utm_source=facebook&utm_medium=social&utm_campaign=am_daily&utm_content=8787712862769"
+    "url": "https://imovue.com.br/imovel/8787712862769?utm_source=facebook&utm_medium=social&utm_campaign=am_daily&utm_content=8787712862769",
+    "removed_at": "2026-10-19T18:49:16.448466+00:00",
+    "remove_detail": "sem post_id; nada a deletar na API"
   },
   {
     "property_id": "8444421046717",
@@ -6753,9 +6813,11 @@
     "scheduled_for": "2026-10-15 14:30",
     "published_at": "",
     "timezone": "America/Sao_Paulo",
-    "status": "skipped",
+    "status": "removed",
     "error": "página desativada ou token ausente",
-    "url": "https://imovue.com.br/imovel/8787716257681?utm_source=facebook&utm_medium=social&utm_campaign=df_daily&utm_content=8787716257681"
+    "url": "https://imovue.com.br/imovel/8787716257681?utm_source=facebook&utm_medium=social&utm_campaign=df_daily&utm_content=8787716257681",
+    "removed_at": "2026-10-19T18:49:16.448471+00:00",
+    "remove_detail": "sem post_id; nada a deletar na API"
   },
   {
     "property_id": "10258736",
@@ -7005,9 +7067,11 @@
     "scheduled_for": "2026-10-15 14:30",
     "published_at": "",
     "timezone": "America/Sao_Paulo",
-    "status": "skipped",
+    "status": "removed",
     "error": "página desativada ou token ausente",
-    "url": "https://imovue.com.br/imovel/10206961?utm_source=facebook&utm_medium=social&utm_campaign=ro_daily&utm_content=10206961"
+    "url": "https://imovue.com.br/imovel/10206961?utm_source=facebook&utm_medium=social&utm_campaign=ro_daily&utm_content=10206961",
+    "removed_at": "2026-10-19T18:49:16.448475+00:00",
+    "remove_detail": "sem post_id; nada a deletar na API"
   },
   {
     "property_id": "8444428981551",
@@ -7023,9 +7087,11 @@
     "scheduled_for": "2026-10-15 14:30",
     "published_at": "",
     "timezone": "America/Sao_Paulo",
-    "status": "skipped",
+    "status": "removed",
     "error": "página desativada ou token ausente",
-    "url": "https://imovue.com.br/imovel/8444428981551?utm_source=facebook&utm_medium=social&utm_campaign=rr_daily&utm_content=8444428981551"
+    "url": "https://imovue.com.br/imovel/8444428981551?utm_source=facebook&utm_medium=social&utm_campaign=rr_daily&utm_content=8444428981551",
+    "removed_at": "2026-10-19T18:49:16.448478+00:00",
+    "remove_detail": "sem post_id; nada a deletar na API"
   },
   {
     "property_id": "8787705323793",
@@ -7041,9 +7107,11 @@
     "scheduled_for": "2026-10-15 14:30",
     "published_at": "2026-10-15T17:40:30.818985+00:00",
     "timezone": "America/Sao_Paulo",
-    "status": "published",
+    "status": "removed",
     "error": "",
-    "url": "https://imovue.com.br/imovel/8787705323793?utm_source=facebook&utm_medium=social&utm_campaign=rs_daily&utm_content=8787705323793"
+    "url": "https://imovue.com.br/imovel/8787705323793?utm_source=facebook&utm_medium=social&utm_campaign=rs_daily&utm_content=8787705323793",
+    "removed_at": "2026-10-19T18:49:21.569829+00:00",
+    "remove_detail": "deletado via Graph API DELETE"
   },
   {
     "property_id": "8444417043210",
@@ -7257,9 +7325,11 @@
     "scheduled_for": "2026-10-15 19:30",
     "published_at": "",
     "timezone": "America/Sao_Paulo",
-    "status": "skipped",
+    "status": "removed",
     "error": "página desativada ou token ausente",
-    "url": "https://imovue.com.br/imovel/10208964?utm_source=facebook&utm_medium=social&utm_campaign=es_daily&utm_content=10208964"
+    "url": "https://imovue.com.br/imovel/10208964?utm_source=facebook&utm_medium=social&utm_campaign=es_daily&utm_content=10208964",
+    "removed_at": "2026-10-19T18:49:21.569855+00:00",
+    "remove_detail": "sem post_id; nada a deletar na API"
   },
   {
     "property_id": "8787702627813",
@@ -7527,9 +7597,11 @@
     "scheduled_for": "2026-10-15 19:30",
     "published_at": "2026-10-15T22:31:56.299665+00:00",
     "timezone": "America/Sao_Paulo",
-    "status": "published",
+    "status": "removed",
     "error": "",
-    "url": "https://imovue.com.br/imovel/8787707172822?utm_source=facebook&utm_medium=social&utm_campaign=rs_daily&utm_content=8787707172822"
+    "url": "https://imovue.com.br/imovel/8787707172822?utm_source=facebook&utm_medium=social&utm_campaign=rs_daily&utm_content=8787707172822",
+    "removed_at": "2026-10-19T18:49:27.127771+00:00",
+    "remove_detail": "deletado via Graph API DELETE"
   },
   {
     "property_id": "8444427802009",
@@ -7635,9 +7707,11 @@
     "scheduled_for": "2026-10-16 14:30",
     "published_at": "2026-10-16T18:16:02.678807+00:00",
     "timezone": "America/Sao_Paulo",
-    "status": "published",
+    "status": "removed",
     "error": "",
-    "url": "https://imovue.com.br/imovel/8555532261944?utm_source=facebook&utm_medium=social&utm_campaign=al_daily&utm_content=8555532261944"
+    "url": "https://imovue.com.br/imovel/8555532261944?utm_source=facebook&utm_medium=social&utm_campaign=al_daily&utm_content=8555532261944",
+    "removed_at": "2026-10-19T18:49:32.925786+00:00",
+    "remove_detail": "deletado via Graph API DELETE"
   },
   {
     "property_id": "8787711334327",
@@ -7707,9 +7781,11 @@
     "scheduled_for": "2026-10-16 14:30",
     "published_at": "",
     "timezone": "America/Sao_Paulo",
-    "status": "skipped",
+    "status": "removed",
     "error": "página desativada ou token ausente",
-    "url": "https://imovue.com.br/imovel/8444412737451?utm_source=facebook&utm_medium=social&utm_campaign=ce_daily&utm_content=8444412737451"
+    "url": "https://imovue.com.br/imovel/8444412737451?utm_source=facebook&utm_medium=social&utm_campaign=ce_daily&utm_content=8444412737451",
+    "removed_at": "2026-10-19T18:49:32.925809+00:00",
+    "remove_detail": "sem post_id; nada a deletar na API"
   },
   {
     "property_id": "8555517678686",
@@ -7725,9 +7801,11 @@
     "scheduled_for": "2026-10-16 14:30",
     "published_at": "",
     "timezone": "America/Sao_Paulo",
-    "status": "skipped",
+    "status": "removed",
     "error": "página desativada ou token ausente",
-    "url": "https://imovue.com.br/imovel/8555517678686?utm_source=facebook&utm_medium=social&utm_campaign=df_daily&utm_content=8555517678686"
+    "url": "https://imovue.com.br/imovel/8555517678686?utm_source=facebook&utm_medium=social&utm_campaign=df_daily&utm_content=8555517678686",
+    "removed_at": "2026-10-19T18:49:32.925814+00:00",
+    "remove_detail": "sem post_id; nada a deletar na API"
   },
   {
     "property_id": "1444423093552",
@@ -7797,9 +7875,11 @@
     "scheduled_for": "2026-10-16 14:30",
     "published_at": "",
     "timezone": "America/Sao_Paulo",
-    "status": "skipped",
+    "status": "removed",
     "error": "página desativada ou token ausente",
-    "url": "https://imovue.com.br/imovel/8787704670155?utm_source=facebook&utm_medium=social&utm_campaign=mg_daily&utm_content=8787704670155"
+    "url": "https://imovue.com.br/imovel/8787704670155?utm_source=facebook&utm_medium=social&utm_campaign=mg_daily&utm_content=8787704670155",
+    "removed_at": "2026-10-19T18:49:32.925818+00:00",
+    "remove_detail": "sem post_id; nada a deletar na API"
   },
   {
     "property_id": "8444429945770",
@@ -7869,9 +7949,11 @@
     "scheduled_for": "2026-10-16 14:30",
     "published_at": "2026-10-16T18:16:19.553233+00:00",
     "timezone": "America/Sao_Paulo",
-    "status": "published",
+    "status": "removed",
     "error": "",
-    "url": "https://imovue.com.br/imovel/8787706167205?utm_source=facebook&utm_medium=social&utm_campaign=pb_daily&utm_content=8787706167205"
+    "url": "https://imovue.com.br/imovel/8787706167205?utm_source=facebook&utm_medium=social&utm_campaign=pb_daily&utm_content=8787706167205",
+    "removed_at": "2026-10-19T18:49:39.635985+00:00",
+    "remove_detail": "deletado via Graph API DELETE"
   },
   {
     "property_id": "8787717366450",
@@ -7995,9 +8077,11 @@
     "scheduled_for": "2026-10-16 14:30",
     "published_at": "",
     "timezone": "America/Sao_Paulo",
-    "status": "skipped",
+    "status": "removed",
     "error": "página desativada ou token ausente",
-    "url": "https://imovue.com.br/imovel/8444428981551?utm_source=facebook&utm_medium=social&utm_campaign=rr_daily&utm_content=8444428981551"
+    "url": "https://imovue.com.br/imovel/8444428981551?utm_source=facebook&utm_medium=social&utm_campaign=rr_daily&utm_content=8444428981551",
+    "removed_at": "2026-10-19T18:49:39.636006+00:00",
+    "remove_detail": "sem post_id; nada a deletar na API"
   },
   {
     "property_id": "8444414692900",
@@ -8031,9 +8115,11 @@
     "scheduled_for": "2026-10-16 14:30",
     "published_at": "2026-10-16T18:16:48.984558+00:00",
     "timezone": "America/Sao_Paulo",
-    "status": "published",
+    "status": "removed",
     "error": "",
-    "url": "https://imovue.com.br/imovel/8444422703169?utm_source=facebook&utm_medium=social&utm_campaign=sc_daily&utm_content=8444422703169"
+    "url": "https://imovue.com.br/imovel/8444422703169?utm_source=facebook&utm_medium=social&utm_campaign=sc_daily&utm_content=8444422703169",
+    "removed_at": "2026-10-19T18:49:43.270891+00:00",
+    "remove_detail": "deletado via Graph API DELETE"
   },
   {
     "property_id": "8444414045646",
@@ -8193,9 +8279,11 @@
     "scheduled_for": "2026-10-17 14:30",
     "published_at": "",
     "timezone": "America/Sao_Paulo",
-    "status": "skipped",
+    "status": "removed",
     "error": "página desativada ou token ausente",
-    "url": "https://imovue.com.br/imovel/8444428137246?utm_source=facebook&utm_medium=social&utm_campaign=ce_daily&utm_content=8444428137246"
+    "url": "https://imovue.com.br/imovel/8444428137246?utm_source=facebook&utm_medium=social&utm_campaign=ce_daily&utm_content=8444428137246",
+    "removed_at": "2026-10-19T18:49:43.270912+00:00",
+    "remove_detail": "sem post_id; nada a deletar na API"
   },
   {
     "property_id": "8444410863492",
@@ -8211,9 +8299,11 @@
     "scheduled_for": "2026-10-17 14:30",
     "published_at": "",
     "timezone": "America/Sao_Paulo",
-    "status": "skipped",
+    "status": "removed",
     "error": "página desativada ou token ausente",
-    "url": "https://imovue.com.br/imovel/8444410863492?utm_source=facebook&utm_medium=social&utm_campaign=df_daily&utm_content=8444410863492"
+    "url": "https://imovue.com.br/imovel/8444410863492?utm_source=facebook&utm_medium=social&utm_campaign=df_daily&utm_content=8444410863492",
+    "removed_at": "2026-10-19T18:49:43.270917+00:00",
+    "remove_detail": "sem post_id; nada a deletar na API"
   },
   {
     "property_id": "10258733",
@@ -8373,9 +8463,11 @@
     "scheduled_for": "2026-10-17 14:30",
     "published_at": "2026-10-17T17:54:20.422760+00:00",
     "timezone": "America/Sao_Paulo",
-    "status": "published",
+    "status": "removed",
     "error": "",
-    "url": "https://imovue.com.br/imovel/8444411406630?utm_source=facebook&utm_medium=social&utm_campaign=pe_daily&utm_content=8444411406630"
+    "url": "https://imovue.com.br/imovel/8444411406630?utm_source=facebook&utm_medium=social&utm_campaign=pe_daily&utm_content=8444411406630",
+    "removed_at": "2026-10-19T18:49:48.396875+00:00",
+    "remove_detail": "deletado via Graph API DELETE"
   },
   {
     "property_id": "1555528828872",
@@ -8427,9 +8519,11 @@
     "scheduled_for": "2026-10-17 14:30",
     "published_at": "2026-10-17T17:54:35.608162+00:00",
     "timezone": "America/Sao_Paulo",
-    "status": "published",
+    "status": "removed",
     "error": "",
-    "url": "https://imovue.com.br/imovel/8555502700680?utm_source=facebook&utm_medium=social&utm_campaign=rj_daily&utm_content=8555502700680"
+    "url": "https://imovue.com.br/imovel/8555502700680?utm_source=facebook&utm_medium=social&utm_campaign=rj_daily&utm_content=8555502700680",
+    "removed_at": "2026-10-19T18:49:54.158909+00:00",
+    "remove_detail": "deletado via Graph API DELETE"
   },
   {
     "property_id": "8444416569685",
@@ -8481,9 +8575,11 @@
     "scheduled_for": "2026-10-17 14:30",
     "published_at": "",
     "timezone": "America/Sao_Paulo",
-    "status": "skipped",
+    "status": "removed",
     "error": "página desativada ou token ausente",
-    "url": "https://imovue.com.br/imovel/8444428981551?utm_source=facebook&utm_medium=social&utm_campaign=rr_daily&utm_content=8444428981551"
+    "url": "https://imovue.com.br/imovel/8444428981551?utm_source=facebook&utm_medium=social&utm_campaign=rr_daily&utm_content=8444428981551",
+    "removed_at": "2026-10-19T18:49:54.158933+00:00",
+    "remove_detail": "sem post_id; nada a deletar na API"
   },
   {
     "property_id": "8444412311217",
@@ -8517,9 +8613,11 @@
     "scheduled_for": "2026-10-17 14:30",
     "published_at": "2026-10-17T17:54:51.037445+00:00",
     "timezone": "America/Sao_Paulo",
-    "status": "published",
+    "status": "removed",
     "error": "",
-    "url": "https://imovue.com.br/imovel/8444423569768?utm_source=facebook&utm_medium=social&utm_campaign=sc_daily&utm_content=8444423569768"
+    "url": "https://imovue.com.br/imovel/8444423569768?utm_source=facebook&utm_medium=social&utm_campaign=sc_daily&utm_content=8444423569768",
+    "removed_at": "2026-10-19T18:49:58.404894+00:00",
+    "remove_detail": "deletado via Graph API DELETE"
   },
   {
     "property_id": "8444426600305",
@@ -8553,9 +8651,11 @@
     "scheduled_for": "2026-10-17 14:30",
     "published_at": "2026-10-17T17:55:00.089621+00:00",
     "timezone": "America/Sao_Paulo",
-    "status": "published",
+    "status": "removed",
     "error": "",
-    "url": "https://imovue.com.br/imovel/8787720717772?utm_source=facebook&utm_medium=social&utm_campaign=sp_daily&utm_content=8787720717772"
+    "url": "https://imovue.com.br/imovel/8787720717772?utm_source=facebook&utm_medium=social&utm_campaign=sp_daily&utm_content=8787720717772",
+    "removed_at": "2026-10-19T18:50:03.244242+00:00",
+    "remove_detail": "deletado via Graph API DELETE"
   },
   {
     "property_id": "10277487",
@@ -8643,9 +8743,11 @@
     "scheduled_for": "2026-10-18 14:30",
     "published_at": "",
     "timezone": "America/Sao_Paulo",
-    "status": "skipped",
+    "status": "removed",
     "error": "página desativada ou token ausente",
-    "url": "https://imovue.com.br/imovel/1444416031717?utm_source=facebook&utm_medium=social&utm_campaign=ba_daily&utm_content=1444416031717"
+    "url": "https://imovue.com.br/imovel/1444416031717?utm_source=facebook&utm_medium=social&utm_campaign=ba_daily&utm_content=1444416031717",
+    "removed_at": "2026-10-19T18:50:03.244263+00:00",
+    "remove_detail": "sem post_id; nada a deletar na API"
   },
   {
     "property_id": "8555518031783",
@@ -8733,9 +8835,11 @@
     "scheduled_for": "2026-10-18 14:30",
     "published_at": "2026-10-18T18:15:29.287830+00:00",
     "timezone": "America/Sao_Paulo",
-    "status": "published",
+    "status": "removed",
     "error": "",
-    "url": "https://imovue.com.br/imovel/8444428620907?utm_source=facebook&utm_medium=social&utm_campaign=go_daily&utm_content=8444428620907"
+    "url": "https://imovue.com.br/imovel/8444428620907?utm_source=facebook&utm_medium=social&utm_campaign=go_daily&utm_content=8444428620907",
+    "removed_at": "2026-10-19T18:50:07.837304+00:00",
+    "remove_detail": "deletado via Graph API DELETE"
   },
   {
     "property_id": "1555508119205",
@@ -8751,9 +8855,11 @@
     "scheduled_for": "2026-10-18 14:30",
     "published_at": "",
     "timezone": "America/Sao_Paulo",
-    "status": "skipped",
+    "status": "removed",
     "error": "página desativada ou token ausente",
-    "url": "https://imovue.com.br/imovel/1555508119205?utm_source=facebook&utm_medium=social&utm_campaign=ma_daily&utm_content=1555508119205"
+    "url": "https://imovue.com.br/imovel/1555508119205?utm_source=facebook&utm_medium=social&utm_campaign=ma_daily&utm_content=1555508119205",
+    "removed_at": "2026-10-19T18:50:07.837331+00:00",
+    "remove_detail": "sem post_id; nada a deletar na API"
   },
   {
     "property_id": "8444407324721",
@@ -8787,9 +8893,11 @@
     "scheduled_for": "2026-10-18 14:30",
     "published_at": "",
     "timezone": "America/Sao_Paulo",
-    "status": "skipped",
+    "status": "removed",
     "error": "página desativada ou token ausente",
-    "url": "https://imovue.com.br/imovel/8787715335913?utm_source=facebook&utm_medium=social&utm_campaign=ms_daily&utm_content=8787715335913"
+    "url": "https://imovue.com.br/imovel/8787715335913?utm_source=facebook&utm_medium=social&utm_campaign=ms_daily&utm_content=8787715335913",
+    "removed_at": "2026-10-19T18:50:07.837336+00:00",
+    "remove_detail": "sem post_id; nada a deletar na API"
   },
   {
     "property_id": "1444419115369",
@@ -8949,9 +9057,11 @@
     "scheduled_for": "2026-10-18 14:30",
     "published_at": "",
     "timezone": "America/Sao_Paulo",
-    "status": "skipped",
+    "status": "removed",
     "error": "página desativada ou token ausente",
-    "url": "https://imovue.com.br/imovel/10206961?utm_source=facebook&utm_medium=social&utm_campaign=ro_daily&utm_content=10206961"
+    "url": "https://imovue.com.br/imovel/10206961?utm_source=facebook&utm_medium=social&utm_campaign=ro_daily&utm_content=10206961",
+    "removed_at": "2026-10-19T18:50:07.837341+00:00",
+    "remove_detail": "sem post_id; nada a deletar na API"
   },
   {
     "property_id": "8444429349786",
@@ -9003,9 +9113,11 @@
     "scheduled_for": "2026-10-18 14:30",
     "published_at": "2026-10-18T18:16:15.038682+00:00",
     "timezone": "America/Sao_Paulo",
-    "status": "published",
+    "status": "removed",
     "error": "",
-    "url": "https://imovue.com.br/imovel/8555533705676?utm_source=facebook&utm_medium=social&utm_campaign=sc_daily&utm_content=8555533705676"
+    "url": "https://imovue.com.br/imovel/8555533705676?utm_source=facebook&utm_medium=social&utm_campaign=sc_daily&utm_content=8555533705676",
+    "removed_at": "2026-10-19T18:50:13.528387+00:00",
+    "remove_detail": "deletado via Graph API DELETE"
   },
   {
     "property_id": "8444417593393",
@@ -9039,9 +9151,11 @@
     "scheduled_for": "2026-10-18 14:30",
     "published_at": "2026-10-18T18:16:19.931284+00:00",
     "timezone": "America/Sao_Paulo",
-    "status": "published",
+    "status": "removed",
     "error": "",
-    "url": "https://imovue.com.br/imovel/8787713595381?utm_source=facebook&utm_medium=social&utm_campaign=sp_daily&utm_content=8787713595381"
+    "url": "https://imovue.com.br/imovel/8787713595381?utm_source=facebook&utm_medium=social&utm_campaign=sp_daily&utm_content=8787713595381",
+    "removed_at": "2026-10-19T18:50:19.914471+00:00",
+    "remove_detail": "deletado via Graph API DELETE"
   },
   {
     "property_id": "10277487",
